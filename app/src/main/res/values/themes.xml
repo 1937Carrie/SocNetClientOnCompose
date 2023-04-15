@@ -2,6 +2,6 @@
 <resources>
 
     <style name="Theme.SocialNetworkClient" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/blue</item>
+        <item name="android:statusBarColor">@color/custom_blue</item>
     </style>
 </resources>
