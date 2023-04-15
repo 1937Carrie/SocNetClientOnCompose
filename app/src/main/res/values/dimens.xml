@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- MyProfile screen   -->
+    <dimen name="myprofile_settings_text_fontsize">24sp</dimen>
+    <dimen name="myprofile_padding">16dp</dimen>
+    <dimen name="myprofile_image_size">113dp</dimen>
+    <dimen name="myprofile_padding_bigger">22dp</dimen>
+    <dimen name="myprofile_username_text_fontsize">18sp</dimen>
+    <dimen name="myprofile_padding_smaller">8dp</dimen>
+    <dimen name="myprofile_user_profession_text_fontsize">14sp</dimen>
+    <dimen name="myprofile_spacer_normal">32dp</dimen>
+    <dimen name="myprofile_spacer_bigger">48dp</dimen>
+    <dimen name="myprofile_button_editprofile_height">40dp</dimen>
+    <dimen name="myprofile_button_editprofile_border_width">2dp</dimen>
+    <dimen name="myprofile_button_editprofile_fotsize">14sp</dimen>
+    <dimen name="rounded_corner_size">6dp</dimen>
+    <dimen name="myprofile_button_viewmycontacts_height">55dp</dimen>
+
+
+</resources>
