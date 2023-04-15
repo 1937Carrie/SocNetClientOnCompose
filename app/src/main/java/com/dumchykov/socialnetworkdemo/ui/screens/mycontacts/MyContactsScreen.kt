@@ -7,15 +7,18 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -24,8 +27,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -38,6 +44,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -88,6 +95,7 @@ import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray828282
 import com.dumchykov.socialnetworkdemo.ui.theme.GrayBDBDBD
+import com.dumchykov.socialnetworkdemo.ui.theme.GrayE7E7E7
 import com.dumchykov.socialnetworkdemo.ui.theme.GrayText
 import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
 import com.dumchykov.socialnetworkdemo.ui.theme.Orange
@@ -101,6 +109,7 @@ import kotlinx.coroutines.launch
 fun MyContactsScreen(
     padding: PaddingValues,
     navController: NavHostController,
+    pagerState: PagerState,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -132,7 +141,11 @@ fun MyContactsScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
+                    IconButton(onClick = {
+                        scope.launch {
+                            pagerState.scrollToPage(0)
+                        }
+                    }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Localized description",
@@ -149,13 +162,33 @@ fun MyContactsScreen(
                         )
                     }
                 },
+                windowInsets = WindowInsets(0.dp),
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Blue,
                     titleContentColor = White,
                 ),
             )
         },
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        floatingActionButton = {
+            if (myContactsState.isMultiselect) {
+                IconButton(
+                    onClick = { viewModel.deleteSelected() },
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(Orange)
+                        .padding(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = "Icon delete selected contacts",
+                        modifier = Modifier.size(60.dp),
+                        tint = White
+                    )
+                }
+            }
+        },
+        floatingActionButtonPosition = FabPosition.EndOverlay
     ) { contentPadding ->
         Column(
             modifier = Modifier
@@ -181,7 +214,7 @@ fun MyContactsScreen(
                 )
             }
             ContactsColumn(
-                myContactsState.contacts,
+                myContactsState,
                 viewModel,
                 scope,
                 snackbarHostState,
@@ -202,7 +235,7 @@ fun MyContactsScreen(
 
 @Composable
 private fun ContactsColumn(
-    contacts: List<Contact>,
+    myContactsState: MyContactsState,
     viewModel: MyContactsViewModel,
     scope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
@@ -214,9 +247,11 @@ private fun ContactsColumn(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        itemsIndexed(contacts, { _, item -> item }) { index, contact ->
+        itemsIndexed(myContactsState.contacts, { _, item -> item }) { index, contact ->
             SwipeableContainer(
                 contact = contact,
+                myContactsState = myContactsState,
+                viewModel = viewModel,
                 onDelete = {
                     viewModel.deleteContact(it)
                     scope.launch {
@@ -250,6 +285,8 @@ private fun ContactsColumn(
 @Composable
 private fun SwipeableContainer(
     contact: Contact,
+    myContactsState: MyContactsState,
+    viewModel: MyContactsViewModel,
     onDelete: (Contact) -> Unit,
     navController: NavController,
     animationDuration: Int = 500,
@@ -287,9 +324,10 @@ private fun SwipeableContainer(
 //                DeleteBackground(swipeDismissState = state)
             },
             content = {
-                ItemContact(state, contact, onDelete, navController)
+                ItemContact(state, myContactsState, viewModel, contact, onDelete, navController)
             },
-            enableDismissFromStartToEnd = false
+            enableDismissFromStartToEnd = false,
+            enableDismissFromEndToStart = myContactsState.isMultiselect.not()
         )
     }
     LaunchedEffect(isRemoved) {
@@ -301,9 +339,11 @@ private fun SwipeableContainer(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 private fun ItemContact(
     state: SwipeToDismissBoxState,
+    myContactsState: MyContactsState,
+    viewModel: MyContactsViewModel,
     contact: Contact,
     onDelete: (Contact) -> Unit,
     navController: NavController,
@@ -313,11 +353,42 @@ private fun ItemContact(
             .fillMaxWidth()
             .border(1.dp, Gray, RoundedCornerShape(6.dp))
             .clip(RoundedCornerShape(6.dp))
-            .clickable { navController.navigate(Detail(contact)) }
+            .background(if (myContactsState.isMultiselect) GrayE7E7E7 else White)
+            .combinedClickable(
+                onLongClick = {
+                    if (myContactsState.isMultiselect.not()) {
+                        viewModel.changeContactSelectedState(contact)
+                    }
+                },
+                onClick = {
+                    when (myContactsState.isMultiselect) {
+                        true -> {
+                            viewModel.changeContactSelectedState(contact)
+                        }
+
+                        false -> {
+                            navController.navigate(Detail(contact))
+                        }
+                    }
+                }
+            )
             .padding(8.dp)
             .height(50.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        if (myContactsState.isMultiselect) {
+            Image(
+                painter = painterResource(if (contact.isChecked) R.drawable.circle_checked else R.drawable.circle_gray),
+                contentDescription = "multiselect state",
+                modifier = Modifier
+                    .padding(8.dp)
+                    .clip(CircleShape)
+                    .clickable {
+                        viewModel.changeContactSelectedState(contact)
+                    }
+            )
+        }
         val image = if (state.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
             R.drawable.black_guy_disappointed
         } else R.drawable.black_guy_happy
@@ -350,13 +421,14 @@ private fun ItemContact(
                 fontFamily = OPENS_SANS
             )
         }
-        IconButton(onClick = { onDelete(contact) }) {
-            Icon(
-                imageVector = Icons.Filled.Delete,
-                contentDescription = "Localized description",
-                tint = Orange
-            )
-        }
+        if (myContactsState.isMultiselect.not())
+            IconButton(onClick = { onDelete(contact) }) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "Localized description",
+                    tint = Orange
+                )
+            }
     }
 }
 
@@ -532,7 +604,7 @@ private fun DialogTextField(state: MutableState<String>, label: String) {
 @Preview(showBackground = true)
 @Composable
 fun MyContactsScreenPreview() {
-    MyContactsScreen(padding = PaddingValues(0.dp), navController = rememberNavController())
+    MyContactsScreen(PaddingValues(0.dp), rememberNavController(), rememberPagerState { 2 })
 }
 
 @Preview(showBackground = true)

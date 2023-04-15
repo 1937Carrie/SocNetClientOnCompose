@@ -14,3 +14,6 @@ data object MyContacts
 
 @Serializable
 data class Detail(val contact: Contact)
+
+@Serializable
+data class Pager(val email: String)
