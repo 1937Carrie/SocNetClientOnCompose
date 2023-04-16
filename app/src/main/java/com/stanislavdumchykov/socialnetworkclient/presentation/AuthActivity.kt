@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -28,9 +29,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.stanislavdumchykov.socialnetworkclient.R
+import com.stanislavdumchykov.socialnetworkclient.data.UserStore
 import com.stanislavdumchykov.socialnetworkclient.presentation.navigation.Routes
 import com.stanislavdumchykov.socialnetworkclient.presentation.navigation.SetupNavGraph
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 private const val PERCENT_40 = 0.4f
 private const val PERCENT_60 = 0.6f
@@ -40,6 +47,7 @@ private const val PASSWORD_PATTERN = "\\d+|\\w+"
 class AuthActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             SetupNavGraph(navController = rememberNavController())
         }
@@ -52,7 +60,24 @@ fun DrawSignUp(navController: NavHostController = rememberNavController()) {
     var isErrorEmail by rememberSaveable { mutableStateOf(false) }
     var password by rememberSaveable { mutableStateOf("") }
     var isErrorPassword by rememberSaveable { mutableStateOf(false) }
+    var autologinState by remember { mutableStateOf(true) }
+    val currentContext = LocalContext.current
+    val store = UserStore(currentContext)
 
+    LaunchedEffect(Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val emailValue = store.getEmailToken.first()
+            val passwordValue = store.getPasswordToken.first()
+            if (emailValue.isNotEmpty()) {
+                email = emailValue
+                password = passwordValue
+
+                CoroutineScope(Dispatchers.Main).launch {
+                    navController.navigate(route = "${Routes.MyProfile.route}/$emailValue")
+                }
+            }
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -145,7 +170,20 @@ fun DrawSignUp(navController: NavHostController = rememberNavController()) {
             Row(
                 modifier = Modifier.padding(vertical = dimensionResource(R.dimen.signup_padding_bigger))
             ) {
-                DrawCheckBoxIcon()
+                Box(
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(painter = painterResource(R.drawable.ic_checkbox_background),
+                        contentDescription = "",
+                        modifier = Modifier.clickable { autologinState = !autologinState })
+                    if (autologinState) {
+                        Image(
+                            painter = painterResource(R.drawable.ic_checkbox_checker),
+                            contentDescription = "",
+                        )
+                    }
+
+                }
                 DrawCheckBoxText()
             }
         }
@@ -178,6 +216,14 @@ fun DrawSignUp(navController: NavHostController = rememberNavController()) {
                             !(password.length >= PASSWORD_MIN_LENGTH && password.contains(
                                 Regex(PASSWORD_PATTERN)
                             ))
+
+                        if (autologinState) {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                store.saveToken(Constants.PREFERENCES_EMAIL, email)
+                                store.saveToken(Constants.PREFERENCES_PASSWORD, password)
+                            }
+                        }
+
                         if (!(isErrorEmail && isErrorPassword)) {
                             navController.navigate(route = "${Routes.MyProfile.route}/$email")
                         }
@@ -279,26 +325,6 @@ private fun DrawCheckBoxText() {
         fontSize = dimensionResource(R.dimen.signup_text_rememberme_fontsize).value.sp,
         fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD
     )
-}
-
-@Composable
-private fun DrawCheckBoxIcon() {
-    var checkboxState by remember { mutableStateOf(true) }
-
-    Box(
-        contentAlignment = Alignment.Center
-    ) {
-        Image(painter = painterResource(R.drawable.ic_checkbox_background),
-            contentDescription = "",
-            modifier = Modifier.clickable { checkboxState = !checkboxState })
-        if (checkboxState) {
-            Image(
-                painter = painterResource(R.drawable.ic_checkbox_checker),
-                contentDescription = "",
-            )
-        }
-
-    }
 }
 
 @Composable
