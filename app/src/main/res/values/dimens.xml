@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Common values -->
+    <dimen name="rounded_corner_size">6dp</dimen>
+
     <!-- MyProfile screen   -->
     <dimen name="myprofile_settings_text_fontsize">24sp</dimen>
     <dimen name="myprofile_padding">16dp</dimen>
@@ -12,9 +15,22 @@
     <dimen name="myprofile_spacer_bigger">48dp</dimen>
     <dimen name="myprofile_button_editprofile_height">40dp</dimen>
     <dimen name="myprofile_button_editprofile_border_width">2dp</dimen>
-    <dimen name="myprofile_button_editprofile_fotsize">14sp</dimen>
-    <dimen name="rounded_corner_size">6dp</dimen>
+    <dimen name="myprofile_button_editprofile_fontsize">14sp</dimen>
     <dimen name="myprofile_button_viewmycontacts_height">55dp</dimen>
 
+    <!-- SignUp screen   -->
+    <dimen name="signup_text_letgetacquainted_size">24sp</dimen>
+    <dimen name="signup_text_fillouttheprofile_size">12sp</dimen>
+    <dimen name="signup_padding">8dp</dimen>
+    <dimen name="signup_padding_bigger">16dp</dimen>
+    <dimen name="signup_text_padding">12dp</dimen>
+    <dimen name="signup_googlebutton_height">40dp</dimen>
+    <dimen name="signup_registerbutton_height">55dp</dimen>
+    <dimen name="signup_text_rememberme_fontsize">14sp</dimen>
+    <dimen name="signup_text_or_fontsize">18sp</dimen>
+    <dimen name="signup_text_register_letterspacing">1.5sp</dimen>
+    <dimen name="signup_text_register_fontsize">16sp</dimen>
+    <dimen name="signup_text_termandconditions_fontsize">12sp</dimen>
+    <dimen name="signup_text_signin_fontsize">14sp</dimen>
 
 </resources>

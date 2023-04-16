@@ -4,7 +4,9 @@
     <color name="white">#FFFFFFFF</color>
     <color name="custom_blue">#FF242235</color>
     <color name="custom_white">#FFFAFAFA</color>
-    <color name="custom_gray">#FFB2B2B3</color>
-    <color name="custom_orange">#FB5E06</color>
     <color name="custom_gray_text">#18181F</color>
+    <color name="custom_gray_2">#FFB2B2B3</color>
+    <color name="custom_gray_4">#BDBDBD</color>
+    <color name="custom_orange">#FB5E06</color>
+
 </resources>

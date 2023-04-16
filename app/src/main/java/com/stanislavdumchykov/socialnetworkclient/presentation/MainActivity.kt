@@ -21,11 +21,9 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.sp
 import com.stanislavdumchykov.socialnetworkclient.R
-import com.stanislavdumchykov.socialnetworkclient.presentation.MainActivity.Fonts.FONT_OPENSANS_SEMI_BOLD
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,14 +32,10 @@ class MainActivity : ComponentActivity() {
             DrawScreen()
         }
     }
-
-    companion object Fonts {
-        val FONT_OPENSANS_SEMI_BOLD = FontFamily(Font(R.font.opensans_semi_bold))
-    }
 }
 
 @Composable
-fun DrawScreen() {
+private fun DrawScreen() {
     DrawBackGround()
     Column {
         DrawTopBlock()
@@ -50,7 +44,7 @@ fun DrawScreen() {
 }
 
 @Composable
-fun DrawBottomBlock() {
+private fun DrawBottomBlock() {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -76,7 +70,7 @@ fun DrawBottomBlock() {
 }
 
 @Composable
-fun DrawButtonViewMyContacts() {
+private fun DrawButtonViewMyContacts() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -89,39 +83,39 @@ fun DrawButtonViewMyContacts() {
         Text(
             text = stringResource(R.string.myprofile_button_viewmycontacts).uppercase(),
             color = colorResource(R.color.white),
-            fontSize = dimensionResource(R.dimen.myprofile_button_editprofile_fotsize).value.sp,
-            fontFamily = FONT_OPENSANS_SEMI_BOLD,
+            fontSize = dimensionResource(R.dimen.myprofile_button_editprofile_fontsize).value.sp,
+            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
         )
     }
 }
 
 @Composable
-fun DrawButtonEditProfile() {
+private fun DrawButtonEditProfile() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(dimensionResource(R.dimen.myprofile_button_editprofile_height))
+            .background(color = Color.Transparent)
+            .clip(RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size)))
+            .clickable { }
             .border(
                 dimensionResource(R.dimen.myprofile_button_editprofile_border_width),
                 colorResource(R.color.custom_blue),
                 RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size))
-            )
-            .background(color = Color.Transparent)
-            .clip(RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size)))
-            .clickable { },
+            ),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = stringResource(R.string.myprofile_button_editprofile),
             color = colorResource(R.color.custom_gray_text),
-            fontSize = dimensionResource(R.dimen.myprofile_button_editprofile_fotsize).value.sp,
-            fontFamily = FONT_OPENSANS_SEMI_BOLD,
+            fontSize = dimensionResource(R.dimen.myprofile_button_editprofile_fontsize).value.sp,
+            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
         )
     }
 }
 
 @Composable
-fun DrawSocialNetworkLinksBlock() {
+private fun DrawSocialNetworkLinksBlock() {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -151,7 +145,7 @@ fun DrawSocialNetworkLinksBlock() {
 }
 
 @Composable
-fun DrawTopBlock() {
+private fun DrawTopBlock() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -163,7 +157,7 @@ fun DrawTopBlock() {
 }
 
 @Composable
-fun DrawUserInfo() {
+private fun DrawUserInfo() {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -185,39 +179,39 @@ fun DrawUserInfo() {
             text = stringResource(R.string.myprofile_text_username),
             color = colorResource(R.color.custom_white),
             fontSize = dimensionResource(R.dimen.myprofile_username_text_fontsize).value.sp,
-            fontFamily = FONT_OPENSANS_SEMI_BOLD,
+            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
         )
         Text(
             text = stringResource(R.string.myprofile_text_user_profession),
             modifier = Modifier.padding(top = dimensionResource(R.dimen.myprofile_padding_smaller)),
-            color = colorResource(R.color.custom_gray),
+            color = colorResource(R.color.custom_gray_2),
             fontSize = dimensionResource(R.dimen.myprofile_user_profession_text_fontsize).value.sp,
-            fontFamily = FONT_OPENSANS_SEMI_BOLD,
+            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
         )
         Text(
             text = stringResource(R.string.myprofile_text_user_address),
             modifier = Modifier.padding(top = dimensionResource(R.dimen.myprofile_padding)),
-            color = colorResource(R.color.custom_gray),
+            color = colorResource(R.color.custom_gray_2),
             fontSize = dimensionResource(R.dimen.myprofile_user_profession_text_fontsize).value.sp,
-            fontFamily = FONT_OPENSANS_SEMI_BOLD,
+            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
         )
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.myprofile_spacer_normal)))
     }
 }
 
 @Composable
-fun DrawText() {
+private fun DrawText() {
     Text(
         text = stringResource(R.string.myprofile_text_settings),
         modifier = Modifier.padding(dimensionResource(R.dimen.myprofile_padding)),
         color = colorResource(R.color.custom_white),
         fontSize = dimensionResource(R.dimen.myprofile_settings_text_fontsize).value.sp,
-        fontFamily = FONT_OPENSANS_SEMI_BOLD,
+        fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
     )
 }
 
 @Composable
-fun DrawBackGround() {
+private fun DrawBackGround() {
     Box(
         modifier = Modifier
             .background(color = colorResource(R.color.custom_blue))

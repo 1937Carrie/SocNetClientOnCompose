@@ -8,4 +8,20 @@
     <string name="myprofile_text_user_address">5295 Gaylord Walks Apk. 110</string>
     <string name="myprofile_button_editprofile">Edit profile</string>
     <string name="myprofile_button_viewmycontacts">View my contacts</string>
+
+    <!-- SignUp screen   -->
+    <string name="signup_text_letgetacquainted">Let\'s get acquainted</string>
+    <string name="signup_text_fillouttheprofile">Fill out the profile and go to the application!</string>
+    <string name="signup_text_email">Email</string>
+    <string name="signup_text_email_error">Not valid email</string>
+    <string name="signup_text_password">Password</string>
+    <string name="signup_text_password_error">Not valid password</string>
+    <string name="signup_text_rememberme">Remember me</string>
+    <string name="signup_text_google">google</string>
+    <string name="signup_text_or">or</string>
+    <string name="signup_text_register">Register</string>
+    <string name="signup_text_termsandcondition">By clicking Register you agree to our Terms and Conditions</string>
+    <string name="signup_text_alreadyhaveaccount">Already have an account?</string>
+    <string name="signup_text_signin">Sign in</string>
+
 </resources>
