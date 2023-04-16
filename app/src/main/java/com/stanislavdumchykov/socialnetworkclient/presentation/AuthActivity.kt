@@ -179,7 +179,7 @@ fun DrawSignUp(navController: NavHostController = rememberNavController()) {
                                 Regex(PASSWORD_PATTERN)
                             ))
                         if (!(isErrorEmail && isErrorPassword)) {
-                            navController.navigate(route = Routes.MyProfile.route)
+                            navController.navigate(route = "${Routes.MyProfile.route}/$email")
                         }
                     }
                     .border(

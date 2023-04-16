@@ -1,8 +1,6 @@
 package com.stanislavdumchykov.socialnetworkclient.presentation
 
-import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,23 +20,23 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
+import java.util.*
 
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            DrawMyProfile()
-        }
-    }
-}
+private const val PERCENT_33 = 0.33f
+private const val PERCENT_50 = 0.5f
+private const val PERCENT_60 = 0.6f
+private const val PERCENT_100 = 1f
+
+class MainActivity : ComponentActivity()
 
 @Composable
-fun DrawMyProfile() {
+fun DrawMyProfile(navController: NavController, email: String) {
     DrawBackGround()
     Column {
-        DrawTopBlock()
+        DrawTopBlock(email.substring(0, email.indexOf('@')))
         DrawBottomBlock()
     }
 }
@@ -52,7 +50,7 @@ private fun DrawBottomBlock() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.6f),
+                .fillMaxHeight(PERCENT_60),
             verticalArrangement = Arrangement.Center,
         ) {
             DrawSocialNetworkLinksBlock()
@@ -145,19 +143,19 @@ private fun DrawSocialNetworkLinksBlock() {
 }
 
 @Composable
-private fun DrawTopBlock() {
+private fun DrawTopBlock(email: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.5f),
+            .fillMaxHeight(PERCENT_50),
     ) {
         DrawText()
-        DrawUserInfo()
+        DrawUserInfo(email)
     }
 }
 
 @Composable
-private fun DrawUserInfo() {
+private fun DrawUserInfo(email: String) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -167,16 +165,25 @@ private fun DrawUserInfo() {
             painter = painterResource(R.drawable.default_profile_image),
             contentDescription = "",
             modifier = Modifier
-                .fillMaxWidth(0.33f)
-                .aspectRatio(1f)
+                .fillMaxWidth(PERCENT_33)
+                .aspectRatio(PERCENT_100)
                 .clip(
                     CircleShape
                 ),
             contentScale = ContentScale.Crop
         )
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.myprofile_spacer_bigger)))
+        val splittedEmail = email.split('.')
         Text(
-            text = stringResource(R.string.myprofile_text_username),
+            text = if (splittedEmail.size == 2) "${
+                splittedEmail[0].replaceFirstChar {
+                    it.titlecase(Locale.ROOT)
+                }
+            } ${
+                splittedEmail[1].replaceFirstChar {
+                    it.titlecase(Locale.ROOT)
+                }
+            }" else email,
             color = colorResource(R.color.custom_white),
             fontSize = dimensionResource(R.dimen.myprofile_username_text_fontsize).value.sp,
             fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
@@ -216,6 +223,6 @@ private fun DrawBackGround() {
         modifier = Modifier
             .background(color = colorResource(R.color.custom_blue))
             .fillMaxWidth()
-            .fillMaxHeight(0.5f)
+            .fillMaxHeight(PERCENT_50)
     )
 }
