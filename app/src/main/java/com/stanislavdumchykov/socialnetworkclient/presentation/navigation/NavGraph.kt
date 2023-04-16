@@ -19,9 +19,9 @@ fun SetupNavGraph(navController: NavHostController) {
             DrawSignUp(navController = navController)
         }
         composable(
-            route = Routes.MyProfile.route
+            route = "${Routes.MyProfile.route}/{email}",
         ) {
-            DrawMyProfile()
+            DrawMyProfile(navController, it.arguments?.getString("email") ?: "")
         }
     }
 }
