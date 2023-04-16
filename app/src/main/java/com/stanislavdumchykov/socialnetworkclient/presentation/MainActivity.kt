@@ -29,13 +29,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            DrawScreen()
+            DrawMyProfile()
         }
     }
 }
 
 @Composable
-private fun DrawScreen() {
+fun DrawMyProfile() {
     DrawBackGround()
     Column {
         DrawTopBlock()

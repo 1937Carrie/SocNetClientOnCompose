@@ -25,7 +25,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.stanislavdumchykov.socialnetworkclient.R
+import com.stanislavdumchykov.socialnetworkclient.presentation.navigation.Routes
+import com.stanislavdumchykov.socialnetworkclient.presentation.navigation.SetupNavGraph
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 
 private const val PERCENT_40 = 0.4f
@@ -37,17 +41,18 @@ class AuthActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            DrawScreen()
+            SetupNavGraph(navController = rememberNavController())
         }
     }
 }
 
 @Composable
-private fun DrawScreen() {
+fun DrawSignUp(navController: NavHostController = rememberNavController()) {
     var email by rememberSaveable { mutableStateOf("") }
     var isErrorEmail by rememberSaveable { mutableStateOf(false) }
     var password by rememberSaveable { mutableStateOf("") }
     var isErrorPassword by rememberSaveable { mutableStateOf(false) }
+
 
     Box(
         modifier = Modifier
@@ -173,6 +178,9 @@ private fun DrawScreen() {
                             !(password.length >= PASSWORD_MIN_LENGTH && password.contains(
                                 Regex(PASSWORD_PATTERN)
                             ))
+                        if (!(isErrorEmail && isErrorPassword)) {
+                            navController.navigate(route = Routes.MyProfile.route)
+                        }
                     }
                     .border(
                         dimensionResource(R.dimen.myprofile_button_editprofile_border_width),
