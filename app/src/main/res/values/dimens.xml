@@ -32,5 +32,6 @@
     <dimen name="signup_text_register_fontsize">16sp</dimen>
     <dimen name="signup_text_termandconditions_fontsize">12sp</dimen>
     <dimen name="signup_text_signin_fontsize">14sp</dimen>
+    <dimen name="signup_error_text_fontsize">12sp</dimen>
 
 </resources>

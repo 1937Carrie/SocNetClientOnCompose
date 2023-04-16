@@ -1,6 +1,7 @@
 package com.stanislavdumchykov.socialnetworkclient.presentation
 
 import android.os.Bundle
+import android.util.Patterns
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -22,12 +23,15 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.sp
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 
 private const val PERCENT_40 = 0.4f
 private const val PERCENT_60 = 0.6f
+private const val PASSWORD_MIN_LENGTH = 8
+private const val PASSWORD_PATTERN = "\\d+|\\w+"
 
 class AuthActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +44,16 @@ class AuthActivity : ComponentActivity() {
 
 @Composable
 private fun DrawScreen() {
-    DrawBackground()
+    var email by rememberSaveable { mutableStateOf("") }
+    var isErrorEmail by rememberSaveable { mutableStateOf(false) }
+    var password by rememberSaveable { mutableStateOf("") }
+    var isErrorPassword by rememberSaveable { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colorResource(R.color.custom_blue))
+    )
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -48,27 +61,84 @@ private fun DrawScreen() {
             modifier = Modifier
                 .padding(dimensionResource(R.dimen.signup_padding_bigger))
                 .fillMaxWidth()
-                .fillMaxHeight(PERCENT_60),
-            verticalArrangement = Arrangement.Center
+                .fillMaxHeight(PERCENT_60), verticalArrangement = Arrangement.Center
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 DrawFirstText()
                 DrawSecondText()
                 Column(
-                    modifier = Modifier
-                        .padding(vertical = dimensionResource(R.dimen.signup_padding_bigger))
+                    modifier = Modifier.padding(vertical = dimensionResource(R.dimen.signup_padding_bigger))
                 ) {
-                    DrawEmailField()
-                    DrawPasswordField()
+                    TextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = {
+                            Text(
+                                text = stringResource(R.string.signup_text_email),
+                                color = colorResource(R.color.custom_gray_4)
+                            )
+                        },
+                        isError = isErrorEmail,
+                        colors = TextFieldDefaults.textFieldColors(
+                            textColor = colorResource(R.color.custom_white),
+                            backgroundColor = Color.Transparent,
+                            cursorColor = colorResource(R.color.custom_white),
+                            errorCursorColor = colorResource(R.color.custom_white),
+                            focusedIndicatorColor = colorResource(R.color.custom_gray_4),
+                            unfocusedIndicatorColor = colorResource(R.color.custom_gray_4),
+                            disabledIndicatorColor = colorResource(R.color.custom_gray_4),
+                            errorIndicatorColor = colorResource(R.color.custom_gray_4),
+                        )
+                    )
+                    if (isErrorEmail) {
+                        Text(
+                            text = stringResource(R.string.signup_text_email_error),
+                            modifier = Modifier.padding(start = dimensionResource(R.dimen.signup_padding_bigger)),
+                            color = colorResource(R.color.custom_error),
+                            fontSize = dimensionResource(R.dimen.signup_error_text_fontsize).value.sp,
+                            fontFamily = Fonts.FONT_OPENSANS,
+                        )
+                    }
+                    TextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = {
+                            Text(
+                                text = stringResource(R.string.signup_text_password),
+                                color = colorResource(R.color.custom_gray_4)
+                            )
+                        },
+                        isError = isErrorPassword,
+                        visualTransformation = PasswordVisualTransformation(),
+                        colors = TextFieldDefaults.textFieldColors(
+                            textColor = colorResource(R.color.custom_white),
+                            backgroundColor = Color.Transparent,
+                            cursorColor = colorResource(R.color.custom_white),
+                            errorCursorColor = colorResource(R.color.custom_white),
+                            focusedIndicatorColor = colorResource(R.color.custom_gray_4),
+                            unfocusedIndicatorColor = colorResource(R.color.custom_gray_4),
+                            disabledIndicatorColor = colorResource(R.color.custom_gray_4),
+                            errorIndicatorColor = colorResource(R.color.custom_gray_4),
+                        )
+                    )
+                    if (isErrorPassword) {
+                        Text(
+                            text = stringResource(R.string.signup_text_password_error),
+                            modifier = Modifier.padding(start = dimensionResource(R.dimen.signup_padding_bigger)),
+                            color = colorResource(R.color.custom_error),
+                            fontSize = dimensionResource(R.dimen.signup_error_text_fontsize).value.sp,
+                            fontFamily = Fonts.FONT_OPENSANS,
+                        )
+                    }
                 }
             }
             Row(
-                modifier = Modifier
-                    .padding(vertical = dimensionResource(R.dimen.signup_padding_bigger))
+                modifier = Modifier.padding(vertical = dimensionResource(R.dimen.signup_padding_bigger))
             ) {
                 DrawCheckBoxIcon()
                 DrawCheckBoxText()
@@ -89,7 +159,36 @@ private fun DrawScreen() {
         ) {
             DrawGoogleButton()
             DrawOrText()
-            DrawRegisterButton()
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(dimensionResource(R.dimen.signup_registerbutton_height))
+                    .background(Color.Transparent)
+                    .clip(RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size)))
+                    .clickable {
+                        isErrorEmail = !Patterns.EMAIL_ADDRESS
+                            .matcher(email)
+                            .matches()
+                        isErrorPassword =
+                            !(password.length >= PASSWORD_MIN_LENGTH && password.contains(
+                                Regex(PASSWORD_PATTERN)
+                            ))
+                    }
+                    .border(
+                        dimensionResource(R.dimen.myprofile_button_editprofile_border_width),
+                        colorResource(R.color.custom_orange),
+                        RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size))
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = stringResource(R.string.signup_text_register).uppercase(),
+                    color = colorResource(R.color.custom_white),
+                    fontSize = dimensionResource(R.dimen.signup_text_register_fontsize).value.sp,
+                    fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+                    letterSpacing = dimensionResource(R.dimen.signup_text_register_letterspacing).value.sp
+                )
+            }
             DrawTermAndConditionsText()
             DrawAlreadyHaveAccountText()
         }
@@ -129,32 +228,6 @@ private fun DrawTermAndConditionsText() {
 }
 
 @Composable
-private fun DrawRegisterButton() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(dimensionResource(R.dimen.signup_registerbutton_height))
-            .background(Color.Transparent)
-            .clip(RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size)))
-            .clickable { }
-            .border(
-                dimensionResource(R.dimen.myprofile_button_editprofile_border_width),
-                colorResource(R.color.custom_orange),
-                RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size))
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = stringResource(R.string.signup_text_register).uppercase(),
-            color = colorResource(R.color.custom_white),
-            fontSize = dimensionResource(R.dimen.signup_text_register_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
-            letterSpacing = dimensionResource(R.dimen.signup_text_register_letterspacing).value.sp
-        )
-    }
-}
-
-@Composable
 private fun DrawOrText() {
     Text(
         text = stringResource(R.string.signup_text_or),
@@ -176,12 +249,10 @@ private fun DrawGoogleButton() {
         contentAlignment = Alignment.Center
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
         ) {
             Image(
-                painter = painterResource(R.drawable.ic_google),
-                contentDescription = ""
+                painter = painterResource(R.drawable.ic_google), contentDescription = ""
             )
             Text(
                 text = stringResource(R.string.signup_text_google).uppercase(),
@@ -192,7 +263,7 @@ private fun DrawGoogleButton() {
 }
 
 @Composable
-fun DrawCheckBoxText() {
+private fun DrawCheckBoxText() {
     Text(
         text = stringResource(R.string.signup_text_rememberme),
         modifier = Modifier.padding(start = dimensionResource(R.dimen.signup_padding)),
@@ -203,18 +274,15 @@ fun DrawCheckBoxText() {
 }
 
 @Composable
-fun DrawCheckBoxIcon() {
+private fun DrawCheckBoxIcon() {
     var checkboxState by remember { mutableStateOf(true) }
 
     Box(
         contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = painterResource(R.drawable.ic_checkbox_background),
+        Image(painter = painterResource(R.drawable.ic_checkbox_background),
             contentDescription = "",
-            modifier = Modifier
-                .clickable { checkboxState = !checkboxState }
-        )
+            modifier = Modifier.clickable { checkboxState = !checkboxState })
         if (checkboxState) {
             Image(
                 painter = painterResource(R.drawable.ic_checkbox_checker),
@@ -226,82 +294,10 @@ fun DrawCheckBoxIcon() {
 }
 
 @Composable
-private fun DrawPasswordField() {
-    var password by rememberSaveable { mutableStateOf("") }
-    var isError by rememberSaveable { mutableStateOf(false) }
-
-    TextField(
-        value = password,
-        onValueChange = { password = it },
-        modifier = Modifier
-            .fillMaxWidth(),
-        label = {
-            Text(
-                text = stringResource(R.string.signup_text_password),
-                color = colorResource(R.color.custom_gray_4)
-            )
-        },
-        colors = TextFieldDefaults.textFieldColors(
-            textColor = colorResource(R.color.custom_white),
-            backgroundColor = Color.Transparent,
-            cursorColor = colorResource(R.color.custom_white),
-            errorCursorColor = colorResource(R.color.custom_white),
-            focusedIndicatorColor = colorResource(R.color.custom_gray_4),
-            unfocusedIndicatorColor = colorResource(R.color.custom_gray_4),
-            disabledIndicatorColor = colorResource(R.color.custom_gray_4),
-            errorIndicatorColor = colorResource(R.color.custom_gray_4),
-        )
-    )
-    if (isError) {
-        Text(
-            text = stringResource(R.string.signup_text_password_error),
-            modifier = Modifier.padding(start = dimensionResource(R.dimen.signup_padding_bigger))
-        )
-    }
-
-}
-
-@Composable
-private fun DrawEmailField() {
-    var email by rememberSaveable { mutableStateOf("") }
-    var isError by rememberSaveable { mutableStateOf(false) }
-
-    TextField(
-        value = email,
-        onValueChange = { email = it },
-        modifier = Modifier
-            .fillMaxWidth(),
-        label = {
-            Text(
-                text = stringResource(R.string.signup_text_email),
-                color = colorResource(R.color.custom_gray_4)
-            )
-        },
-        colors = TextFieldDefaults.textFieldColors(
-            textColor = colorResource(R.color.custom_white),
-            backgroundColor = Color.Transparent,
-            cursorColor = colorResource(R.color.custom_white),
-            errorCursorColor = colorResource(R.color.custom_white),
-            focusedIndicatorColor = colorResource(R.color.custom_gray_4),
-            unfocusedIndicatorColor = colorResource(R.color.custom_gray_4),
-            disabledIndicatorColor = colorResource(R.color.custom_gray_4),
-            errorIndicatorColor = colorResource(R.color.custom_gray_4),
-        )
-    )
-    if (isError) {
-        Text(
-            text = stringResource(R.string.signup_text_email_error),
-            modifier = Modifier.padding(start = dimensionResource(R.dimen.signup_padding_bigger))
-        )
-    }
-}
-
-@Composable
 private fun DrawSecondText() {
     Text(
         text = stringResource(R.string.signup_text_fillouttheprofile),
-        modifier = Modifier
-            .padding(vertical = dimensionResource(R.dimen.signup_padding)),
+        modifier = Modifier.padding(vertical = dimensionResource(R.dimen.signup_padding)),
         color = colorResource(R.color.custom_white),
         fontSize = dimensionResource(R.dimen.signup_text_fillouttheprofile_size).value.sp,
         fontFamily = Fonts.FONT_OPENSANS,
@@ -315,14 +311,5 @@ private fun DrawFirstText() {
         color = colorResource(R.color.custom_white),
         fontSize = dimensionResource(R.dimen.signup_text_letgetacquainted_size).value.sp,
         fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
-    )
-}
-
-@Composable
-private fun DrawBackground() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colorResource(R.color.custom_blue))
     )
 }
