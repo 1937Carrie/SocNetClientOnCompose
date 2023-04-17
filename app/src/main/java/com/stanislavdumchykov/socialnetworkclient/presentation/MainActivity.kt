@@ -102,7 +102,7 @@ private fun DrawButtonEditProfile() {
     ) {
         Text(
             text = stringResource(R.string.myprofile_button_editprofile),
-            color = colorResource(R.color.custom_gray_text),
+            color = if (isSystemInDarkTheme()) colorResource(R.color.white) else colorResource(R.color.custom_gray_text),
             fontSize = dimensionResource(R.dimen.myprofile_button_editprofile_fontsize).value.sp,
             fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
         )
@@ -230,7 +230,7 @@ private fun DrawBackGround() {
                 .fillMaxWidth()
                 .fillMaxHeight()
                 .background(
-                    color = if (isSystemInDarkTheme()) colorResource(R.color.custom_gray_2) else colorResource(
+                    color = if (isSystemInDarkTheme()) colorResource(R.color.custom_background_dark) else colorResource(
                         R.color.white
                     )
                 ),
