@@ -1,10 +1,7 @@
 package com.stanislavdumchykov.socialnetworkclient.presentation
 
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -219,10 +216,24 @@ private fun DrawText() {
 
 @Composable
 private fun DrawBackGround() {
-    Box(
-        modifier = Modifier
-            .background(color = colorResource(R.color.custom_blue))
-            .fillMaxWidth()
-            .fillMaxHeight(PERCENT_50)
-    )
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(PERCENT_50)
+                .background(color = colorResource(R.color.custom_blue))
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .background(
+                    color = if (isSystemInDarkTheme()) colorResource(R.color.custom_gray_2) else colorResource(
+                        R.color.white
+                    )
+                ),
+        )
+    }
 }
