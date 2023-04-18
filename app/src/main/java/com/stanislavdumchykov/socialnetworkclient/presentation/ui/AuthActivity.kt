@@ -1,4 +1,4 @@
-package com.stanislavdumchykov.socialnetworkclient.presentation
+package com.stanislavdumchykov.socialnetworkclient.presentation.ui
 
 import android.content.res.Configuration
 import android.os.Bundle

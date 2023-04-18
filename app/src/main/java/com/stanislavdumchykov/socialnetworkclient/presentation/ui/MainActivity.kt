@@ -1,4 +1,4 @@
-package com.stanislavdumchykov.socialnetworkclient.presentation
+package com.stanislavdumchykov.socialnetworkclient.presentation.ui
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
@@ -23,18 +23,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.stanislavdumchykov.socialnetworkclient.R
+import com.stanislavdumchykov.socialnetworkclient.presentation.navigation.Routes
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 import java.util.*
-
-private const val PERCENT_33 = 0.33f
-private const val PERCENT_50 = 0.5f
-private const val PERCENT_60 = 0.6f
-private const val PERCENT_100 = 1f
 
 class MainActivity : ComponentActivity()
 
 @Composable
-fun DrawMyProfile(navController: NavController, email: String) {
+fun MyProfile(navController: NavController, email: String) {
     val context = LocalContext.current
 
     LaunchedEffect(true) {
@@ -43,12 +40,12 @@ fun DrawMyProfile(navController: NavController, email: String) {
     DrawBackGround()
     Column {
         DrawTopBlock(email.substring(0, email.indexOf('@')))
-        DrawBottomBlock()
+        DrawBottomBlock(navController)
     }
 }
 
 @Composable
-private fun DrawBottomBlock() {
+private fun DrawBottomBlock(navController: NavController) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -56,7 +53,7 @@ private fun DrawBottomBlock() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(PERCENT_60),
+                .fillMaxHeight(Constants.PERCENT_60),
             verticalArrangement = Arrangement.Center,
         ) {
             DrawSocialNetworkLinksBlock()
@@ -68,20 +65,22 @@ private fun DrawBottomBlock() {
         ) {
             DrawButtonEditProfile()
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.myprofile_padding)))
-            DrawButtonViewMyContacts()
+            DrawButtonViewMyContacts(navController)
         }
     }
 }
 
 @Composable
-private fun DrawButtonViewMyContacts() {
+private fun DrawButtonViewMyContacts(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(dimensionResource(R.dimen.myprofile_button_viewmycontacts_height))
             .clip(RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size)))
             .background(color = colorResource(R.color.custom_orange))
-            .clickable { },
+            .clickable {
+                navController.navigate(route = Routes.ContactList.route)
+            },
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -153,7 +152,7 @@ private fun DrawTopBlock(email: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(PERCENT_50),
+            .fillMaxHeight(Constants.PERCENT_50),
     ) {
         DrawText()
         DrawUserInfo(email)
@@ -171,8 +170,8 @@ private fun DrawUserInfo(email: String) {
             painter = painterResource(R.drawable.default_profile_image),
             contentDescription = "",
             modifier = Modifier
-                .fillMaxWidth(PERCENT_33)
-                .aspectRatio(PERCENT_100)
+                .fillMaxWidth(Constants.PERCENT_33)
+                .aspectRatio(Constants.PERCENT_100)
                 .clip(
                     CircleShape
                 ),
@@ -231,7 +230,7 @@ private fun DrawBackGround() {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(PERCENT_50)
+                .fillMaxHeight(Constants.PERCENT_50)
                 .background(color = colorResource(R.color.custom_blue))
         )
         Box(

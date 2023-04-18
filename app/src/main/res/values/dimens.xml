@@ -2,9 +2,11 @@
 <resources>
     <!-- Common values -->
     <dimen name="rounded_corner_size">6dp</dimen>
-    <dimen name="spacer_small">6dp</dimen>
+    <dimen name="spacer_small">8dp</dimen>
+    <dimen name="spacer_smaller">16dp</dimen>
     <dimen name="spacer_normal">32dp</dimen>
     <dimen name="spacer_bigger">48dp</dimen>
+    <dimen name="border_width">1dp</dimen>
 
     <!-- MyProfile screen   -->
     <dimen name="myprofile_settings_text_fontsize">24sp</dimen>
@@ -34,5 +36,12 @@
     <dimen name="signup_text_termandconditions_fontsize">12sp</dimen>
     <dimen name="signup_text_signin_fontsize">14sp</dimen>
     <dimen name="signup_error_text_fontsize">12sp</dimen>
+
+    <!-- ContactList screen   -->
+    <dimen name="contactlist_contacts_font_size">24sp</dimen>
+    <dimen name="contactlist_add_contacts_font_size">14sp</dimen>
+    <dimen name="contactlist_item_height">66dp</dimen>
+    <dimen name="contactlist_text_name_fontsize">18sp</dimen>
+    <dimen name="contactlist_text_career_fontsize">12sp</dimen>
 
 </resources>
