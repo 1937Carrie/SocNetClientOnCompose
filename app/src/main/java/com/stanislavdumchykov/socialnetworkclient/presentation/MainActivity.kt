@@ -1,5 +1,7 @@
 package com.stanislavdumchykov.socialnetworkclient.presentation
 
+import android.app.Activity
+import android.content.pm.ActivityInfo
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -7,11 +9,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -31,6 +35,11 @@ class MainActivity : ComponentActivity()
 
 @Composable
 fun DrawMyProfile(navController: NavController, email: String) {
+    val context = LocalContext.current
+
+    LaunchedEffect(true) {
+        (context as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+    }
     DrawBackGround()
     Column {
         DrawTopBlock(email.substring(0, email.indexOf('@')))
