@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
@@ -23,6 +24,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
@@ -37,10 +39,6 @@ import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
-private const val PERCENT_60 = 0.6f
-private const val PASSWORD_MIN_LENGTH = 8
-private const val PASSWORD_PATTERN = "\\d+|\\w+"
 
 class AuthActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,7 +69,7 @@ fun SignUpScreen(navController: NavHostController = rememberNavController()) {
         password.value = passwordValue
 
         LaunchedEffect(Unit) {
-            navController.navigate(route = "${Routes.MyProfile.route}/$emailValue"){
+            navController.navigate(route = "${Routes.MyProfile.route}/$emailValue") {
                 popUpTo(Routes.SignUp.route) { inclusive = true }
             }
         }
@@ -119,7 +117,7 @@ private fun DrawSignUpPortrait(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(PERCENT_60),
+                .fillMaxHeight(Constants.PERCENT_60),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -261,8 +259,8 @@ private fun DrawRegisterButton(
                     .matcher(email.value)
                     .matches()
                 isErrorPassword.value =
-                    !(password.value.length >= PASSWORD_MIN_LENGTH && password.value.contains(
-                        Regex(PASSWORD_PATTERN)
+                    !(password.value.length >= Constants.PASSWORD_MIN_LENGTH && password.value.contains(
+                        Regex(Constants.PASSWORD_PATTERN)
                     ))
 
                 if (autologinState.value) {
@@ -313,6 +311,9 @@ private fun DrawTextField(
         },
         isError = isValueError.value,
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+        keyboardOptions = if (isPassword) KeyboardOptions.Default else KeyboardOptions.Default.copy(
+            keyboardType = KeyboardType.Email
+        ),
         colors = TextFieldDefaults.textFieldColors(
             textColor = colorResource(R.color.custom_white),
             backgroundColor = Color.Transparent,
