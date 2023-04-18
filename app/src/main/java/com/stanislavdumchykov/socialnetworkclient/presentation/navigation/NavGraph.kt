@@ -5,7 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.stanislavdumchykov.socialnetworkclient.presentation.DrawMyProfile
-import com.stanislavdumchykov.socialnetworkclient.presentation.DrawSignUp
+import com.stanislavdumchykov.socialnetworkclient.presentation.SignUpScreen
 
 @Composable
 fun SetupNavGraph(navController: NavHostController) {
@@ -16,7 +16,7 @@ fun SetupNavGraph(navController: NavHostController) {
         composable(
             route = Routes.SignUp.route
         ) {
-            DrawSignUp(navController = navController)
+            SignUpScreen(navController = navController)
         }
         composable(
             route = "${Routes.MyProfile.route}/{email}",
