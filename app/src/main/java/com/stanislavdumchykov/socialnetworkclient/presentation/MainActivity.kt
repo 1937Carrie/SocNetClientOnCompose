@@ -169,7 +169,7 @@ private fun DrawUserInfo(email: String) {
                 ),
             contentScale = ContentScale.Crop
         )
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.myprofile_spacer_bigger)))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_bigger)))
         val splittedEmail = email.split('.')
         Text(
             text = if (splittedEmail.size == 2) "${
@@ -199,7 +199,7 @@ private fun DrawUserInfo(email: String) {
             fontSize = dimensionResource(R.dimen.myprofile_user_profession_text_fontsize).value.sp,
             fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
         )
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.myprofile_spacer_normal)))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_normal)))
     }
 }
 
