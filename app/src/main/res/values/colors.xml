@@ -10,5 +10,8 @@
     <color name="custom_orange">#FB5E06</color>
     <color name="custom_error">#F93E3E</color>
     <color name="custom_background_dark">#191C1E</color>
+    <color name="contact_list_background">#E7E7E7</color>
+    <color name="contact_list_name_text_color">#18181F</color>
+    <color name="contact_list_career_text_color">#828282</color>
 
 </resources>

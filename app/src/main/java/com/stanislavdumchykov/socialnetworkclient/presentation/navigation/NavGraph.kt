@@ -4,8 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.stanislavdumchykov.socialnetworkclient.presentation.DrawMyProfile
-import com.stanislavdumchykov.socialnetworkclient.presentation.SignUpScreen
+import com.stanislavdumchykov.socialnetworkclient.presentation.ui.ContactList
+import com.stanislavdumchykov.socialnetworkclient.presentation.ui.MyProfile
+import com.stanislavdumchykov.socialnetworkclient.presentation.ui.SignUpScreen
 
 @Composable
 fun SetupNavGraph(navController: NavHostController) {
@@ -21,7 +22,12 @@ fun SetupNavGraph(navController: NavHostController) {
         composable(
             route = "${Routes.MyProfile.route}/{email}",
         ) {
-            DrawMyProfile(navController, it.arguments?.getString("email") ?: "")
+            MyProfile(navController, it.arguments?.getString("email") ?: "")
+        }
+        composable(
+            route = Routes.ContactList.route
+        ){
+            ContactList(navController = navController)
         }
     }
 }
