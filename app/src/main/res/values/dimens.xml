@@ -2,6 +2,9 @@
 <resources>
     <!-- Common values -->
     <dimen name="rounded_corner_size">6dp</dimen>
+    <dimen name="spacer_small">6dp</dimen>
+    <dimen name="spacer_normal">32dp</dimen>
+    <dimen name="spacer_bigger">48dp</dimen>
 
     <!-- MyProfile screen   -->
     <dimen name="myprofile_settings_text_fontsize">24sp</dimen>
@@ -11,8 +14,6 @@
     <dimen name="myprofile_username_text_fontsize">18sp</dimen>
     <dimen name="myprofile_padding_smaller">8dp</dimen>
     <dimen name="myprofile_user_profession_text_fontsize">14sp</dimen>
-    <dimen name="myprofile_spacer_normal">32dp</dimen>
-    <dimen name="myprofile_spacer_bigger">48dp</dimen>
     <dimen name="myprofile_button_editprofile_height">40dp</dimen>
     <dimen name="myprofile_button_editprofile_border_width">2dp</dimen>
     <dimen name="myprofile_button_editprofile_fontsize">14sp</dimen>
