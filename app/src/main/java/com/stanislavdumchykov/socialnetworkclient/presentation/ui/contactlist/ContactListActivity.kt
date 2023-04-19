@@ -1,4 +1,4 @@
-package com.stanislavdumchykov.socialnetworkclient.presentation.ui
+package com.stanislavdumchykov.socialnetworkclient.presentation.ui.contactlist
 
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
@@ -12,9 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,20 +22,22 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.stanislavdumchykov.socialnetworkclient.R
-import com.stanislavdumchykov.socialnetworkclient.data.UserList
-import com.stanislavdumchykov.socialnetworkclient.domain.User
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ContactListActivity : ComponentActivity() {
 
 }
 
 @Composable
-fun ContactList(navController: NavController) {
-    val users = remember { mutableStateOf(UserList().users) }
-
+fun ContactList(
+    navController: NavController,
+    contactListViewModel: ContactListViewModel = hiltViewModel()
+) {
     Column(
         modifier = Modifier
             .background(color = colorResource(R.color.custom_blue))
@@ -45,18 +45,19 @@ fun ContactList(navController: NavController) {
     ) {
         DrawTopBlock()
         DrawAddContactsText()
-        DrawContactList(users)
+        DrawContactList(contactListViewModel)
     }
 }
 
 @Composable
-private fun DrawContactList(users: MutableState<MutableList<User>>) {
+private fun DrawContactList(contactListViewModel: ContactListViewModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(colorResource(R.color.contact_list_background)),
     ) {
-        itemsIndexed(users.value) { index, user ->
+        val users = mutableStateOf(contactListViewModel.userList.toList())
+        itemsIndexed(users.value) { _, user ->
             Box(
                 modifier = Modifier
                     .padding(
@@ -115,7 +116,7 @@ private fun DrawContactList(users: MutableState<MutableList<User>>) {
                             painter = painterResource(R.drawable.ic_delete_bucket),
                             contentDescription = "",
                             modifier = Modifier.clickable {
-                                users.value = users.value.filter { it != user }.toMutableList()
+                                contactListViewModel.removeUser(user)
                             }
                         )
                     }
