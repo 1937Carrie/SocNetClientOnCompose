@@ -1,4 +1,4 @@
-package com.stanislavdumchykov.socialnetworkclient.presentation.ui
+package com.stanislavdumchykov.socialnetworkclient.presentation.ui.signup
 
 import android.content.res.Configuration
 import android.os.Bundle
@@ -36,10 +36,12 @@ import com.stanislavdumchykov.socialnetworkclient.presentation.navigation.Routes
 import com.stanislavdumchykov.socialnetworkclient.presentation.navigation.SetupNavGraph
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class AuthActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

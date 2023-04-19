@@ -1,4 +1,4 @@
-package com.stanislavdumchykov.socialnetworkclient.presentation.ui
+package com.stanislavdumchykov.socialnetworkclient.presentation.ui.myprofile
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
@@ -26,8 +26,10 @@ import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.presentation.navigation.Routes
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity()
 
 @Composable
