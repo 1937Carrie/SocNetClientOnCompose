@@ -21,6 +21,10 @@ class ContactListViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    fun addUser(index: Int, user: User) {
+        _userList.add(index, user)
+    }
+
     fun removeUser(user: User) {
         _userList.remove(user)
     }

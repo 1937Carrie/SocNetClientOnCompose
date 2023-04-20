@@ -10,9 +10,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +28,8 @@ import androidx.navigation.NavController
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ContactListActivity : ComponentActivity() {
@@ -51,74 +54,109 @@ fun ContactList(
 
 @Composable
 private fun DrawContactList(contactListViewModel: ContactListViewModel) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colorResource(R.color.contact_list_background)),
-    ) {
-        val users = mutableStateOf(contactListViewModel.userList.toList())
-        itemsIndexed(users.value) { _, user ->
-            Box(
-                modifier = Modifier
-                    .padding(
-                        horizontal = dimensionResource(R.dimen.spacer_smaller),
-                        vertical = dimensionResource(R.dimen.spacer_small),
-                    )
-                    .fillMaxWidth()
-                    .height(dimensionResource(R.dimen.contactlist_item_height))
-                    .border(
-                        dimensionResource(R.dimen.border_width),
-                        colorResource(R.color.custom_gray_2),
-                        RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size))
-                    )
-                    .clip(RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size)))
-                    .clickable {
+    val scaffoldState: ScaffoldState = rememberScaffoldState()
+    val coroutineScope: CoroutineScope = rememberCoroutineScope()
 
-                    }
-            ) {
-                Row(
+    Scaffold(
+        scaffoldState = scaffoldState,
+        snackbarHost = {
+            SnackbarHost(it) { data ->
+                Snackbar(
+                    actionColor = colorResource(R.color.custom_orange),
+                    snackbarData = data
+                )
+            }
+        },
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colorResource(R.color.contact_list_background))
+                .padding(bottom = it.calculateBottomPadding()),
+        ) {
+            val users = mutableStateOf(contactListViewModel.userList.toList())
+            itemsIndexed(users.value) { index, user ->
+                Box(
                     modifier = Modifier
-                        .padding(dimensionResource(R.dimen.spacer_small))
-                        .fillMaxSize(),
+                        .padding(
+                            horizontal = dimensionResource(R.dimen.spacer_smaller),
+                            vertical = dimensionResource(R.dimen.spacer_small),
+                        )
+                        .fillMaxWidth()
+                        .height(dimensionResource(R.dimen.contactlist_item_height))
+                        .border(
+                            dimensionResource(R.dimen.border_width),
+                            colorResource(R.color.custom_gray_2),
+                            RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size))
+                        )
+                        .clip(RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size)))
+                        .clickable {
+
+                        }
                 ) {
-                    Image(
-                        painter = painterResource(R.drawable.default_profile_image),
-                        contentDescription = "",
-                        contentScale = ContentScale.Crop,
+                    Row(
                         modifier = Modifier
-                            .aspectRatio(1f)
-                            .clip(CircleShape),
-                    )
-                    Column(
-                        modifier = Modifier
-                            .padding(start = dimensionResource(R.dimen.spacer_small))
-                            .fillMaxHeight(),
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        Text(
-                            text = user.name,
-                            color = colorResource(R.color.contact_list_name_text_color),
-                            fontSize = dimensionResource(R.dimen.contactlist_text_name_fontsize).value.sp,
-                            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
-                        )
-                        Text(
-                            text = user.career,
-                            color = colorResource(R.color.contact_list_career_text_color),
-                            fontSize = dimensionResource(R.dimen.contactlist_text_career_fontsize).value.sp,
-                            fontFamily = Fonts.FONT_OPENSANS,
-                        )
-                    }
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.CenterEnd
+                            .padding(dimensionResource(R.dimen.spacer_small))
+                            .fillMaxSize(),
                     ) {
                         Image(
-                            painter = painterResource(R.drawable.ic_delete_bucket),
+                            painter = painterResource(R.drawable.default_profile_image),
                             contentDescription = "",
-                            modifier = Modifier.clickable {
-                                contactListViewModel.removeUser(user)
-                            }
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .aspectRatio(1f)
+                                .clip(CircleShape),
                         )
+                        Column(
+                            modifier = Modifier
+                                .padding(start = dimensionResource(R.dimen.spacer_small))
+                                .fillMaxHeight(),
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Text(
+                                text = user.name,
+                                color = colorResource(R.color.contact_list_name_text_color),
+                                fontSize = dimensionResource(R.dimen.contactlist_text_name_fontsize).value.sp,
+                                fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+                            )
+                            Text(
+                                text = user.career,
+                                color = colorResource(R.color.contact_list_career_text_color),
+                                fontSize = dimensionResource(R.dimen.contactlist_text_career_fontsize).value.sp,
+                                fontFamily = Fonts.FONT_OPENSANS,
+                            )
+                        }
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.CenterEnd
+                        ) {
+                            val scaffoldMessage =
+                                stringResource(R.string.contactlist_scaffold_message_text)
+                            val scaffoldActionLabel =
+                                stringResource(R.string.contactlist_scaffold_actionLabel_text)
+
+                            Image(
+                                painter = painterResource(R.drawable.ic_delete_bucket),
+                                contentDescription = "",
+                                modifier = Modifier.clickable {
+                                    contactListViewModel.removeUser(user)
+
+                                    coroutineScope.launch {
+                                        val snackbarResult =
+                                            scaffoldState.snackbarHostState.showSnackbar(
+                                                message = scaffoldMessage,
+                                                actionLabel = scaffoldActionLabel,
+                                            )
+                                        when (snackbarResult) {
+                                            SnackbarResult.Dismissed -> {}
+                                            SnackbarResult.ActionPerformed -> {
+                                                contactListViewModel.addUser(index, user)
+                                            }
+                                        }
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }

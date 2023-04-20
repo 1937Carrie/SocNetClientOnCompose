@@ -27,5 +27,7 @@
     <!-- ContactList screen   -->
     <string name="contactlist_contacts_text">Contacts</string>
     <string name="contactlist_add_contacts_text">Add contacts</string>
+    <string name="contactlist_scaffold_message_text">User has been deleted.</string>
+    <string name="contactlist_scaffold_actionLabel_text">Restore</string>
 
 </resources>
