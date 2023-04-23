@@ -1,22 +1,28 @@
 package com.stanislavdumchykov.socialnetworkclient.presentation.ui.contactlist
 
 import androidx.activity.ComponentActivity
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -26,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.stanislavdumchykov.socialnetworkclient.R
+import com.stanislavdumchykov.socialnetworkclient.domain.User
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -52,10 +59,13 @@ fun ContactList(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun DrawContactList(contactListViewModel: ContactListViewModel) {
     val scaffoldState: ScaffoldState = rememberScaffoldState()
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
+    val scaffoldMessage = stringResource(R.string.contactlist_scaffold_message_text)
+    val scaffoldActionLabel = stringResource(R.string.contactlist_scaffold_actionLabel_text)
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -67,100 +77,236 @@ private fun DrawContactList(contactListViewModel: ContactListViewModel) {
                 )
             }
         },
-    ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(colorResource(R.color.contact_list_background))
-                .padding(bottom = it.calculateBottomPadding()),
-        ) {
-            val users = mutableStateOf(contactListViewModel.userList.toList())
-            itemsIndexed(users.value) { index, user ->
-                Box(
-                    modifier = Modifier
-                        .padding(
-                            horizontal = dimensionResource(R.dimen.spacer_smaller),
-                            vertical = dimensionResource(R.dimen.spacer_small),
-                        )
-                        .fillMaxWidth()
-                        .height(dimensionResource(R.dimen.contactlist_item_height))
-                        .border(
-                            dimensionResource(R.dimen.border_width),
-                            colorResource(R.color.custom_gray_2),
-                            RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size))
-                        )
-                        .clip(RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size)))
-                        .clickable {
+        content = {
+            val userList: List<User> by contactListViewModel.userList.collectAsState(emptyList())
+            val lazyListState = rememberLazyListState()
 
-                        }
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .padding(dimensionResource(R.dimen.spacer_small))
-                            .fillMaxSize(),
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.default_profile_image),
-                            contentDescription = "",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .aspectRatio(1f)
-                                .clip(CircleShape),
-                        )
-                        Column(
-                            modifier = Modifier
-                                .padding(start = dimensionResource(R.dimen.spacer_small))
-                                .fillMaxHeight(),
-                            verticalArrangement = Arrangement.Center,
-                        ) {
-                            Text(
-                                text = user.name,
-                                color = colorResource(R.color.contact_list_name_text_color),
-                                fontSize = dimensionResource(R.dimen.contactlist_text_name_fontsize).value.sp,
-                                fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
-                            )
-                            Text(
-                                text = user.career,
-                                color = colorResource(R.color.contact_list_career_text_color),
-                                fontSize = dimensionResource(R.dimen.contactlist_text_career_fontsize).value.sp,
-                                fontFamily = Fonts.FONT_OPENSANS,
-                            )
-                        }
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.CenterEnd
-                        ) {
-                            val scaffoldMessage =
-                                stringResource(R.string.contactlist_scaffold_message_text)
-                            val scaffoldActionLabel =
-                                stringResource(R.string.contactlist_scaffold_actionLabel_text)
-
-                            Image(
-                                painter = painterResource(R.drawable.ic_delete_bucket),
-                                contentDescription = "",
-                                modifier = Modifier.clickable {
-                                    contactListViewModel.removeUser(user)
-
-                                    coroutineScope.launch {
-                                        val snackbarResult =
-                                            scaffoldState.snackbarHostState.showSnackbar(
-                                                message = scaffoldMessage,
-                                                actionLabel = scaffoldActionLabel,
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(colorResource(R.color.contact_list_background))
+                    .padding(bottom = it.calculateBottomPadding()),
+                state = lazyListState,
+                content = {
+                    items(
+                        items = userList,
+                        key = { user -> user.id },
+                        itemContent = { item: User ->
+                            val currentItem by rememberUpdatedState(item)
+                            val dismissState = rememberDismissState(
+                                confirmStateChange = { dismissValue ->
+                                    if (dismissValue == DismissValue.DismissedToStart) {
+                                        coroutineScope.launch {
+                                            removeContact(
+                                                coroutineScope,
+                                                scaffoldState,
+                                                contactListViewModel,
+                                                item.id,
+                                                currentItem,
+                                                scaffoldMessage,
+                                                scaffoldActionLabel
                                             )
-                                        when (snackbarResult) {
-                                            SnackbarResult.Dismissed -> {}
-                                            SnackbarResult.ActionPerformed -> {
-                                                contactListViewModel.addUser(index, user)
-                                            }
+
                                         }
-                                    }
+                                        true
+                                    } else false
                                 }
                             )
+
+                            SwipeToDismiss(
+                                state = dismissState,
+                                directions = setOf(DismissDirection.EndToStart),
+                                background = {
+//                                    SwipeBackground(dismissState)
+                                },
+                                dismissContent = {
+                                    DrawItem(
+                                        user = item,
+                                        coroutineScope = coroutineScope,
+                                        scaffoldState = scaffoldState,
+                                        contactListViewModel = contactListViewModel,
+                                        index = item.id,
+                                        scaffoldMessage = scaffoldMessage,
+                                        scaffoldActionLabel = scaffoldActionLabel
+                                    )
+                                }
+                            )
+
                         }
+                    )
+                },
+            )
+        },
+    )
+}
+
+@Composable
+private fun DrawItem(
+    user: User,
+    coroutineScope: CoroutineScope,
+    scaffoldState: ScaffoldState,
+    contactListViewModel: ContactListViewModel,
+    index: Int,
+    scaffoldMessage: String,
+    scaffoldActionLabel: String
+) {
+    Box(
+        modifier = Modifier
+            .padding(
+                horizontal = dimensionResource(R.dimen.spacer_smaller),
+                vertical = dimensionResource(R.dimen.spacer_small),
+            )
+            .fillMaxWidth()
+            .height(dimensionResource(R.dimen.contactlist_item_height))
+            .border(
+                dimensionResource(R.dimen.border_width),
+                colorResource(R.color.custom_gray_2),
+                RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size))
+            )
+            .clip(RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size)))
+            .clickable {}
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(dimensionResource(R.dimen.spacer_small))
+                .fillMaxSize(),
+        ) {
+            Image(
+                painter = painterResource(R.drawable.default_profile_image),
+                contentDescription = "",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .aspectRatio(1f)
+                    .clip(CircleShape),
+            )
+            Column(
+                modifier = Modifier
+                    .padding(start = dimensionResource(R.dimen.spacer_small))
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Text(
+                    text = user.name,
+                    color = colorResource(R.color.contact_list_name_text_color),
+                    fontSize = dimensionResource(R.dimen.contactlist_text_name_fontsize).value.sp,
+                    fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+                )
+                Text(
+                    text = user.career,
+                    color = colorResource(R.color.contact_list_career_text_color),
+                    fontSize = dimensionResource(R.dimen.contactlist_text_career_fontsize).value.sp,
+                    fontFamily = Fonts.FONT_OPENSANS,
+                )
+            }
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_delete_bucket),
+                    contentDescription = "",
+                    modifier = Modifier.clickable {
+                        removeContact(
+                            coroutineScope,
+                            scaffoldState,
+                            contactListViewModel,
+                            index,
+                            user,
+                            scaffoldMessage,
+                            scaffoldActionLabel
+                        )
                     }
-                }
+                )
             }
         }
+    }
+}
+
+
+private fun removeContact(
+    coroutineScope: CoroutineScope,
+    scaffoldState: ScaffoldState,
+    contactListViewModel: ContactListViewModel,
+    index: Int,
+    user: User,
+    scaffoldMessage: String,
+    scaffoldActionLabel: String,
+) {
+
+    contactListViewModel.removeUser(user)
+
+    restoreContact(
+        coroutineScope,
+        scaffoldState,
+        contactListViewModel,
+        index,
+        user,
+        scaffoldMessage,
+        scaffoldActionLabel
+    )
+
+}
+
+private fun restoreContact(
+    coroutineScope: CoroutineScope,
+    scaffoldState: ScaffoldState,
+    contactListViewModel: ContactListViewModel,
+    index: Int,
+    user: User,
+    scaffoldMessage: String,
+    scaffoldActionLabel: String,
+) {
+    coroutineScope.launch {
+        val snackbarResult =
+            scaffoldState.snackbarHostState.showSnackbar(
+                message = scaffoldMessage,
+                actionLabel = scaffoldActionLabel,
+            )
+        when (snackbarResult) {
+            SnackbarResult.Dismissed -> {}
+            SnackbarResult.ActionPerformed -> {
+                contactListViewModel.addUser(index, user)
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun SwipeBackground(dismissState: DismissState) {
+    val direction = dismissState.dismissDirection ?: return
+
+    val color by animateColorAsState(
+        when (dismissState.targetValue) {
+            DismissValue.Default -> Color.LightGray
+            DismissValue.DismissedToEnd -> Color.Green
+            DismissValue.DismissedToStart -> Color.Red
+        }
+    )
+    val alignment = when (direction) {
+        DismissDirection.StartToEnd -> Alignment.CenterStart
+        DismissDirection.EndToStart -> Alignment.CenterEnd
+    }
+    val icon = when (direction) {
+        DismissDirection.StartToEnd -> Icons.Default.Done
+        DismissDirection.EndToStart -> Icons.Default.Delete
+    }
+    val scale by animateFloatAsState(
+        if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
+    )
+
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(color)
+            .padding(horizontal = dimensionResource(R.dimen.spacer_smaller)),
+        contentAlignment = alignment
+    ) {
+        Icon(
+            icon,
+            contentDescription = "Localized description",
+            modifier = Modifier.scale(scale)
+        )
     }
 }
 
