@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -53,7 +54,7 @@ fun ContactList(
             .background(color = colorResource(R.color.custom_blue))
             .fillMaxSize()
     ) {
-        DrawTopBlock()
+        DrawTopBlock(navController)
         DrawAddContactsText()
         DrawContactList(contactListViewModel)
     }
@@ -61,7 +62,9 @@ fun ContactList(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun DrawContactList(contactListViewModel: ContactListViewModel) {
+private fun DrawContactList(
+    contactListViewModel: ContactListViewModel
+) {
     val scaffoldState: ScaffoldState = rememberScaffoldState()
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val scaffoldMessage = stringResource(R.string.contactlist_scaffold_message_text)
@@ -106,7 +109,6 @@ private fun DrawContactList(contactListViewModel: ContactListViewModel) {
                                                 scaffoldMessage,
                                                 scaffoldActionLabel
                                             )
-
                                         }
                                         true
                                     } else false
@@ -322,7 +324,7 @@ private fun DrawAddContactsText() {
 }
 
 @Composable
-private fun DrawTopBlock() {
+private fun DrawTopBlock(navController: NavController) {
     Row(
         modifier = Modifier
             .padding(dimensionResource(R.dimen.spacer_smaller))
@@ -333,7 +335,14 @@ private fun DrawTopBlock() {
         ) {
         Image(
             painter = painterResource(R.drawable.ic_arrow_back),
-            contentDescription = ""
+            contentDescription = "",
+            modifier = Modifier
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    navController.popBackStack()
+                }
         )
         Text(
             text = stringResource(R.string.contactlist_contacts_text),
