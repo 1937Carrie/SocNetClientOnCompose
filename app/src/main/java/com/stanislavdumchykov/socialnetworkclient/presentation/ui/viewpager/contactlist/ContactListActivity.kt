@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +39,7 @@ import com.stanislavdumchykov.socialnetworkclient.presentation.utils.ScreenList
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.util.*
 
 @AndroidEntryPoint
 class ContactListActivity : ComponentActivity() {
@@ -86,11 +88,13 @@ private fun DrawContactList(
         content = {
             val userList: List<User> by contactListViewModel.userList.collectAsState(emptyList())
             val lazyListState = rememberLazyListState()
+            val isMultiselect = rememberSaveable { mutableStateOf(false) }
+            val selectedItemsList = remember { mutableListOf<User>() }
 
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(colorResource(R.color.contact_list_background))
+                    .background(colorResource(R.color.white))
                     .padding(bottom = it.calculateBottomPadding()),
                 state = lazyListState,
                 content = {
@@ -127,6 +131,8 @@ private fun DrawContactList(
                                 dismissContent = {
                                     DrawItem(
                                         navController = navController,
+                                        isMultiSelect = isMultiselect,
+                                        selectedItemsList = selectedItemsList,
                                         user = item,
                                         coroutineScope = coroutineScope,
                                         scaffoldState = scaffoldState,
@@ -146,9 +152,12 @@ private fun DrawContactList(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DrawItem(
     navController: NavController,
+    isMultiSelect: MutableState<Boolean>,
+    selectedItemsList: MutableList<User>,
     user: User,
     coroutineScope: CoroutineScope,
     scaffoldState: ScaffoldState,
@@ -157,6 +166,7 @@ private fun DrawItem(
     scaffoldMessage: String,
     scaffoldActionLabel: String
 ) {
+    val isSelect = rememberSaveable { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .padding(
@@ -165,25 +175,69 @@ private fun DrawItem(
             )
             .fillMaxWidth()
             .height(dimensionResource(R.dimen.contactlist_item_height))
+            .background(color = if (isMultiSelect.value) colorResource(R.color.contact_list_background) else Color.Transparent)
             .border(
                 dimensionResource(R.dimen.border_width),
                 colorResource(R.color.custom_gray_2),
                 RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size))
             )
             .clip(RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size)))
-            .clickable {
-                val name = if (user.name != "") user.name else "_"
-                val career = if (user.career != "") user.career else "_"
-                val address = if (user.address != "") user.address else "_"
+            .combinedClickable(
+                onLongClick = {
+                    handleItemMultiSelectState(
+                        isSelect,
+                        selectedItemsList,
+                        user,
+                        isMultiSelect
+                    )
+                },
+                onClick = {
+                    if (isMultiSelect.value) {
+                        handleItemMultiSelectState(
+                            isSelect,
+                            selectedItemsList,
+                            user,
+                            isMultiSelect
+                        )
+                    } else {
+                        val name = if (user.name != "") user.name else "_"
+                        val career = if (user.career != "") user.career else "_"
+                        val address = if (user.address != "") user.address else "_"
+                        navController.navigate("${Routes.ContactProfile.route}/${name}/${career}/${address}")
+                    }
+                }
+            )
 
-                navController.navigate("${Routes.ContactProfile.route}/${name}/${career}/${address}")
-            }
     ) {
         Row(
             modifier = Modifier
                 .padding(dimensionResource(R.dimen.spacer_small))
                 .fillMaxSize(),
         ) {
+            if (isMultiSelect.value) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(end = dimensionResource(R.dimen.spacer_small)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Image(
+                        painter = if (isSelect.value) painterResource(R.drawable.ic_multiselect_checked)
+                        else painterResource(R.drawable.ic_multiselect_unchecked),
+                        contentDescription = "",
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .clickable {
+                                handleItemMultiSelectState(
+                                    isSelect,
+                                    selectedItemsList,
+                                    user,
+                                    isMultiSelect
+                                )
+                            }
+                    )
+                }
+            }
             Image(
                 painter = painterResource(R.drawable.default_profile_image),
                 contentDescription = "",
@@ -233,6 +287,23 @@ private fun DrawItem(
             }
         }
     }
+}
+
+private fun handleItemMultiSelectState(
+    isSelect: MutableState<Boolean>,
+    selectedItemsList: MutableList<User>,
+    user: User,
+    isMultiSelect: MutableState<Boolean>,
+) {
+    isSelect.value = !isSelect.value
+
+    if (isSelect.value) {
+        selectedItemsList.add(user)
+    } else {
+        selectedItemsList.remove(user)
+    }
+
+    isMultiSelect.value = selectedItemsList.isNotEmpty()
 }
 
 
