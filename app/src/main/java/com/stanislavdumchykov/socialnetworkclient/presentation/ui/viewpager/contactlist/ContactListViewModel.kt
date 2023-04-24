@@ -1,4 +1,4 @@
-package com.stanislavdumchykov.socialnetworkclient.presentation.ui.contactlist
+package com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.contactlist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -1,17 +1,15 @@
-package com.stanislavdumchykov.socialnetworkclient.presentation.ui.contactlist
+package com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.contactlist
 
 import androidx.activity.ComponentActivity
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -36,6 +34,7 @@ import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.domain.User
 import com.stanislavdumchykov.socialnetworkclient.presentation.navigation.Routes
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.ScreenList
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -45,9 +44,11 @@ class ContactListActivity : ComponentActivity() {
 
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ContactList(
     navController: NavController,
+    pagerState: PagerState,
     contactListViewModel: ContactListViewModel = hiltViewModel()
 ) {
     Column(
@@ -55,7 +56,7 @@ fun ContactList(
             .background(color = colorResource(R.color.custom_blue))
             .fillMaxSize()
     ) {
-        DrawTopBlock(navController)
+        DrawTopBlock(pagerState)
         DrawAddContactsText()
         DrawContactList(navController, contactListViewModel)
     }
@@ -333,8 +334,11 @@ private fun DrawAddContactsText() {
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun DrawTopBlock(navController: NavController) {
+private fun DrawTopBlock(pagerState: PagerState) {
+    val coroutineScope = rememberCoroutineScope()
+
     Row(
         modifier = Modifier
             .padding(dimensionResource(R.dimen.spacer_smaller))
@@ -351,7 +355,9 @@ private fun DrawTopBlock(navController: NavController) {
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
                 ) {
-                    navController.popBackStack()
+                    coroutineScope.launch {
+                        pagerState.scrollToPage(ScreenList.MYPROFILE.ordinal)
+                    }
                 }
         )
         Text(
