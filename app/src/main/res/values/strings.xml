@@ -30,4 +30,8 @@
     <string name="contactlist_scaffold_message_text">User has been deleted.</string>
     <string name="contactlist_scaffold_actionLabel_text">Restore</string>
 
+    <!-- ContactProfile Screen -->
+    <string name="contactprofile_message_text">Message</string>
+    <string name="contactprofile_profile_text">Profile</string>
+
 </resources>
