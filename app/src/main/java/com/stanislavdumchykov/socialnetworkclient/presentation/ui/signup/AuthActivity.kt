@@ -71,7 +71,7 @@ fun SignUpScreen(navController: NavHostController = rememberNavController()) {
         password.value = passwordValue
 
         LaunchedEffect(Unit) {
-            navController.navigate(route = "${Routes.MyProfile.route}/$emailValue") {
+            navController.navigate(route = "${Routes.Pager.route}/$emailValue") {
                 popUpTo(Routes.SignUp.route) { inclusive = true }
             }
         }
@@ -273,7 +273,9 @@ private fun DrawRegisterButton(
                 }
 
                 if (!(isErrorEmail.value && isErrorPassword.value)) {
-                    navController.navigate(route = "${Routes.MyProfile.route}/${email.value}")
+                    navController.navigate(route = "${Routes.Pager.route}/${email.value}") {
+                        popUpTo(Routes.SignUp.route) { inclusive = true }
+                    }
                 }
             }
             .border(

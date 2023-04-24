@@ -1,15 +1,17 @@
-package com.stanislavdumchykov.socialnetworkclient.presentation.ui.myprofile
+package com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.myprofile
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,19 +23,20 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.stanislavdumchykov.socialnetworkclient.R
-import com.stanislavdumchykov.socialnetworkclient.presentation.navigation.Routes
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.ScreenList
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.util.*
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity()
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MyProfile(navController: NavController, email: String) {
+fun MyProfile(pagerState: PagerState, email: String) {
     val context = LocalContext.current
 
     LaunchedEffect(true) {
@@ -42,12 +45,13 @@ fun MyProfile(navController: NavController, email: String) {
     DrawBackGround()
     Column {
         DrawTopBlock(email.substring(0, email.indexOf('@')))
-        DrawBottomBlock(navController)
+        DrawBottomBlock(pagerState)
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun DrawBottomBlock(navController: NavController) {
+private fun DrawBottomBlock(pagerState: PagerState) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -67,13 +71,16 @@ private fun DrawBottomBlock(navController: NavController) {
         ) {
             DrawButtonEditProfile()
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.myprofile_padding)))
-            DrawButtonViewMyContacts(navController)
+            DrawButtonViewMyContacts(pagerState)
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun DrawButtonViewMyContacts(navController: NavController) {
+private fun DrawButtonViewMyContacts(pagerState: PagerState) {
+    val coroutineScope = rememberCoroutineScope()
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -81,7 +88,9 @@ private fun DrawButtonViewMyContacts(navController: NavController) {
             .clip(RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size)))
             .background(color = colorResource(R.color.custom_orange))
             .clickable {
-                navController.navigate(route = Routes.ContactList.route)
+                coroutineScope.launch {
+                    pagerState.scrollToPage(ScreenList.CONTACTLIST.ordinal)
+                }
             },
         contentAlignment = Alignment.Center
     ) {
