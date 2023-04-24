@@ -44,4 +44,7 @@
     <dimen name="contactlist_text_name_fontsize">18sp</dimen>
     <dimen name="contactlist_text_career_fontsize">12sp</dimen>
 
+    <!-- ContactProfile screen   -->
+    <dimen name="contactprofile_button_message_fontsize">16sp</dimen>
+
 </resources>

@@ -34,6 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.domain.User
+import com.stanislavdumchykov.socialnetworkclient.presentation.navigation.Routes
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -56,13 +57,14 @@ fun ContactList(
     ) {
         DrawTopBlock(navController)
         DrawAddContactsText()
-        DrawContactList(contactListViewModel)
+        DrawContactList(navController, contactListViewModel)
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun DrawContactList(
+    navController: NavController,
     contactListViewModel: ContactListViewModel
 ) {
     val scaffoldState: ScaffoldState = rememberScaffoldState()
@@ -123,6 +125,7 @@ private fun DrawContactList(
                                 },
                                 dismissContent = {
                                     DrawItem(
+                                        navController = navController,
                                         user = item,
                                         coroutineScope = coroutineScope,
                                         scaffoldState = scaffoldState,
@@ -144,6 +147,7 @@ private fun DrawContactList(
 
 @Composable
 private fun DrawItem(
+    navController: NavController,
     user: User,
     coroutineScope: CoroutineScope,
     scaffoldState: ScaffoldState,
@@ -166,7 +170,13 @@ private fun DrawItem(
                 RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size))
             )
             .clip(RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size)))
-            .clickable {}
+            .clickable {
+                val name = if (user.name != "") user.name else "_"
+                val career = if (user.career != "") user.career else "_"
+                val address = if (user.address != "") user.address else "_"
+
+                navController.navigate("${Routes.ContactProfile.route}/${name}/${career}/${address}")
+            }
     ) {
         Row(
             modifier = Modifier
