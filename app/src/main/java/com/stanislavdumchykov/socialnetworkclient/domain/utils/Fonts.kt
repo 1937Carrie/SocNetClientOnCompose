@@ -1,4 +1,4 @@
-package com.stanislavdumchykov.socialnetworkclient.presentation.utils
+package com.stanislavdumchykov.socialnetworkclient.domain.utils
 
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily

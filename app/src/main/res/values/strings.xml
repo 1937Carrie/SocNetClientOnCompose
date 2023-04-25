@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">SocialNetworkClient</string>
 
+    <!-- Routes -->
+    <string name="route_signup">Sign Up</string>
+    <string name="route_pager">Pager</string>
+    <string name="route_contact_profile">Contact profile</string>
+
     <!-- MyProfile screen   -->
     <string name="myprofile_text_settings">Settings</string>
     <string name="myprofile_text_user_profession">Graphic designer</string>

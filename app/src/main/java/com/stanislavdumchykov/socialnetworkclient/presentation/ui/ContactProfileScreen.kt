@@ -19,30 +19,27 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.myprofile.DrawSocialNetworkLinksBlock
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
-
-class ContactProfileActivity
+import com.stanislavdumchykov.socialnetworkclient.domain.utils.Constants
+import com.stanislavdumchykov.socialnetworkclient.domain.utils.Fonts
 
 @Composable
 fun ContactProfile(
-    navController: NavController,
+    onArrowClick: () -> Unit,
     name: String,
     career: String,
     address: String,
 ) {
     Column {
-        DrawTopBlock(navController, name, career, address)
+        DrawTopBlock(onArrowClick, name, career, address)
         DrawBottomBlock()
     }
 }
 
 @Composable
 private fun DrawTopBlock(
-    navController: NavController,
+    onArrowClick: () -> Unit,
     name: String,
     career: String,
     address: String,
@@ -53,13 +50,13 @@ private fun DrawTopBlock(
             .fillMaxHeight(Constants.PERCENT_50)
             .background(color = colorResource(R.color.custom_blue)),
     ) {
-        DrawText(navController)
+        DrawText(onArrowClick)
         DrawUserInfo(name, career, address)
     }
 }
 
 @Composable
-private fun DrawText(navController: NavController) {
+private fun DrawText(onArrowClick: () -> Unit) {
     Row(
         modifier = Modifier
             .padding(dimensionResource(R.dimen.spacer_smaller))
@@ -75,7 +72,7 @@ private fun DrawText(navController: NavController) {
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
                 ) {
-                    navController.popBackStack()
+                    onArrowClick()
                 }
         )
         Text(

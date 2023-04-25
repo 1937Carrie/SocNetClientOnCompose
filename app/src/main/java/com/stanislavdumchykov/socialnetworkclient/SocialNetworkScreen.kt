@@ -1,26 +1,34 @@
-package com.stanislavdumchykov.socialnetworkclient.presentation.navigation
+package com.stanislavdumchykov.socialnetworkclient
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.stanislavdumchykov.socialnetworkclient.domain.utils.NavigationRoutes
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.ContactProfile
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.signup.SignUpScreen
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.Pages
 
 @Composable
-fun SetupNavGraph(navController: NavHostController) {
+fun SocialNetworkApp(navController: NavHostController = rememberNavController()) {
     NavHost(
         navController = navController,
-        startDestination = Routes.SignUp.route
+        startDestination = NavigationRoutes.SignUp.name
     ) {
-        composable(route = Routes.SignUp.route) {
-            SignUpScreen(navController = navController)
+        composable(route = NavigationRoutes.SignUp.name) {
+            SignUpScreen(
+                onRegisterClick = { email: String ->
+                    navController.navigate(route = "${NavigationRoutes.Pager.name}/$email") {
+                        popUpTo(NavigationRoutes.SignUp.name) { inclusive = true }
+                    }
+                }
+            )
         }
         composable(
-            route = "${Routes.ContactProfile.route}/{name}/{career}/{address}",
+            route = "${NavigationRoutes.ContactProfile.name}/{name}/{career}/{address}",
             arguments = listOf(
                 navArgument("name") { type = NavType.StringType },
                 navArgument("career") { type = NavType.StringType },
@@ -28,19 +36,24 @@ fun SetupNavGraph(navController: NavHostController) {
             ),
         ) {
             ContactProfile(
-                navController = navController,
+                onArrowClick = { navController.popBackStack() },
                 name = it.arguments?.getString("name") ?: "",
                 career = it.arguments?.getString("career") ?: "",
                 address = it.arguments?.getString("address") ?: "",
             )
         }
         composable(
-            route = "${Routes.Pager.route}/{email}",
+            route = "${NavigationRoutes.Pager.name}/{email}",
             arguments = listOf(
                 navArgument("email") { type = NavType.StringType },
             )
         ) {
-            Pages(navController = navController, email = it.arguments?.getString("email") ?: "")
+            Pages(
+                contactListOnItemClick = { name, career, address ->
+                    navController.navigate("${NavigationRoutes.ContactProfile.name}/${name}/${career}/${address}")
+                },
+                email = it.arguments?.getString("email") ?: ""
+            )
         }
     }
 }
