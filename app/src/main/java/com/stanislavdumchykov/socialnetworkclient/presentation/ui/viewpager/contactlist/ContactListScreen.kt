@@ -28,6 +28,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -42,7 +43,7 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 @AndroidEntryPoint
-class ContactListActivity
+class ContactListActivity : ComponentActivity()
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -87,56 +88,86 @@ private fun DrawContactList(
             val isMultiselect = rememberSaveable { mutableStateOf(false) }
             val selectedItemsList = remember { mutableListOf<User>() }
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(colorResource(R.color.white))
-                    .padding(bottom = it.calculateBottomPadding()),
-                state = lazyListState,
-                content = {
-                    items(items = userList, key = { user -> user.id }, itemContent = { item: User ->
-                        val currentItem by rememberUpdatedState(item)
-                        val dismissState =
-                            rememberDismissState(confirmStateChange = { dismissValue ->
-                                if (dismissValue == DismissValue.DismissedToStart) {
-                                    coroutineScope.launch {
-                                        removeContact(
-                                            coroutineScope,
-                                            scaffoldState,
-                                            contactListViewModel,
-                                            item.id,
-                                            currentItem,
-                                            scaffoldMessage,
-                                            scaffoldActionLabel
-                                        )
-                                    }
-                                    true
-                                } else false
-                            })
+            Column {
+                val lazyColumnModifier = if (isMultiselect.value) Modifier.weight(1f) else Modifier
+                LazyColumn(
+                    modifier = lazyColumnModifier
+                        .background(colorResource(R.color.white))
+                        .padding(bottom = it.calculateBottomPadding()),
+                    state = lazyListState,
+                    content = {
+                        items(
+                            items = userList,
+                            key = { user -> user.id },
+                            itemContent = { item: User ->
+                                val currentItem by rememberUpdatedState(item)
+                                val dismissState =
+                                    rememberDismissState(confirmStateChange = { dismissValue ->
+                                        if (dismissValue == DismissValue.DismissedToStart) {
+                                            coroutineScope.launch {
+                                                removeContact(
+                                                    coroutineScope,
+                                                    scaffoldState,
+                                                    contactListViewModel,
+                                                    item.id,
+                                                    currentItem,
+                                                    scaffoldMessage,
+                                                    scaffoldActionLabel
+                                                )
+                                            }
+                                            true
+                                        } else false
+                                    })
 
-                        SwipeToDismiss(state = dismissState,
-                            directions = setOf(DismissDirection.EndToStart),
-                            background = {
+                                SwipeToDismiss(
+                                    state = dismissState,
+                                    directions = if (isMultiselect.value) setOf() else setOf(
+                                        DismissDirection.EndToStart
+                                    ),
+                                    background = {
 //                                    SwipeBackground(dismissState)
-                            },
-                            dismissContent = {
-                                DrawItem(
-                                    navController = navController,
-                                    isMultiSelect = isMultiselect,
-                                    selectedItemsList = selectedItemsList,
-                                    user = item,
-                                    coroutineScope = coroutineScope,
-                                    scaffoldState = scaffoldState,
-                                    contactListViewModel = contactListViewModel,
-                                    index = item.id,
-                                    scaffoldMessage = scaffoldMessage,
-                                    scaffoldActionLabel = scaffoldActionLabel
-                                )
-                            })
+                                    },
+                                    dismissContent = {
+                                        DrawItem(
+                                            navController = navController,
+                                            isMultiSelect = isMultiselect,
+                                            selectedItemsList = selectedItemsList,
+                                            user = item,
+                                            coroutineScope = coroutineScope,
+                                            scaffoldState = scaffoldState,
+                                            contactListViewModel = contactListViewModel,
+                                            index = item.id,
+                                            scaffoldMessage = scaffoldMessage,
+                                            scaffoldActionLabel = scaffoldActionLabel
+                                        )
+                                    })
 
-                    })
-                },
-            )
+                            })
+                    },
+                )
+                if (isMultiselect.value) {
+                    Row(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 32.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.ic_multiselect_remove),
+                            contentDescription = "",
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .clickable {
+                                    selectedItemsList.forEach {
+                                        contactListViewModel.removeUser(it)
+                                    }
+                                    selectedItemsList.clear()
+                                    isMultiselect.value = false
+                                }
+                        )
+                    }
+                }
+            }
         },
     )
 }
@@ -240,22 +271,24 @@ private fun DrawItem(
                     fontFamily = Fonts.FONT_OPENSANS.fontFamily,
                 )
             }
-            Box(
-                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterEnd
-            ) {
-                Image(painter = painterResource(R.drawable.ic_delete_bucket),
-                    contentDescription = "",
-                    modifier = Modifier.clickable {
-                        removeContact(
-                            coroutineScope,
-                            scaffoldState,
-                            contactListViewModel,
-                            index,
-                            user,
-                            scaffoldMessage,
-                            scaffoldActionLabel
-                        )
-                    })
+            if (!isMultiSelect.value) {
+                Box(
+                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterEnd
+                ) {
+                    Image(painter = painterResource(R.drawable.ic_delete_bucket),
+                        contentDescription = "",
+                        modifier = Modifier.clickable {
+                            removeContact(
+                                coroutineScope,
+                                scaffoldState,
+                                contactListViewModel,
+                                index,
+                                user,
+                                scaffoldMessage,
+                                scaffoldActionLabel
+                            )
+                        })
+                }
             }
         }
     }
