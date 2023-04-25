@@ -1,6 +1,5 @@
 package com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.contactlist
 
-import androidx.activity.ComponentActivity
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.*
@@ -31,24 +30,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.domain.model.User
-import com.stanislavdumchykov.socialnetworkclient.presentation.navigation.Routes
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.ScreenList
-import dagger.hilt.android.AndroidEntryPoint
+import com.stanislavdumchykov.socialnetworkclient.domain.utils.Fonts
+import com.stanislavdumchykov.socialnetworkclient.domain.utils.ScreenList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.*
 
-@AndroidEntryPoint
-class ContactListActivity : ComponentActivity()
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ContactList(
-    navController: NavController,
+    onItemClick: (String, String, String) -> Unit,
     pagerState: PagerState,
     contactListViewModel: ContactListViewModel = hiltViewModel()
 ) {
@@ -57,16 +50,20 @@ fun ContactList(
             .background(color = colorResource(R.color.custom_blue))
             .fillMaxSize()
     ) {
-        DrawTopBlock(pagerState)
+        val isOnThisScreen = remember { mutableStateOf(true) }
+
+        DrawTopBlock(pagerState, isOnThisScreen)
         DrawAddContactsText()
-        DrawContactList(navController, contactListViewModel)
+        DrawContactList(onItemClick, contactListViewModel, isOnThisScreen)
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun DrawContactList(
-    navController: NavController, contactListViewModel: ContactListViewModel
+    onItemClick: (String, String, String) -> Unit,
+    contactListViewModel: ContactListViewModel,
+    isOnThisScreen: MutableState<Boolean>
 ) {
     val scaffoldState: ScaffoldState = rememberScaffoldState()
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
@@ -88,6 +85,11 @@ private fun DrawContactList(
             val isMultiselect = rememberSaveable { mutableStateOf(false) }
             val selectedItemsList = remember { mutableListOf<User>() }
 
+            if (!isOnThisScreen.value) {
+                isMultiselect.value = false
+                selectedItemsList.clear()
+            }
+
             Column {
                 val lazyColumnModifier = if (isMultiselect.value) Modifier.weight(1f) else Modifier
                 LazyColumn(
@@ -96,8 +98,7 @@ private fun DrawContactList(
                         .padding(bottom = it.calculateBottomPadding()),
                     state = lazyListState,
                     content = {
-                        items(
-                            items = userList,
+                        items(items = userList,
                             key = { user -> user.id },
                             itemContent = { item: User ->
                                 val currentItem by rememberUpdatedState(item)
@@ -119,8 +120,7 @@ private fun DrawContactList(
                                         } else false
                                     })
 
-                                SwipeToDismiss(
-                                    state = dismissState,
+                                SwipeToDismiss(state = dismissState,
                                     directions = if (isMultiselect.value) setOf() else setOf(
                                         DismissDirection.EndToStart
                                     ),
@@ -129,7 +129,7 @@ private fun DrawContactList(
                                     },
                                     dismissContent = {
                                         DrawItem(
-                                            navController = navController,
+                                            onItemClick = onItemClick,
                                             isMultiSelect = isMultiselect,
                                             selectedItemsList = selectedItemsList,
                                             user = item,
@@ -152,8 +152,7 @@ private fun DrawContactList(
                             .fillMaxWidth(),
                         horizontalArrangement = Arrangement.End,
                     ) {
-                        Image(
-                            painter = painterResource(R.drawable.ic_multiselect_remove),
+                        Image(painter = painterResource(R.drawable.ic_multiselect_remove),
                             contentDescription = "",
                             modifier = Modifier
                                 .clip(CircleShape)
@@ -163,8 +162,7 @@ private fun DrawContactList(
                                     }
                                     selectedItemsList.clear()
                                     isMultiselect.value = false
-                                }
-                        )
+                                })
                     }
                 }
             }
@@ -175,7 +173,7 @@ private fun DrawContactList(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DrawItem(
-    navController: NavController,
+    onItemClick: (String, String, String) -> Unit,
     isMultiSelect: MutableState<Boolean>,
     selectedItemsList: MutableList<User>,
     user: User,
@@ -187,6 +185,8 @@ private fun DrawItem(
     scaffoldActionLabel: String
 ) {
     val isSelect = rememberSaveable { mutableStateOf(false) }
+    isSelect.value = selectedItemsList.contains(user)
+
     Box(
         modifier = Modifier
             .padding(
@@ -202,23 +202,24 @@ private fun DrawItem(
                 RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size))
             )
             .clip(RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size)))
-            .combinedClickable(onLongClick = {
-                handleItemMultiSelectState(
-                    isSelect, selectedItemsList, user, isMultiSelect
-                )
-            }, onClick = {
-                if (isMultiSelect.value) {
+            .combinedClickable(
+                onLongClick = {
                     handleItemMultiSelectState(
                         isSelect, selectedItemsList, user, isMultiSelect
                     )
-                } else {
-                    val name = if (user.name != "") user.name else "_"
-                    val career = if (user.career != "") user.career else "_"
-                    val address = if (user.address != "") user.address else "_"
-                    navController.navigate("${Routes.ContactProfile.route}/${name}/${career}/${address}")
-                }
-            })
-
+                },
+                onClick = {
+                    if (isMultiSelect.value) {
+                        handleItemMultiSelectState(
+                            isSelect, selectedItemsList, user, isMultiSelect
+                        )
+                    } else {
+                        val name = if (user.name != "") user.name else "_"
+                        val career = if (user.career != "") user.career else "_"
+                        val address = if (user.address != "") user.address else "_"
+                        onItemClick(name, career, address)
+                    }
+                })
     ) {
         Row(
             modifier = Modifier
@@ -409,7 +410,7 @@ private fun DrawAddContactsText() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun DrawTopBlock(pagerState: PagerState) {
+private fun DrawTopBlock(pagerState: PagerState, isOnThisScreen: MutableState<Boolean>) {
     val coroutineScope = rememberCoroutineScope()
 
     Row(
@@ -422,14 +423,13 @@ private fun DrawTopBlock(pagerState: PagerState) {
         Image(painter = painterResource(R.drawable.ic_arrow_back),
             contentDescription = "",
             modifier = Modifier.clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
+                interactionSource = remember { MutableInteractionSource() }, indication = null
             ) {
+                isOnThisScreen.value = false
                 coroutineScope.launch {
                     pagerState.scrollToPage(ScreenList.MY_PROFILE.ordinal)
                 }
-            }
-        )
+            })
         Text(
             text = stringResource(R.string.contactlist_contacts_text),
             color = colorResource(R.color.custom_white),

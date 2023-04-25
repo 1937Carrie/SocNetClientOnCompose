@@ -2,10 +2,7 @@ package com.stanislavdumchykov.socialnetworkclient.presentation.ui.signup
 
 import android.content.Context
 import android.content.res.Configuration
-import android.os.Bundle
 import android.util.Patterns
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,37 +28,21 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.preferencesDataStore
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.data.UserStore
-import com.stanislavdumchykov.socialnetworkclient.presentation.navigation.Routes
-import com.stanislavdumchykov.socialnetworkclient.presentation.navigation.SetupNavGraph
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
-import dagger.hilt.android.AndroidEntryPoint
+import com.stanislavdumchykov.socialnetworkclient.domain.utils.Constants
+import com.stanislavdumchykov.socialnetworkclient.domain.utils.Fonts
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint
-class AuthActivity : ComponentActivity() {
-    private val Context.dataStore by preferencesDataStore(name = Constants.USER_PREFERENCES_NAME,
-        produceMigrations = { context ->
-            listOf(SharedPreferencesMigration(context, Constants.USER_PREFERENCES_NAME))
-        })
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        setContent {
-            SetupNavGraph(navController = rememberNavController())
-        }
-    }
-}
+private val Context.dataStore by preferencesDataStore(name = Constants.USER_PREFERENCES_NAME,
+    produceMigrations = { context ->
+        listOf(SharedPreferencesMigration(context, Constants.USER_PREFERENCES_NAME))
+    })
 
 @Composable
-fun SignUpScreen(navController: NavHostController = rememberNavController()) {
+fun SignUpScreen(onRegisterClick: (String) -> Unit) {
     val email = rememberSaveable { mutableStateOf("") }
     val isErrorEmail = rememberSaveable { mutableStateOf(false) }
     val password = rememberSaveable { mutableStateOf("") }
@@ -79,26 +60,24 @@ fun SignUpScreen(navController: NavHostController = rememberNavController()) {
         password.value = passwordValue
 
         LaunchedEffect(Unit) {
-            navController.navigate(route = "${Routes.Pager.route}/$emailValue") {
-                popUpTo(Routes.SignUp.route) { inclusive = true }
-            }
+            onRegisterClick(emailValue)
         }
     }
 
     if (currentConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
         DrawSignUpPortrait(
-            navController, email, isErrorEmail, password, isErrorPassword, autologinState, store
+            onRegisterClick, email, isErrorEmail, password, isErrorPassword, autologinState, store
         )
     } else {
         DrawSignUpLandScape(
-            navController, email, isErrorEmail, password, isErrorPassword, autologinState, store
+            onRegisterClick, email, isErrorEmail, password, isErrorPassword, autologinState, store
         )
     }
 }
 
 @Composable
 private fun DrawSignUpPortrait(
-    navController: NavHostController,
+    onRegisterClick: (String) -> Unit,
     email: MutableState<String>,
     isErrorEmail: MutableState<Boolean>,
     password: MutableState<String>,
@@ -137,7 +116,13 @@ private fun DrawSignUpPortrait(
             DrawOrText()
             Spacer(Modifier.height(dimensionResource(R.dimen.spacer_small)))
             DrawRegisterButton(
-                email, isErrorEmail, password, isErrorPassword, autologinState, store, navController
+                email,
+                isErrorEmail,
+                password,
+                isErrorPassword,
+                autologinState,
+                store,
+                onRegisterClick
             )
             Spacer(Modifier.height(dimensionResource(R.dimen.spacer_normal)))
             DrawTermAndConditionsText()
@@ -149,7 +134,7 @@ private fun DrawSignUpPortrait(
 
 @Composable
 private fun DrawSignUpLandScape(
-    navController: NavHostController,
+    onRegisterClick: (String) -> Unit,
     email: MutableState<String>,
     isErrorEmail: MutableState<Boolean>,
     password: MutableState<String>,
@@ -178,7 +163,7 @@ private fun DrawSignUpLandScape(
         DrawOrText()
         Spacer(Modifier.height(dimensionResource(R.dimen.spacer_small)))
         DrawRegisterButton(
-            email, isErrorEmail, password, isErrorPassword, autologinState, store, navController
+            email, isErrorEmail, password, isErrorPassword, autologinState, store, onRegisterClick
         )
         Spacer(Modifier.height(dimensionResource(R.dimen.spacer_normal)))
         DrawTermAndConditionsText()
@@ -230,7 +215,7 @@ private fun DrawRegisterButton(
     isErrorPassword: MutableState<Boolean>,
     autologinState: MutableState<Boolean>,
     store: UserStore,
-    navController: NavHostController
+    onRegisterClick: (String) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -255,9 +240,7 @@ private fun DrawRegisterButton(
                 }
 
                 if (!(isErrorEmail.value && isErrorPassword.value)) {
-                    navController.navigate(route = "${Routes.Pager.route}/${email.value}") {
-                        popUpTo(Routes.SignUp.route) { inclusive = true }
-                    }
+                    onRegisterClick(email.value)
                 }
             }
             .border(

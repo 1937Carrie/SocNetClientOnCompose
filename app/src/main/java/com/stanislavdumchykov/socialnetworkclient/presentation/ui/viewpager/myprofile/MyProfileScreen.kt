@@ -2,7 +2,6 @@ package com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.myp
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.PagerState
@@ -24,15 +23,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import com.stanislavdumchykov.socialnetworkclient.R
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.ScreenList
-import dagger.hilt.android.AndroidEntryPoint
+import com.stanislavdumchykov.socialnetworkclient.domain.utils.Constants
+import com.stanislavdumchykov.socialnetworkclient.domain.utils.Fonts
+import com.stanislavdumchykov.socialnetworkclient.domain.utils.ScreenList
 import kotlinx.coroutines.launch
 import java.util.*
-
-@AndroidEntryPoint
-class MyProfileScreen : ComponentActivity()
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

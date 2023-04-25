@@ -1,4 +1,4 @@
-package com.stanislavdumchykov.socialnetworkclient.presentation.utils
+package com.stanislavdumchykov.socialnetworkclient.domain.utils
 
 object Constants {
     const val PERCENT_33 = 0.33f
