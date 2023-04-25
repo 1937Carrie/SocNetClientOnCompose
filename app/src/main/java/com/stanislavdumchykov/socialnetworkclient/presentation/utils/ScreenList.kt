@@ -1,5 +1,5 @@
 package com.stanislavdumchykov.socialnetworkclient.presentation.utils
 
 enum class ScreenList {
-    MYPROFILE, CONTACTLIST
+    MY_PROFILE, CONTACT_LIST
 }

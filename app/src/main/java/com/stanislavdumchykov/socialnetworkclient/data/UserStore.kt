@@ -7,10 +7,12 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class UserStore(private val context: Context) {
+class UserStore @Inject constructor(@ApplicationContext private val context: Context) {
     companion object {
         private val Context.dataStoreEmail: DataStore<Preferences> by preferencesDataStore(
             Constants.PREFERENCES_EMAIL

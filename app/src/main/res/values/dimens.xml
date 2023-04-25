@@ -11,8 +11,6 @@
     <!-- MyProfile screen   -->
     <dimen name="myprofile_settings_text_fontsize">24sp</dimen>
     <dimen name="myprofile_padding">16dp</dimen>
-    <dimen name="myprofile_image_size">113dp</dimen>
-    <dimen name="myprofile_padding_bigger">22dp</dimen>
     <dimen name="myprofile_username_text_fontsize">18sp</dimen>
     <dimen name="myprofile_padding_smaller">8dp</dimen>
     <dimen name="myprofile_user_profession_text_fontsize">14sp</dimen>

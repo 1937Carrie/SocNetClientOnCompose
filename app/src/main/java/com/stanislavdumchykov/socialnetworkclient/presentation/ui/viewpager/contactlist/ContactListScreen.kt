@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.stanislavdumchykov.socialnetworkclient.R
-import com.stanislavdumchykov.socialnetworkclient.domain.User
+import com.stanislavdumchykov.socialnetworkclient.domain.model.User
 import com.stanislavdumchykov.socialnetworkclient.presentation.navigation.Routes
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.ScreenList
@@ -42,9 +42,7 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 @AndroidEntryPoint
-class ContactListActivity : ComponentActivity() {
-
-}
+class ContactListActivity
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -67,8 +65,7 @@ fun ContactList(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun DrawContactList(
-    navController: NavController,
-    contactListViewModel: ContactListViewModel
+    navController: NavController, contactListViewModel: ContactListViewModel
 ) {
     val scaffoldState: ScaffoldState = rememberScaffoldState()
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
@@ -80,8 +77,7 @@ private fun DrawContactList(
         snackbarHost = {
             SnackbarHost(it) { data ->
                 Snackbar(
-                    actionColor = colorResource(R.color.custom_orange),
-                    snackbarData = data
+                    actionColor = colorResource(R.color.custom_orange), snackbarData = data
                 )
             }
         },
@@ -98,54 +94,47 @@ private fun DrawContactList(
                     .padding(bottom = it.calculateBottomPadding()),
                 state = lazyListState,
                 content = {
-                    items(
-                        items = userList,
-                        key = { user -> user.id },
-                        itemContent = { item: User ->
-                            val currentItem by rememberUpdatedState(item)
-                            val dismissState = rememberDismissState(
-                                confirmStateChange = { dismissValue ->
-                                    if (dismissValue == DismissValue.DismissedToStart) {
-                                        coroutineScope.launch {
-                                            removeContact(
-                                                coroutineScope,
-                                                scaffoldState,
-                                                contactListViewModel,
-                                                item.id,
-                                                currentItem,
-                                                scaffoldMessage,
-                                                scaffoldActionLabel
-                                            )
-                                        }
-                                        true
-                                    } else false
-                                }
-                            )
+                    items(items = userList, key = { user -> user.id }, itemContent = { item: User ->
+                        val currentItem by rememberUpdatedState(item)
+                        val dismissState =
+                            rememberDismissState(confirmStateChange = { dismissValue ->
+                                if (dismissValue == DismissValue.DismissedToStart) {
+                                    coroutineScope.launch {
+                                        removeContact(
+                                            coroutineScope,
+                                            scaffoldState,
+                                            contactListViewModel,
+                                            item.id,
+                                            currentItem,
+                                            scaffoldMessage,
+                                            scaffoldActionLabel
+                                        )
+                                    }
+                                    true
+                                } else false
+                            })
 
-                            SwipeToDismiss(
-                                state = dismissState,
-                                directions = setOf(DismissDirection.EndToStart),
-                                background = {
+                        SwipeToDismiss(state = dismissState,
+                            directions = setOf(DismissDirection.EndToStart),
+                            background = {
 //                                    SwipeBackground(dismissState)
-                                },
-                                dismissContent = {
-                                    DrawItem(
-                                        navController = navController,
-                                        isMultiSelect = isMultiselect,
-                                        selectedItemsList = selectedItemsList,
-                                        user = item,
-                                        coroutineScope = coroutineScope,
-                                        scaffoldState = scaffoldState,
-                                        contactListViewModel = contactListViewModel,
-                                        index = item.id,
-                                        scaffoldMessage = scaffoldMessage,
-                                        scaffoldActionLabel = scaffoldActionLabel
-                                    )
-                                }
-                            )
+                            },
+                            dismissContent = {
+                                DrawItem(
+                                    navController = navController,
+                                    isMultiSelect = isMultiselect,
+                                    selectedItemsList = selectedItemsList,
+                                    user = item,
+                                    coroutineScope = coroutineScope,
+                                    scaffoldState = scaffoldState,
+                                    contactListViewModel = contactListViewModel,
+                                    index = item.id,
+                                    scaffoldMessage = scaffoldMessage,
+                                    scaffoldActionLabel = scaffoldActionLabel
+                                )
+                            })
 
-                        }
-                    )
+                    })
                 },
             )
         },
@@ -182,31 +171,22 @@ private fun DrawItem(
                 RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size))
             )
             .clip(RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size)))
-            .combinedClickable(
-                onLongClick = {
+            .combinedClickable(onLongClick = {
+                handleItemMultiSelectState(
+                    isSelect, selectedItemsList, user, isMultiSelect
+                )
+            }, onClick = {
+                if (isMultiSelect.value) {
                     handleItemMultiSelectState(
-                        isSelect,
-                        selectedItemsList,
-                        user,
-                        isMultiSelect
+                        isSelect, selectedItemsList, user, isMultiSelect
                     )
-                },
-                onClick = {
-                    if (isMultiSelect.value) {
-                        handleItemMultiSelectState(
-                            isSelect,
-                            selectedItemsList,
-                            user,
-                            isMultiSelect
-                        )
-                    } else {
-                        val name = if (user.name != "") user.name else "_"
-                        val career = if (user.career != "") user.career else "_"
-                        val address = if (user.address != "") user.address else "_"
-                        navController.navigate("${Routes.ContactProfile.route}/${name}/${career}/${address}")
-                    }
+                } else {
+                    val name = if (user.name != "") user.name else "_"
+                    val career = if (user.career != "") user.career else "_"
+                    val address = if (user.address != "") user.address else "_"
+                    navController.navigate("${Routes.ContactProfile.route}/${name}/${career}/${address}")
                 }
-            )
+            })
 
     ) {
         Row(
@@ -221,21 +201,16 @@ private fun DrawItem(
                         .padding(end = dimensionResource(R.dimen.spacer_small)),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Image(
-                        painter = if (isSelect.value) painterResource(R.drawable.ic_multiselect_checked)
-                        else painterResource(R.drawable.ic_multiselect_unchecked),
+                    Image(painter = if (isSelect.value) painterResource(R.drawable.ic_multiselect_checked)
+                    else painterResource(R.drawable.ic_multiselect_unchecked),
                         contentDescription = "",
                         modifier = Modifier
                             .clip(CircleShape)
                             .clickable {
                                 handleItemMultiSelectState(
-                                    isSelect,
-                                    selectedItemsList,
-                                    user,
-                                    isMultiSelect
+                                    isSelect, selectedItemsList, user, isMultiSelect
                                 )
-                            }
-                    )
+                            })
                 }
             }
             Image(
@@ -256,21 +231,19 @@ private fun DrawItem(
                     text = user.name,
                     color = colorResource(R.color.contact_list_name_text_color),
                     fontSize = dimensionResource(R.dimen.contactlist_text_name_fontsize).value.sp,
-                    fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+                    fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
                 )
                 Text(
                     text = user.career,
                     color = colorResource(R.color.contact_list_career_text_color),
                     fontSize = dimensionResource(R.dimen.contactlist_text_career_fontsize).value.sp,
-                    fontFamily = Fonts.FONT_OPENSANS,
+                    fontFamily = Fonts.FONT_OPENSANS.fontFamily,
                 )
             }
             Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.CenterEnd
+                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterEnd
             ) {
-                Image(
-                    painter = painterResource(R.drawable.ic_delete_bucket),
+                Image(painter = painterResource(R.drawable.ic_delete_bucket),
                     contentDescription = "",
                     modifier = Modifier.clickable {
                         removeContact(
@@ -282,8 +255,7 @@ private fun DrawItem(
                             scaffoldMessage,
                             scaffoldActionLabel
                         )
-                    }
-                )
+                    })
             }
         }
     }
@@ -341,11 +313,10 @@ private fun restoreContact(
     scaffoldActionLabel: String,
 ) {
     coroutineScope.launch {
-        val snackbarResult =
-            scaffoldState.snackbarHostState.showSnackbar(
-                message = scaffoldMessage,
-                actionLabel = scaffoldActionLabel,
-            )
+        val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
+            message = scaffoldMessage,
+            actionLabel = scaffoldActionLabel,
+        )
         when (snackbarResult) {
             SnackbarResult.Dismissed -> {}
             SnackbarResult.ActionPerformed -> {
@@ -387,9 +358,7 @@ private fun SwipeBackground(dismissState: DismissState) {
         contentAlignment = alignment
     ) {
         Icon(
-            icon,
-            contentDescription = "Localized description",
-            modifier = Modifier.scale(scale)
+            icon, contentDescription = "Localized description", modifier = Modifier.scale(scale)
         )
     }
 }
@@ -401,7 +370,7 @@ private fun DrawAddContactsText() {
         modifier = Modifier.padding(dimensionResource(R.dimen.spacer_smaller)),
         color = colorResource(R.color.custom_white),
         fontSize = dimensionResource(R.dimen.contactlist_add_contacts_font_size).value.sp,
-        fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+        fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
     )
 }
 
@@ -416,30 +385,26 @@ private fun DrawTopBlock(pagerState: PagerState) {
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
-
-        ) {
-        Image(
-            painter = painterResource(R.drawable.ic_arrow_back),
+    ) {
+        Image(painter = painterResource(R.drawable.ic_arrow_back),
             contentDescription = "",
-            modifier = Modifier
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) {
-                    coroutineScope.launch {
-                        pagerState.scrollToPage(ScreenList.MYPROFILE.ordinal)
-                    }
+            modifier = Modifier.clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                coroutineScope.launch {
+                    pagerState.scrollToPage(ScreenList.MY_PROFILE.ordinal)
                 }
+            }
         )
         Text(
             text = stringResource(R.string.contactlist_contacts_text),
             color = colorResource(R.color.custom_white),
             fontSize = dimensionResource(R.dimen.contactlist_contacts_font_size).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
         )
         Image(
-            painter = painterResource(R.drawable.ic_search),
-            contentDescription = ""
+            painter = painterResource(R.drawable.ic_search), contentDescription = ""
         )
     }
 }

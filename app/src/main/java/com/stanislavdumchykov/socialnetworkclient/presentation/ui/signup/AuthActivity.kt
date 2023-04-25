@@ -1,5 +1,6 @@
 package com.stanislavdumchykov.socialnetworkclient.presentation.ui.signup
 
+import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Patterns
@@ -28,6 +29,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.SharedPreferencesMigration
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.stanislavdumchykov.socialnetworkclient.R
@@ -43,6 +46,11 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class AuthActivity : ComponentActivity() {
+    private val Context.dataStore by preferencesDataStore(name = Constants.USER_PREFERENCES_NAME,
+        produceMigrations = { context ->
+            listOf(SharedPreferencesMigration(context, Constants.USER_PREFERENCES_NAME))
+        })
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -59,9 +67,9 @@ fun SignUpScreen(navController: NavHostController = rememberNavController()) {
     val password = rememberSaveable { mutableStateOf("") }
     val isErrorPassword = rememberSaveable { mutableStateOf(false) }
     val autologinState = remember { mutableStateOf(true) }
+    val currentConfiguration by remember { mutableStateOf(LocalConfiguration) }
     val currentContext = LocalContext.current
     val store = UserStore(currentContext)
-    val currentConfiguration by remember { mutableStateOf(LocalConfiguration) }
 
     val emailValue by store.getEmailToken.collectAsState(initial = "")
     val passwordValue by store.getPasswordToken.collectAsState(initial = "")
@@ -79,23 +87,11 @@ fun SignUpScreen(navController: NavHostController = rememberNavController()) {
 
     if (currentConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
         DrawSignUpPortrait(
-            navController,
-            email,
-            isErrorEmail,
-            password,
-            isErrorPassword,
-            autologinState,
-            store
+            navController, email, isErrorEmail, password, isErrorPassword, autologinState, store
         )
     } else {
         DrawSignUpLandScape(
-            navController,
-            email,
-            isErrorEmail,
-            password,
-            isErrorPassword,
-            autologinState,
-            store
+            navController, email, isErrorEmail, password, isErrorPassword, autologinState, store
         )
     }
 }
@@ -141,13 +137,7 @@ private fun DrawSignUpPortrait(
             DrawOrText()
             Spacer(Modifier.height(dimensionResource(R.dimen.spacer_small)))
             DrawRegisterButton(
-                email,
-                isErrorEmail,
-                password,
-                isErrorPassword,
-                autologinState,
-                store,
-                navController
+                email, isErrorEmail, password, isErrorPassword, autologinState, store, navController
             )
             Spacer(Modifier.height(dimensionResource(R.dimen.spacer_normal)))
             DrawTermAndConditionsText()
@@ -174,8 +164,7 @@ private fun DrawSignUpLandScape(
             .padding(dimensionResource(R.dimen.signup_padding_bigger))
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
-    )
-    {
+    ) {
         DrawFirstText()
         DrawSecondText()
         Spacer(Modifier.height(dimensionResource(R.dimen.signup_padding_bigger)))
@@ -189,13 +178,7 @@ private fun DrawSignUpLandScape(
         DrawOrText()
         Spacer(Modifier.height(dimensionResource(R.dimen.spacer_small)))
         DrawRegisterButton(
-            email,
-            isErrorEmail,
-            password,
-            isErrorPassword,
-            autologinState,
-            store,
-            navController
+            email, isErrorEmail, password, isErrorPassword, autologinState, store, navController
         )
         Spacer(Modifier.height(dimensionResource(R.dimen.spacer_normal)))
         DrawTermAndConditionsText()
@@ -207,8 +190,7 @@ private fun DrawSignUpLandScape(
 @Composable
 private fun DrawRememberMeCheckBox(autologinState: MutableState<Boolean>) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxWidth()
     ) {
         Box(
             contentAlignment = Alignment.Center
@@ -236,7 +218,7 @@ private fun DrawCheckBoxText() {
         modifier = Modifier.padding(start = dimensionResource(R.dimen.signup_padding)),
         color = colorResource(R.color.custom_gray_2),
         fontSize = dimensionResource(R.dimen.signup_text_rememberme_fontsize).value.sp,
-        fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD
+        fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily
     )
 }
 
@@ -289,7 +271,7 @@ private fun DrawRegisterButton(
             text = stringResource(R.string.signup_text_register).uppercase(),
             color = colorResource(R.color.custom_white),
             fontSize = dimensionResource(R.dimen.signup_text_register_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
             letterSpacing = dimensionResource(R.dimen.signup_text_register_letterspacing).value.sp
         )
     }
@@ -297,9 +279,7 @@ private fun DrawRegisterButton(
 
 @Composable
 private fun DrawTextField(
-    value: MutableState<String>,
-    isValueError: MutableState<Boolean>,
-    isPassword: Boolean = false
+    value: MutableState<String>, isValueError: MutableState<Boolean>, isPassword: Boolean = false
 ) {
     TextField(
         value = value.value,
@@ -309,8 +289,7 @@ private fun DrawTextField(
             Text(
                 text = if (isPassword) stringResource(R.string.signup_text_password) else stringResource(
                     R.string.signup_text_email
-                ),
-                color = colorResource(R.color.custom_gray_4)
+                ), color = colorResource(R.color.custom_gray_4)
             )
         },
         isError = isValueError.value,
@@ -330,13 +309,16 @@ private fun DrawTextField(
         )
     )
     Text(
-        text = if (isValueError.value) stringResource(R.string.signup_text_email_error) else "",
+        text = if (isValueError.value) {
+            if (isPassword) stringResource(R.string.signup_text_password_error)
+            else stringResource(R.string.signup_text_email_error)
+        } else "",
         modifier = Modifier
             .padding(start = dimensionResource(R.dimen.signup_padding_bigger))
             .fillMaxWidth(),
         color = colorResource(R.color.custom_error),
         fontSize = dimensionResource(R.dimen.signup_error_text_fontsize).value.sp,
-        fontFamily = Fonts.FONT_OPENSANS,
+        fontFamily = Fonts.FONT_OPENSANS.fontFamily,
     )
 }
 
@@ -349,14 +331,14 @@ private fun DrawAlreadyHaveAccountText() {
             text = stringResource(R.string.signup_text_alreadyhaveaccount),
             color = colorResource(R.color.custom_gray_2),
             fontSize = dimensionResource(R.dimen.signup_text_signin_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD
+            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily
         )
         Text(
             text = stringResource(R.string.signup_text_signin),
             modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.signup_text_padding)),
             color = colorResource(R.color.white),
             fontSize = dimensionResource(R.dimen.signup_text_signin_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD
+            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily
         )
     }
 
@@ -368,7 +350,7 @@ private fun DrawTermAndConditionsText() {
         text = stringResource(R.string.signup_text_termsandcondition),
         color = colorResource(R.color.custom_white),
         fontSize = dimensionResource(R.dimen.signup_text_termandconditions_fontsize).value.sp,
-        fontFamily = Fonts.FONT_OPENSANS,
+        fontFamily = Fonts.FONT_OPENSANS.fontFamily,
     )
 }
 
@@ -378,7 +360,7 @@ private fun DrawOrText() {
         text = stringResource(R.string.signup_text_or),
         color = colorResource(R.color.custom_white),
         fontSize = dimensionResource(R.dimen.signup_text_or_fontsize).value.sp,
-        fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+        fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
     )
 }
 
@@ -414,7 +396,7 @@ private fun DrawSecondText() {
         modifier = Modifier.padding(vertical = dimensionResource(R.dimen.signup_padding)),
         color = colorResource(R.color.custom_white),
         fontSize = dimensionResource(R.dimen.signup_text_fillouttheprofile_size).value.sp,
-        fontFamily = Fonts.FONT_OPENSANS,
+        fontFamily = Fonts.FONT_OPENSANS.fontFamily,
     )
 }
 
@@ -424,6 +406,6 @@ private fun DrawFirstText() {
         text = stringResource(R.string.signup_text_letgetacquainted),
         color = colorResource(R.color.custom_white),
         fontSize = dimensionResource(R.dimen.signup_text_letgetacquainted_size).value.sp,
-        fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+        fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
     )
 }

@@ -9,8 +9,7 @@ import com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.cont
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.myprofile.MyProfile
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.ScreenList
 
-class TabActivity {
-}
+class TableLayout
 
 // For supporting code purpose https://developer.android.com/jetpack/compose/layouts/pager
 @OptIn(ExperimentalFoundationApi::class)
@@ -20,10 +19,10 @@ fun Pages(navController: NavController, email: String) {
 
     HorizontalPager(pageCount = ScreenList.values().size, state = pagerState) { page ->
         when (page) {
-            ScreenList.MYPROFILE.ordinal -> {
+            ScreenList.MY_PROFILE.ordinal -> {
                 MyProfile(pagerState, email = email)
             }
-            ScreenList.CONTACTLIST.ordinal -> {
+            ScreenList.CONTACT_LIST.ordinal -> {
                 ContactList(navController = navController, pagerState)
             }
         }

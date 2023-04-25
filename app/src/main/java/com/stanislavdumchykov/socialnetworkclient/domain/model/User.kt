@@ -1,4 +1,4 @@
-package com.stanislavdumchykov.socialnetworkclient.domain
+package com.stanislavdumchykov.socialnetworkclient.domain.model
 
 data class User(
     val id: Int,
