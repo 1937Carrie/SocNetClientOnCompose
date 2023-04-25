@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity()
+class MyProfileScreen : ComponentActivity()
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -89,7 +89,7 @@ private fun DrawButtonViewMyContacts(pagerState: PagerState) {
             .background(color = colorResource(R.color.custom_orange))
             .clickable {
                 coroutineScope.launch {
-                    pagerState.scrollToPage(ScreenList.CONTACTLIST.ordinal)
+                    pagerState.scrollToPage(ScreenList.CONTACT_LIST.ordinal)
                 }
             },
         contentAlignment = Alignment.Center
@@ -98,7 +98,7 @@ private fun DrawButtonViewMyContacts(pagerState: PagerState) {
             text = stringResource(R.string.myprofile_button_viewmycontacts).uppercase(),
             color = colorResource(R.color.white),
             fontSize = dimensionResource(R.dimen.myprofile_button_editprofile_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
         )
     }
 }
@@ -123,13 +123,13 @@ private fun DrawButtonEditProfile() {
             text = stringResource(R.string.myprofile_button_editprofile),
             color = if (isSystemInDarkTheme()) colorResource(R.color.white) else colorResource(R.color.custom_gray_text),
             fontSize = dimensionResource(R.dimen.myprofile_button_editprofile_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
         )
     }
 }
 
 @Composable
-private fun DrawSocialNetworkLinksBlock() {
+fun DrawSocialNetworkLinksBlock() {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -202,21 +202,21 @@ private fun DrawUserInfo(email: String) {
             }" else email,
             color = colorResource(R.color.custom_white),
             fontSize = dimensionResource(R.dimen.myprofile_username_text_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
         )
         Text(
             text = stringResource(R.string.myprofile_text_user_profession),
             modifier = Modifier.padding(top = dimensionResource(R.dimen.myprofile_padding_smaller)),
             color = colorResource(R.color.custom_gray_2),
             fontSize = dimensionResource(R.dimen.myprofile_user_profession_text_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
         )
         Text(
             text = stringResource(R.string.myprofile_text_user_address),
             modifier = Modifier.padding(top = dimensionResource(R.dimen.myprofile_padding)),
             color = colorResource(R.color.custom_gray_2),
             fontSize = dimensionResource(R.dimen.myprofile_user_profession_text_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
         )
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_normal)))
     }
@@ -229,7 +229,7 @@ private fun DrawText() {
         modifier = Modifier.padding(dimensionResource(R.dimen.myprofile_padding)),
         color = colorResource(R.color.custom_white),
         fontSize = dimensionResource(R.dimen.myprofile_settings_text_fontsize).value.sp,
-        fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+        fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
     )
 }
 

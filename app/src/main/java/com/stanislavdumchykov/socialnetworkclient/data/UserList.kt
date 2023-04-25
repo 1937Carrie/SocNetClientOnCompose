@@ -1,8 +1,9 @@
 package com.stanislavdumchykov.socialnetworkclient.data
 
-import com.stanislavdumchykov.socialnetworkclient.domain.User
+import com.stanislavdumchykov.socialnetworkclient.domain.model.User
+import javax.inject.Inject
 
-class UserList {
+class UserList @Inject constructor() {
     private val name = "Player"
     private val job = "Job"
 

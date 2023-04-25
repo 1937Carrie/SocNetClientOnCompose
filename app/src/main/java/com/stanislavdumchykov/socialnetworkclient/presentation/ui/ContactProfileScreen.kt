@@ -21,11 +21,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.stanislavdumchykov.socialnetworkclient.R
+import com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.myprofile.DrawSocialNetworkLinksBlock
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 
-class ContactProfileActivity {
-}
+class ContactProfileActivity
 
 @Composable
 fun ContactProfile(
@@ -66,8 +66,7 @@ private fun DrawText(navController: NavController) {
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
-    )
-    {
+    ) {
         Image(
             painter = painterResource(R.drawable.ic_arrow_back),
             contentDescription = "",
@@ -81,10 +80,9 @@ private fun DrawText(navController: NavController) {
         )
         Text(
             text = stringResource(R.string.contactprofile_profile_text),
-            modifier = Modifier.padding(dimensionResource(R.dimen.myprofile_padding)),
             color = colorResource(R.color.custom_white),
             fontSize = dimensionResource(R.dimen.myprofile_settings_text_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
         )
         Image(
             painter = painterResource(R.drawable.ic_arrow_back),
@@ -117,21 +115,21 @@ private fun DrawUserInfo(name: String, career: String, address: String) {
             text = name,
             color = colorResource(R.color.custom_white),
             fontSize = dimensionResource(R.dimen.myprofile_username_text_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
         )
         Text(
             text = career,
             modifier = Modifier.padding(top = dimensionResource(R.dimen.myprofile_padding_smaller)),
             color = colorResource(R.color.custom_gray_2),
             fontSize = dimensionResource(R.dimen.myprofile_user_profession_text_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
         )
         Text(
             text = address,
             modifier = Modifier.padding(top = dimensionResource(R.dimen.myprofile_padding)),
             color = colorResource(R.color.custom_gray_2),
             fontSize = dimensionResource(R.dimen.myprofile_user_profession_text_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
         )
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_normal)))
     }
@@ -163,36 +161,6 @@ private fun DrawBottomBlock() {
 }
 
 @Composable
-private fun DrawSocialNetworkLinksBlock() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-    ) {
-        Image(
-            painter = painterResource(R.drawable.ic_facebook),
-            contentDescription = "",
-            modifier = Modifier
-                .clip(CircleShape)
-                .clickable { },
-        )
-        Image(
-            painter = painterResource(R.drawable.ic_linkedin),
-            contentDescription = "",
-            modifier = Modifier
-                .clip(CircleShape)
-                .clickable { },
-        )
-        Image(
-            painter = painterResource(R.drawable.ic_instagram),
-            contentDescription = "",
-            modifier = Modifier
-                .clip(CircleShape)
-                .clickable { },
-        )
-    }
-}
-
-@Composable
 private fun DrawButtonMessage() {
     Box(
         modifier = Modifier
@@ -209,7 +177,7 @@ private fun DrawButtonMessage() {
             text = stringResource(R.string.contactprofile_message_text).uppercase(),
             color = colorResource(R.color.white),
             fontSize = dimensionResource(R.dimen.contactprofile_button_message_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD,
+            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
         )
     }
 }
