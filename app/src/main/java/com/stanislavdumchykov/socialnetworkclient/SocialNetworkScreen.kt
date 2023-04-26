@@ -7,7 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.stanislavdumchykov.socialnetworkclient.domain.utils.NavigationRoutes
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.NavigationRoutes
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.ContactProfile
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.signup.SignUpScreen
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.Pages

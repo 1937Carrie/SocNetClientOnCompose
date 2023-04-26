@@ -21,8 +21,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.myprofile.DrawSocialNetworkLinksBlock
-import com.stanislavdumchykov.socialnetworkclient.domain.utils.Constants
-import com.stanislavdumchykov.socialnetworkclient.domain.utils.Fonts
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 
 @Composable
 fun ContactProfile(
@@ -79,7 +79,7 @@ private fun DrawText(onArrowClick: () -> Unit) {
             text = stringResource(R.string.contactprofile_profile_text),
             color = colorResource(R.color.custom_white),
             fontSize = dimensionResource(R.dimen.myprofile_settings_text_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
+            fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
         )
         Image(
             painter = painterResource(R.drawable.ic_arrow_back),
@@ -112,21 +112,21 @@ private fun DrawUserInfo(name: String, career: String, address: String) {
             text = name,
             color = colorResource(R.color.custom_white),
             fontSize = dimensionResource(R.dimen.myprofile_username_text_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
+            fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
         )
         Text(
             text = career,
             modifier = Modifier.padding(top = dimensionResource(R.dimen.myprofile_padding_smaller)),
             color = colorResource(R.color.custom_gray_2),
             fontSize = dimensionResource(R.dimen.myprofile_user_profession_text_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
+            fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
         )
         Text(
             text = address,
             modifier = Modifier.padding(top = dimensionResource(R.dimen.myprofile_padding)),
             color = colorResource(R.color.custom_gray_2),
             fontSize = dimensionResource(R.dimen.myprofile_user_profession_text_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
+            fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
         )
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_normal)))
     }
@@ -174,7 +174,7 @@ private fun DrawButtonMessage() {
             text = stringResource(R.string.contactprofile_message_text).uppercase(),
             color = colorResource(R.color.white),
             fontSize = dimensionResource(R.dimen.contactprofile_button_message_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
+            fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
         )
     }
 }

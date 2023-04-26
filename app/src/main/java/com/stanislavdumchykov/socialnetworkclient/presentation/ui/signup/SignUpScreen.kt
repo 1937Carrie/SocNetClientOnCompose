@@ -30,11 +30,14 @@ import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.preferencesDataStore
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.data.UserStore
-import com.stanislavdumchykov.socialnetworkclient.domain.utils.Constants
-import com.stanislavdumchykov.socialnetworkclient.domain.utils.Fonts
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
+private const val PASSWORD_MIN_LENGTH = 8
+private const val PASSWORD_PATTERN = "\\d+|\\w+"
 
 private val Context.dataStore by preferencesDataStore(name = Constants.USER_PREFERENCES_NAME,
     produceMigrations = { context ->
@@ -203,7 +206,7 @@ private fun DrawCheckBoxText() {
         modifier = Modifier.padding(start = dimensionResource(R.dimen.signup_padding)),
         color = colorResource(R.color.custom_gray_2),
         fontSize = dimensionResource(R.dimen.signup_text_rememberme_fontsize).value.sp,
-        fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily
+        fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily
     )
 }
 
@@ -228,8 +231,8 @@ private fun DrawRegisterButton(
                     .matcher(email.value)
                     .matches()
                 isErrorPassword.value =
-                    !(password.value.length >= Constants.PASSWORD_MIN_LENGTH && password.value.contains(
-                        Regex(Constants.PASSWORD_PATTERN)
+                    !(password.value.length >= PASSWORD_MIN_LENGTH && password.value.contains(
+                        Regex(PASSWORD_PATTERN)
                     ))
 
                 if (autologinState.value) {
@@ -254,7 +257,7 @@ private fun DrawRegisterButton(
             text = stringResource(R.string.signup_text_register).uppercase(),
             color = colorResource(R.color.custom_white),
             fontSize = dimensionResource(R.dimen.signup_text_register_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
+            fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
             letterSpacing = dimensionResource(R.dimen.signup_text_register_letterspacing).value.sp
         )
     }
@@ -301,7 +304,7 @@ private fun DrawTextField(
             .fillMaxWidth(),
         color = colorResource(R.color.custom_error),
         fontSize = dimensionResource(R.dimen.signup_error_text_fontsize).value.sp,
-        fontFamily = Fonts.FONT_OPENSANS.fontFamily,
+        fontFamily = Fonts.FONT_OPEN_SANS.fontFamily,
     )
 }
 
@@ -314,14 +317,14 @@ private fun DrawAlreadyHaveAccountText() {
             text = stringResource(R.string.signup_text_alreadyhaveaccount),
             color = colorResource(R.color.custom_gray_2),
             fontSize = dimensionResource(R.dimen.signup_text_signin_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily
+            fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily
         )
         Text(
             text = stringResource(R.string.signup_text_signin),
             modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.signup_text_padding)),
             color = colorResource(R.color.white),
             fontSize = dimensionResource(R.dimen.signup_text_signin_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily
+            fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily
         )
     }
 
@@ -333,7 +336,7 @@ private fun DrawTermAndConditionsText() {
         text = stringResource(R.string.signup_text_termsandcondition),
         color = colorResource(R.color.custom_white),
         fontSize = dimensionResource(R.dimen.signup_text_termandconditions_fontsize).value.sp,
-        fontFamily = Fonts.FONT_OPENSANS.fontFamily,
+        fontFamily = Fonts.FONT_OPEN_SANS.fontFamily,
     )
 }
 
@@ -343,7 +346,7 @@ private fun DrawOrText() {
         text = stringResource(R.string.signup_text_or),
         color = colorResource(R.color.custom_white),
         fontSize = dimensionResource(R.dimen.signup_text_or_fontsize).value.sp,
-        fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
+        fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
     )
 }
 
@@ -379,7 +382,7 @@ private fun DrawSecondText() {
         modifier = Modifier.padding(vertical = dimensionResource(R.dimen.signup_padding)),
         color = colorResource(R.color.custom_white),
         fontSize = dimensionResource(R.dimen.signup_text_fillouttheprofile_size).value.sp,
-        fontFamily = Fonts.FONT_OPENSANS.fontFamily,
+        fontFamily = Fonts.FONT_OPEN_SANS.fontFamily,
     )
 }
 
@@ -389,6 +392,6 @@ private fun DrawFirstText() {
         text = stringResource(R.string.signup_text_letgetacquainted),
         color = colorResource(R.color.custom_white),
         fontSize = dimensionResource(R.dimen.signup_text_letgetacquainted_size).value.sp,
-        fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
+        fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
     )
 }
