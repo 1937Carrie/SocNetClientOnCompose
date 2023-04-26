@@ -4,7 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
-import com.stanislavdumchykov.socialnetworkclient.domain.utils.ScreenList
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.ScreenList
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.contactlist.ContactList
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.myprofile.MyProfile
 

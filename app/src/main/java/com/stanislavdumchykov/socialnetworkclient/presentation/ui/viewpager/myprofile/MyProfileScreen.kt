@@ -23,9 +23,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import com.stanislavdumchykov.socialnetworkclient.R
-import com.stanislavdumchykov.socialnetworkclient.domain.utils.Constants
-import com.stanislavdumchykov.socialnetworkclient.domain.utils.Fonts
-import com.stanislavdumchykov.socialnetworkclient.domain.utils.ScreenList
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.ScreenList
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -93,7 +93,7 @@ private fun DrawButtonViewMyContacts(pagerState: PagerState) {
             text = stringResource(R.string.myprofile_button_viewmycontacts).uppercase(),
             color = colorResource(R.color.white),
             fontSize = dimensionResource(R.dimen.myprofile_button_editprofile_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
+            fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
         )
     }
 }
@@ -118,7 +118,7 @@ private fun DrawButtonEditProfile() {
             text = stringResource(R.string.myprofile_button_editprofile),
             color = if (isSystemInDarkTheme()) colorResource(R.color.white) else colorResource(R.color.custom_gray_text),
             fontSize = dimensionResource(R.dimen.myprofile_button_editprofile_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
+            fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
         )
     }
 }
@@ -197,21 +197,21 @@ private fun DrawUserInfo(email: String) {
             }" else email,
             color = colorResource(R.color.custom_white),
             fontSize = dimensionResource(R.dimen.myprofile_username_text_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
+            fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
         )
         Text(
             text = stringResource(R.string.myprofile_text_user_profession),
             modifier = Modifier.padding(top = dimensionResource(R.dimen.myprofile_padding_smaller)),
             color = colorResource(R.color.custom_gray_2),
             fontSize = dimensionResource(R.dimen.myprofile_user_profession_text_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
+            fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
         )
         Text(
             text = stringResource(R.string.myprofile_text_user_address),
             modifier = Modifier.padding(top = dimensionResource(R.dimen.myprofile_padding)),
             color = colorResource(R.color.custom_gray_2),
             fontSize = dimensionResource(R.dimen.myprofile_user_profession_text_fontsize).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
+            fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
         )
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_normal)))
     }
@@ -224,7 +224,7 @@ private fun DrawText() {
         modifier = Modifier.padding(dimensionResource(R.dimen.myprofile_padding)),
         color = colorResource(R.color.custom_white),
         fontSize = dimensionResource(R.dimen.myprofile_settings_text_fontsize).value.sp,
-        fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
+        fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
     )
 }
 

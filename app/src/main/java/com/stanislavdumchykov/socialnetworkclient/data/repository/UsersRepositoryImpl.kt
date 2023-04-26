@@ -8,5 +8,5 @@ import javax.inject.Inject
 class UsersRepositoryImpl @Inject constructor(
     private val inMemoryDb: UserList
 ) : UsersRepository {
-    override suspend fun getHardcodedUsers(): List<User> = inMemoryDb.users
+    override suspend fun getUsers(): List<User> = inMemoryDb.users
 }

@@ -32,8 +32,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.domain.model.User
-import com.stanislavdumchykov.socialnetworkclient.domain.utils.Fonts
-import com.stanislavdumchykov.socialnetworkclient.domain.utils.ScreenList
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.ScreenList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.*
@@ -263,13 +263,13 @@ private fun DrawItem(
                     text = user.name,
                     color = colorResource(R.color.contact_list_name_text_color),
                     fontSize = dimensionResource(R.dimen.contactlist_text_name_fontsize).value.sp,
-                    fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
+                    fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
                 )
                 Text(
                     text = user.career,
                     color = colorResource(R.color.contact_list_career_text_color),
                     fontSize = dimensionResource(R.dimen.contactlist_text_career_fontsize).value.sp,
-                    fontFamily = Fonts.FONT_OPENSANS.fontFamily,
+                    fontFamily = Fonts.FONT_OPEN_SANS.fontFamily,
                 )
             }
             if (!isMultiSelect.value) {
@@ -404,7 +404,7 @@ private fun DrawAddContactsText() {
         modifier = Modifier.padding(dimensionResource(R.dimen.spacer_smaller)),
         color = colorResource(R.color.custom_white),
         fontSize = dimensionResource(R.dimen.contactlist_add_contacts_font_size).value.sp,
-        fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
+        fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
     )
 }
 
@@ -434,7 +434,7 @@ private fun DrawTopBlock(pagerState: PagerState, isOnThisScreen: MutableState<Bo
             text = stringResource(R.string.contactlist_contacts_text),
             color = colorResource(R.color.custom_white),
             fontSize = dimensionResource(R.dimen.contactlist_contacts_font_size).value.sp,
-            fontFamily = Fonts.FONT_OPENSANS_SEMI_BOLD.fontFamily,
+            fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
         )
         Image(
             painter = painterResource(R.drawable.ic_search), contentDescription = ""

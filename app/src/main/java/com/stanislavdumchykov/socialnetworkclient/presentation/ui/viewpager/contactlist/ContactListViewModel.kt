@@ -20,7 +20,7 @@ class ContactListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            _userList.value = usersRepository.getHardcodedUsers()
+            _userList.value = usersRepository.getUsers()
         }
     }
 
