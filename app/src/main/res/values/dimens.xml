@@ -20,6 +20,9 @@
     <dimen name="myprofile_button_editprofile_fontsize">14sp</dimen>
     <dimen name="myprofile_button_viewmycontacts_height">55dp</dimen>
 
+    <!-- LogIn screen   -->
+    <dimen name="login_text_fontsize">14sp</dimen>
+
     <!-- SignUp screen   -->
     <dimen name="signup_text_letgetacquainted_size">24sp</dimen>
     <dimen name="signup_text_fillouttheprofile_size">12sp</dimen>

@@ -13,6 +13,14 @@
     <string name="myprofile_button_editprofile">Edit profile</string>
     <string name="myprofile_button_viewmycontacts">View my contacts</string>
 
+    <!-- LogIn screen   -->
+    <string name="login_text_hello">Hello!</string>
+    <string name="login_text_enter_email">Enter your email and password below!</string>
+    <string name="login_text_forgot_password">Forgot your password?</string>
+    <string name="login_text_login">Login</string>
+    <string name="login_text_dont_have_account">Don’t have account?</string>
+    <string name="login_text_sign_up">Sign up</string>
+
     <!-- SignUp screen   -->
     <string name="signup_text_letgetacquainted">Let\'s get acquainted</string>
     <string name="signup_text_fillouttheprofile">Fill out the profile and go to the application!</string>

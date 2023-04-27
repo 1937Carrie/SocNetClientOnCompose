@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.ContactProfile
+import com.stanislavdumchykov.socialnetworkclient.presentation.ui.login.LogInScreen
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.signup.SignUpExtendedScreen
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.signup.SignUpScreen
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.Pages
@@ -17,12 +18,20 @@ import com.stanislavdumchykov.socialnetworkclient.presentation.utils.NavigationR
 fun SocialNetworkApp(navController: NavHostController = rememberNavController()) {
     NavHost(
         navController = navController,
-        startDestination = NavigationRoutes.SignUp.name
+        startDestination = NavigationRoutes.LogIn.name
     ) {
+        composable(route = NavigationRoutes.LogIn.name) {
+            LogInScreen {
+                navController.navigate(route = NavigationRoutes.SignUp.name)
+            }
+        }
         composable(route = NavigationRoutes.SignUp.name) {
             SignUpScreen(
                 onRegisterClick = {
                     navController.navigate(route = NavigationRoutes.SignUpExtended.name)
+                },
+                onSignInClick = {
+                    navController.popBackStack()
                 }
             )
         }
