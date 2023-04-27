@@ -1,6 +1,5 @@
 package com.stanislavdumchykov.socialnetworkclient.presentation.ui.signup
 
-import android.content.Context
 import android.content.res.Configuration
 import android.util.Patterns
 import androidx.compose.foundation.*
@@ -26,10 +25,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
-import androidx.datastore.preferences.SharedPreferencesMigration
-import androidx.datastore.preferences.preferencesDataStore
 import com.stanislavdumchykov.socialnetworkclient.R
-import com.stanislavdumchykov.socialnetworkclient.data.UserStore
+import com.stanislavdumchykov.socialnetworkclient.data.StorageRepositoryImpl
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 import kotlinx.coroutines.CoroutineScope
@@ -38,11 +35,6 @@ import kotlinx.coroutines.launch
 
 private const val PASSWORD_MIN_LENGTH = 8
 private const val PASSWORD_PATTERN = "\\d+|\\w+"
-
-private val Context.dataStore by preferencesDataStore(name = Constants.USER_PREFERENCES_NAME,
-    produceMigrations = { context ->
-        listOf(SharedPreferencesMigration(context, Constants.USER_PREFERENCES_NAME))
-    })
 
 @Composable
 fun SignUpScreen(onRegisterClick: (String) -> Unit, onSignInClick: () -> Unit) {
@@ -53,7 +45,7 @@ fun SignUpScreen(onRegisterClick: (String) -> Unit, onSignInClick: () -> Unit) {
     val autologinState = remember { mutableStateOf(true) }
     val currentConfiguration by remember { mutableStateOf(LocalConfiguration) }
     val currentContext = LocalContext.current
-    val store = UserStore(currentContext)
+    val store = StorageRepositoryImpl(currentContext)
 
     val emailValue by store.getEmailToken.collectAsState(initial = "")
     val passwordValue by store.getPasswordToken.collectAsState(initial = "")
@@ -101,7 +93,7 @@ private fun DrawSignUpPortrait(
     password: MutableState<String>,
     isErrorPassword: MutableState<Boolean>,
     autologinState: MutableState<Boolean>,
-    store: UserStore,
+    store: StorageRepositoryImpl,
 ) {
     Column(
         modifier = Modifier
@@ -159,7 +151,7 @@ private fun DrawSignUpLandScape(
     password: MutableState<String>,
     isErrorPassword: MutableState<Boolean>,
     autologinState: MutableState<Boolean>,
-    store: UserStore
+    store: StorageRepositoryImpl
 ) {
     Column(
         modifier = Modifier
@@ -233,7 +225,7 @@ private fun DrawRegisterButton(
     password: MutableState<String>,
     isErrorPassword: MutableState<Boolean>,
     autologinState: MutableState<Boolean>,
-    store: UserStore,
+    store: StorageRepositoryImpl,
     onRegisterClick: (String) -> Unit
 ) {
     Box(
@@ -253,8 +245,8 @@ private fun DrawRegisterButton(
 
                 if (autologinState.value) {
                     CoroutineScope(Dispatchers.IO).launch {
-                        store.saveToken(Constants.PREFERENCES_EMAIL, email.value)
-                        store.saveToken(Constants.PREFERENCES_PASSWORD, password.value)
+                        store.saveString(Constants.PREFERENCES_EMAIL, email.value)
+                        store.saveString(Constants.PREFERENCES_PASSWORD, password.value)
                     }
                 }
 
