@@ -97,7 +97,7 @@ private fun DrawSignUpPortrait(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(Constants.PERCENT_60),
+                .fillMaxHeight(Constants.PERCENT_060),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {

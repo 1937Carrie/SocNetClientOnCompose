@@ -47,7 +47,7 @@ private fun DrawTopBlock(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(Constants.PERCENT_50)
+            .fillMaxHeight(Constants.PERCENT_050)
             .background(color = colorResource(R.color.custom_blue)),
     ) {
         DrawText(onArrowClick)
@@ -100,7 +100,7 @@ private fun DrawUserInfo(name: String, career: String, address: String) {
             painter = painterResource(R.drawable.default_profile_image),
             contentDescription = "",
             modifier = Modifier
-                .fillMaxWidth(Constants.PERCENT_33)
+                .fillMaxWidth(Constants.PERCENT_033)
                 .aspectRatio(Constants.PERCENT_100)
                 .clip(
                     CircleShape
@@ -141,7 +141,7 @@ private fun DrawBottomBlock() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(Constants.PERCENT_60),
+                .fillMaxHeight(Constants.PERCENT_060),
             verticalArrangement = Arrangement.Center,
         ) {
             DrawSocialNetworkLinksBlock()

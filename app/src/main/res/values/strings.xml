@@ -28,6 +28,14 @@
     <string name="signup_text_alreadyhaveaccount">Already have an account?</string>
     <string name="signup_text_signin">Sign in</string>
 
+    <!-- SignUpExtended screen   -->
+    <string name="signupext_text_first">Your profile data</string>
+    <string name="signupext_text_second">Fill out the profile and go to the application!</string>
+    <string name="signupext_username">User name</string>
+    <string name="signupext_mobile_phone">Mobile phone</string>
+    <string name="signupext_cancel">Cancel</string>
+    <string name="signupext_forward">Forward</string>
+
     <!-- ContactList screen   -->
     <string name="contactlist_contacts_text">Contacts</string>
     <string name="contactlist_add_contacts_text">Add contacts</string>

@@ -7,10 +7,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.NavigationRoutes
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.ContactProfile
+import com.stanislavdumchykov.socialnetworkclient.presentation.ui.signup.SignUpExtendedScreen
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.signup.SignUpScreen
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.Pages
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.NavigationRoutes
 
 @Composable
 fun SocialNetworkApp(navController: NavHostController = rememberNavController()) {
@@ -20,10 +21,15 @@ fun SocialNetworkApp(navController: NavHostController = rememberNavController())
     ) {
         composable(route = NavigationRoutes.SignUp.name) {
             SignUpScreen(
-                onRegisterClick = { email: String ->
-                    navController.navigate(route = "${NavigationRoutes.Pager.name}/$email") {
-                        popUpTo(NavigationRoutes.SignUp.name) { inclusive = true }
-                    }
+                onRegisterClick = {
+                    navController.navigate(route = NavigationRoutes.SignUpExtended.name)
+                }
+            )
+        }
+        composable(route = NavigationRoutes.SignUpExtended.name) {
+            SignUpExtendedScreen(
+                onCancelClick = {
+                    navController.popBackStack()
                 }
             )
         }
