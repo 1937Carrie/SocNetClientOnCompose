@@ -45,7 +45,7 @@ private val Context.dataStore by preferencesDataStore(name = Constants.USER_PREF
     })
 
 @Composable
-fun SignUpScreen(onRegisterClick: (String) -> Unit) {
+fun SignUpScreen(onRegisterClick: (String) -> Unit, onSignInClick: () -> Unit) {
     val email = rememberSaveable { mutableStateOf("") }
     val isErrorEmail = rememberSaveable { mutableStateOf(false) }
     val password = rememberSaveable { mutableStateOf("") }
@@ -69,11 +69,25 @@ fun SignUpScreen(onRegisterClick: (String) -> Unit) {
 
     if (currentConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
         DrawSignUpPortrait(
-            onRegisterClick, email, isErrorEmail, password, isErrorPassword, autologinState, store
+            onRegisterClick,
+            onSignInClick,
+            email,
+            isErrorEmail,
+            password,
+            isErrorPassword,
+            autologinState,
+            store
         )
     } else {
         DrawSignUpLandScape(
-            onRegisterClick, email, isErrorEmail, password, isErrorPassword, autologinState, store
+            onRegisterClick,
+            onSignInClick,
+            email,
+            isErrorEmail,
+            password,
+            isErrorPassword,
+            autologinState,
+            store
         )
     }
 }
@@ -81,6 +95,7 @@ fun SignUpScreen(onRegisterClick: (String) -> Unit) {
 @Composable
 private fun DrawSignUpPortrait(
     onRegisterClick: (String) -> Unit,
+    onSignInClick: () -> Unit,
     email: MutableState<String>,
     isErrorEmail: MutableState<Boolean>,
     password: MutableState<String>,
@@ -130,7 +145,7 @@ private fun DrawSignUpPortrait(
             Spacer(Modifier.height(dimensionResource(R.dimen.spacer_normal)))
             DrawTermAndConditionsText()
             Spacer(Modifier.height(dimensionResource(R.dimen.spacer_small)))
-            DrawAlreadyHaveAccountText()
+            DrawAlreadyHaveAccountText(onSignInClick)
         }
     }
 }
@@ -138,6 +153,7 @@ private fun DrawSignUpPortrait(
 @Composable
 private fun DrawSignUpLandScape(
     onRegisterClick: (String) -> Unit,
+    onSignInClick: () -> Unit,
     email: MutableState<String>,
     isErrorEmail: MutableState<Boolean>,
     password: MutableState<String>,
@@ -171,7 +187,7 @@ private fun DrawSignUpLandScape(
         Spacer(Modifier.height(dimensionResource(R.dimen.spacer_normal)))
         DrawTermAndConditionsText()
         Spacer(Modifier.height(dimensionResource(R.dimen.spacer_small)))
-        DrawAlreadyHaveAccountText()
+        DrawAlreadyHaveAccountText(onSignInClick)
     }
 }
 
@@ -309,7 +325,7 @@ private fun DrawTextField(
 }
 
 @Composable
-private fun DrawAlreadyHaveAccountText() {
+private fun DrawAlreadyHaveAccountText(onSignInClick: () -> Unit) {
     Row(
         horizontalArrangement = Arrangement.Center
     ) {
@@ -319,9 +335,11 @@ private fun DrawAlreadyHaveAccountText() {
             fontSize = dimensionResource(R.dimen.signup_text_signin_fontsize).value.sp,
             fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily
         )
+        Spacer(Modifier.width(dimensionResource(R.dimen.signup_text_padding)))
         Text(
             text = stringResource(R.string.signup_text_signin),
-            modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.signup_text_padding)),
+            modifier = Modifier
+                .clickable { onSignInClick() },
             color = colorResource(R.color.white),
             fontSize = dimensionResource(R.dimen.signup_text_signin_fontsize).value.sp,
             fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily
