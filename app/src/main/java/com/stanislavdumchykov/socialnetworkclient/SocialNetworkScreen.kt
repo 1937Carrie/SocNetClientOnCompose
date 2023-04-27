@@ -27,18 +27,25 @@ fun SocialNetworkApp(navController: NavHostController = rememberNavController())
         }
         composable(route = NavigationRoutes.SignUp.name) {
             SignUpScreen(
-                onRegisterClick = {
-                    navController.navigate(route = NavigationRoutes.SignUpExtended.name)
-                },
                 onSignInClick = {
                     navController.popBackStack()
+                },
+                onRegisterClick = { email ->
+                    navController.navigate(route = "${NavigationRoutes.SignUpExtended.name}/$email")
                 }
             )
         }
-        composable(route = NavigationRoutes.SignUpExtended.name) {
+        composable(
+            route = "${NavigationRoutes.SignUpExtended.name}/{email}"
+        ) {
             SignUpExtendedScreen(
                 onCancelClick = {
                     navController.popBackStack()
+                },
+                onForwardClick = {
+                    navController.navigate(
+                        route = "${NavigationRoutes.Pager.name}/${it.arguments?.getString("email") ?: ""}"
+                    )
                 }
             )
         }

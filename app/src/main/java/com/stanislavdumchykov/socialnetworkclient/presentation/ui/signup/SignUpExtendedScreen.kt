@@ -31,7 +31,7 @@ import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 
 @Composable
-fun SignUpExtendedScreen(onCancelClick: () -> Unit) {
+fun SignUpExtendedScreen(onCancelClick: () -> Unit, onForwardClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -47,7 +47,7 @@ fun SignUpExtendedScreen(onCancelClick: () -> Unit) {
         DrawText()
         DrawSpaceBetweenTextAndTextFields()
         DrawTextFields(userName, phoneNumber)
-        DrawButtons(onCancelClick)
+        DrawButtons(onCancelClick, onForwardClick)
     }
 }
 
@@ -162,7 +162,10 @@ private fun DrawTextField(
 }
 
 @Composable
-private fun DrawButtons(onCancelClick: () -> Unit) {
+private fun DrawButtons(
+    onCancelClick: () -> Unit,
+    onForwardClick: () -> Unit,
+) {
     Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Bottom) {
         Box(
             Modifier
@@ -194,7 +197,9 @@ private fun DrawButtons(onCancelClick: () -> Unit) {
                 .height(dimensionResource(R.dimen.signupext_text_button_forward_height))
                 .clip(RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size)))
                 .background(colorResource(R.color.custom_orange))
-                .clickable { },
+                .clickable {
+                    onForwardClick()
+                },
             contentAlignment = Alignment.Center
         ) {
             Text(
