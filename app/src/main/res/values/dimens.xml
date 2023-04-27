@@ -7,6 +7,7 @@
     <dimen name="spacer_normal">32dp</dimen>
     <dimen name="spacer_bigger">48dp</dimen>
     <dimen name="border_width">1dp</dimen>
+    <dimen name="border_width_bigger">2dp</dimen>
 
     <!-- MyProfile screen   -->
     <dimen name="myprofile_settings_text_fontsize">24sp</dimen>
@@ -34,6 +35,14 @@
     <dimen name="signup_text_termandconditions_fontsize">12sp</dimen>
     <dimen name="signup_text_signin_fontsize">14sp</dimen>
     <dimen name="signup_error_text_fontsize">12sp</dimen>
+
+    <!-- SignUpExtended screen   -->
+    <dimen name="signupext_text_first_fontsize">24sp</dimen>
+    <dimen name="signupext_text_second_fontsize">12sp</dimen>
+    <dimen name="signupext_text_button_cancel_height">40dp</dimen>
+    <dimen name="signupext_text_button_forward_height">55dp</dimen>
+    <dimen name="contactlist_text_cancel_fontsize">14sp</dimen>
+    <dimen name="contactlist_text_forward_fontsize">16sp</dimen>
 
     <!-- ContactList screen   -->
     <dimen name="contactlist_contacts_font_size">24sp</dimen>
