@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stanislavdumchykov.socialnetworkclient.R
-import com.stanislavdumchykov.socialnetworkclient.domain.model.User
+import com.stanislavdumchykov.socialnetworkclient.domain.model.LocalUser
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.ScreenList
 import kotlinx.coroutines.CoroutineScope
@@ -80,10 +80,12 @@ private fun DrawContactList(
             }
         },
         content = {
-            val userList: List<User> by contactListViewModel.userList.collectAsState(emptyList())
+            val localUserList: List<LocalUser> by contactListViewModel.localUserList.collectAsState(
+                emptyList()
+            )
             val lazyListState = rememberLazyListState()
             val isMultiselect = rememberSaveable { mutableStateOf(false) }
-            val selectedItemsList = remember { mutableListOf<User>() }
+            val selectedItemsList = remember { mutableListOf<LocalUser>() }
 
             if (!isOnThisScreen.value) {
                 isMultiselect.value = false
@@ -98,9 +100,9 @@ private fun DrawContactList(
                         .padding(bottom = it.calculateBottomPadding()),
                     state = lazyListState,
                     content = {
-                        items(items = userList,
+                        items(items = localUserList,
                             key = { user -> user.id },
-                            itemContent = { item: User ->
+                            itemContent = { item: LocalUser ->
                                 val currentItem by rememberUpdatedState(item)
                                 val dismissState =
                                     rememberDismissState(confirmStateChange = { dismissValue ->
@@ -132,7 +134,7 @@ private fun DrawContactList(
                                             onItemClick = onItemClick,
                                             isMultiSelect = isMultiselect,
                                             selectedItemsList = selectedItemsList,
-                                            user = item,
+                                            localUser = item,
                                             coroutineScope = coroutineScope,
                                             scaffoldState = scaffoldState,
                                             contactListViewModel = contactListViewModel,
@@ -175,8 +177,8 @@ private fun DrawContactList(
 private fun DrawItem(
     onItemClick: (String, String, String) -> Unit,
     isMultiSelect: MutableState<Boolean>,
-    selectedItemsList: MutableList<User>,
-    user: User,
+    selectedItemsList: MutableList<LocalUser>,
+    localUser: LocalUser,
     coroutineScope: CoroutineScope,
     scaffoldState: ScaffoldState,
     contactListViewModel: ContactListViewModel,
@@ -185,7 +187,7 @@ private fun DrawItem(
     scaffoldActionLabel: String
 ) {
     val isSelect = rememberSaveable { mutableStateOf(false) }
-    isSelect.value = selectedItemsList.contains(user)
+    isSelect.value = selectedItemsList.contains(localUser)
 
     Box(
         modifier = Modifier
@@ -205,18 +207,18 @@ private fun DrawItem(
             .combinedClickable(
                 onLongClick = {
                     handleItemMultiSelectState(
-                        isSelect, selectedItemsList, user, isMultiSelect
+                        isSelect, selectedItemsList, localUser, isMultiSelect
                     )
                 },
                 onClick = {
                     if (isMultiSelect.value) {
                         handleItemMultiSelectState(
-                            isSelect, selectedItemsList, user, isMultiSelect
+                            isSelect, selectedItemsList, localUser, isMultiSelect
                         )
                     } else {
-                        val name = if (user.name != "") user.name else "_"
-                        val career = if (user.career != "") user.career else "_"
-                        val address = if (user.address != "") user.address else "_"
+                        val name = if (localUser.name != "") localUser.name else "_"
+                        val career = if (localUser.career != "") localUser.career else "_"
+                        val address = if (localUser.address != "") localUser.address else "_"
                         onItemClick(name, career, address)
                     }
                 })
@@ -240,7 +242,7 @@ private fun DrawItem(
                             .clip(CircleShape)
                             .clickable {
                                 handleItemMultiSelectState(
-                                    isSelect, selectedItemsList, user, isMultiSelect
+                                    isSelect, selectedItemsList, localUser, isMultiSelect
                                 )
                             })
                 }
@@ -260,13 +262,13 @@ private fun DrawItem(
                 verticalArrangement = Arrangement.Center,
             ) {
                 Text(
-                    text = user.name,
+                    text = localUser.name,
                     color = colorResource(R.color.contact_list_name_text_color),
                     fontSize = dimensionResource(R.dimen.contactlist_text_name_fontsize).value.sp,
                     fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
                 )
                 Text(
-                    text = user.career,
+                    text = localUser.career,
                     color = colorResource(R.color.contact_list_career_text_color),
                     fontSize = dimensionResource(R.dimen.contactlist_text_career_fontsize).value.sp,
                     fontFamily = Fonts.FONT_OPEN_SANS.fontFamily,
@@ -284,7 +286,7 @@ private fun DrawItem(
                                 scaffoldState,
                                 contactListViewModel,
                                 index,
-                                user,
+                                localUser,
                                 scaffoldMessage,
                                 scaffoldActionLabel
                             )
@@ -297,16 +299,16 @@ private fun DrawItem(
 
 private fun handleItemMultiSelectState(
     isSelect: MutableState<Boolean>,
-    selectedItemsList: MutableList<User>,
-    user: User,
+    selectedItemsList: MutableList<LocalUser>,
+    localUser: LocalUser,
     isMultiSelect: MutableState<Boolean>,
 ) {
     isSelect.value = !isSelect.value
 
     if (isSelect.value) {
-        selectedItemsList.add(user)
+        selectedItemsList.add(localUser)
     } else {
-        selectedItemsList.remove(user)
+        selectedItemsList.remove(localUser)
     }
 
     isMultiSelect.value = selectedItemsList.isNotEmpty()
@@ -318,19 +320,19 @@ private fun removeContact(
     scaffoldState: ScaffoldState,
     contactListViewModel: ContactListViewModel,
     index: Int,
-    user: User,
+    localUser: LocalUser,
     scaffoldMessage: String,
     scaffoldActionLabel: String,
 ) {
 
-    contactListViewModel.removeUser(user)
+    contactListViewModel.removeUser(localUser)
 
     restoreContact(
         coroutineScope,
         scaffoldState,
         contactListViewModel,
         index,
-        user,
+        localUser,
         scaffoldMessage,
         scaffoldActionLabel
     )
@@ -342,7 +344,7 @@ private fun restoreContact(
     scaffoldState: ScaffoldState,
     contactListViewModel: ContactListViewModel,
     index: Int,
-    user: User,
+    localUser: LocalUser,
     scaffoldMessage: String,
     scaffoldActionLabel: String,
 ) {
@@ -354,7 +356,7 @@ private fun restoreContact(
         when (snackbarResult) {
             SnackbarResult.Dismissed -> {}
             SnackbarResult.ActionPerformed -> {
-                contactListViewModel.addUser(index, user)
+                contactListViewModel.addUser(index, localUser)
             }
         }
     }

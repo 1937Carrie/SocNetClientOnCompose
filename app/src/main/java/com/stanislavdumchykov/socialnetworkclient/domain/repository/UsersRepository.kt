@@ -1,7 +1,7 @@
 package com.stanislavdumchykov.socialnetworkclient.domain.repository
 
-import com.stanislavdumchykov.socialnetworkclient.domain.model.User
+import com.stanislavdumchykov.socialnetworkclient.domain.model.LocalUser
 
 interface UsersRepository {
-    suspend fun getUsers(): List<User>
+    suspend fun getUsers(): List<LocalUser>
 }

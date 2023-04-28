@@ -2,7 +2,7 @@ package com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.con
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.stanislavdumchykov.socialnetworkclient.domain.model.User
+import com.stanislavdumchykov.socialnetworkclient.domain.model.LocalUser
 import com.stanislavdumchykov.socialnetworkclient.domain.repository.UsersRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -15,20 +15,20 @@ import javax.inject.Inject
 class ContactListViewModel @Inject constructor(
     private val usersRepository: UsersRepository
 ) : ViewModel() {
-    private val _userList = MutableStateFlow<List<User>>(emptyList())
-    val userList: Flow<List<User>> = _userList
+    private val _localUserList = MutableStateFlow<List<LocalUser>>(emptyList())
+    val localUserList: Flow<List<LocalUser>> = _localUserList
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            _userList.value = usersRepository.getUsers()
+            _localUserList.value = usersRepository.getUsers()
         }
     }
 
-    fun addUser(index: Int, user: User) {
-        _userList.value = _userList.value.toMutableList().apply { add(index, user) }
+    fun addUser(index: Int, localUser: LocalUser) {
+        _localUserList.value = _localUserList.value.toMutableList().apply { add(index, localUser) }
     }
 
-    fun removeUser(user: User) {
-        _userList.value = _userList.value - (user)
+    fun removeUser(localUser: LocalUser) {
+        _localUserList.value = _localUserList.value - (localUser)
     }
 }

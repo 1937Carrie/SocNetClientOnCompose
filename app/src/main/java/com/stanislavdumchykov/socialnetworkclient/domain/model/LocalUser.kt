@@ -1,0 +1,14 @@
+package com.stanislavdumchykov.socialnetworkclient.domain.model
+
+data class LocalUser(
+    val id: Int,
+    val name: String = "",
+    val phone: String = "",
+    val address: String = "",
+    val career: String = "",
+    val birthday: String = "",
+    val facebook: String = "",
+    val instagram: String = "",
+    val twitter: String = "",
+    val linkedin: String = "",
+)
