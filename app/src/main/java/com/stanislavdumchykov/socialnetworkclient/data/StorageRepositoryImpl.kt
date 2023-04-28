@@ -21,6 +21,10 @@ class StorageRepositoryImpl @Inject constructor(@ApplicationContext private val 
         preferences[stringPreferencesKey(Constants.PREFERENCES_PASSWORD)] ?: ""
     }
 
+    override val getToken: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[stringPreferencesKey(Constants.ACCESS_TOKEN)] ?: ""
+    }
+
     override suspend fun saveString(key: String, value: String) {
         context.dataStore.edit { preferences ->
             preferences[stringPreferencesKey(key)] = value

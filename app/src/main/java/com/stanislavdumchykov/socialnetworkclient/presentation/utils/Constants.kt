@@ -11,4 +11,5 @@ object Constants {
     const val PREFERENCES_DATASTORE = "SocialNetworkClient"
     const val PREFERENCES_EMAIL = "EMAIL"
     const val PREFERENCES_PASSWORD = "PASSWORD"
+    const val ACCESS_TOKEN = "AccessToken"
 }

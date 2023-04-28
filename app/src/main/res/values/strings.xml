@@ -54,4 +54,10 @@
     <string name="contactprofile_message_text">Message</string>
     <string name="contactprofile_profile_text">Profile</string>
 
+    <!-- Network -->
+    <string name="messageIOException">Broken response</string>
+    <string name="messageHTTPException">Http exception</string>
+    <string name="messageUnexpectedState">Something gone wrong</string>
+    <string name="oops">Oops</string>
+
 </resources>

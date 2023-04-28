@@ -1,14 +1,18 @@
 package com.stanislavdumchykov.socialnetworkclient.domain.model
 
 data class User(
-    val id: Int,
-    val name: String = "",
-    val phone: String = "",
-    val address: String = "",
-    val career: String = "",
-    val birthday: String = "",
-    val facebook: String = "",
-    val instagram: String = "",
-    val twitter: String = "",
-    val linkedin: String = "",
+    val address: String? = "",
+    val birthday: String? = "",
+    val career: String? = "",
+    val created_at: String? = "",
+    val email: String? = "",
+    val facebook: String? = "",
+    val id: Int = 0,
+    val image: String? = "",
+    val instagram: String? = "",
+    val linkedin: String? = "",
+    val name: String? = "",
+    val phone: String? = "",
+    val twitter: String? = "",
+    val updated_at: String? = ""
 )

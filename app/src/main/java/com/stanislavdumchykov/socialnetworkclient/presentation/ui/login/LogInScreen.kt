@@ -27,21 +27,22 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 
 @Composable
-fun LogInScreen(onSignUpClick: () -> Unit) {
+fun LogInScreen(logInViewModel: LogInViewModel = hiltViewModel(), onSignUpClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(colorResource(R.color.custom_blue))
             .padding(dimensionResource(R.dimen.spacer_smaller))
     ) {
-        val email = rememberSaveable { mutableStateOf("") }
+        val email = rememberSaveable { mutableStateOf("uzumymw@email.com") }
         val isErrorEmail = rememberSaveable { mutableStateOf(false) }
-        val password = rememberSaveable { mutableStateOf("") }
+        val password = rememberSaveable { mutableStateOf("kjkszpj") }
         val isErrorPassword = rememberSaveable { mutableStateOf(false) }
         val autologinState = remember { mutableStateOf(true) }
 
@@ -55,7 +56,7 @@ fun LogInScreen(onSignUpClick: () -> Unit) {
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Bottom,
         ) {
-            DrawButtonLogin()
+            DrawButtonLogin(email, password, logInViewModel)
             Spacer(Modifier.height(dimensionResource(R.dimen.spacer_smaller)))
             DrawTextBottom(onSignUpClick)
         }
@@ -202,7 +203,11 @@ private fun DrawCheckBoxText() {
 }
 
 @Composable
-private fun DrawButtonLogin() {
+private fun DrawButtonLogin(
+    email: MutableState<String>,
+    password: MutableState<String>,
+    logInViewModel: LogInViewModel
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -215,7 +220,7 @@ private fun DrawButtonLogin() {
                 RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size))
             )
             .clickable {
-
+                logInViewModel.authorizeUser(email.value, password.value)
             },
         contentAlignment = Alignment.Center,
     ) {
