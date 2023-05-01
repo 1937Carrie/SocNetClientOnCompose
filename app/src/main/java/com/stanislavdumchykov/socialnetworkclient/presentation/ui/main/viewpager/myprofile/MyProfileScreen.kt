@@ -1,7 +1,9 @@
 package com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.viewpager.myprofile
 
 import android.app.Activity
+import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.net.Uri
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.PagerState
@@ -46,13 +48,13 @@ fun MyProfile(
     DrawBackGround()
     Column {
         DrawTopBlock(sharedViewModel.user)
-        DrawBottomBlock(pagerState, onEditProfileClick)
+        DrawBottomBlock(pagerState, onEditProfileClick, sharedViewModel.user)
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun DrawBottomBlock(pagerState: PagerState, onEditProfileClick: () -> Unit) {
+private fun DrawBottomBlock(pagerState: PagerState, onEditProfileClick: () -> Unit, user: User) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -63,7 +65,7 @@ private fun DrawBottomBlock(pagerState: PagerState, onEditProfileClick: () -> Un
                 .fillMaxHeight(Constants.PERCENT_060),
             verticalArrangement = Arrangement.Center,
         ) {
-            DrawSocialNetworkLinksBlock()
+            DrawSocialNetworkLinksBlock(user)
         }
         Column(
             modifier = Modifier
@@ -130,7 +132,7 @@ private fun DrawButtonEditProfile(onEditProfileClick: () -> Unit) {
 }
 
 @Composable
-fun DrawSocialNetworkLinksBlock() {
+fun DrawSocialNetworkLinksBlock(user: User) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -140,21 +142,21 @@ fun DrawSocialNetworkLinksBlock() {
             contentDescription = "",
             modifier = Modifier
                 .clip(CircleShape)
-                .clickable { },
+                .clickable { openHTTPLink(user.facebook) },
         )
         Image(
             painter = painterResource(R.drawable.ic_linkedin),
             contentDescription = "",
             modifier = Modifier
                 .clip(CircleShape)
-                .clickable { },
+                .clickable { openHTTPLink(user.linkedin) },
         )
         Image(
             painter = painterResource(R.drawable.ic_instagram),
             contentDescription = "",
             modifier = Modifier
                 .clip(CircleShape)
-                .clickable { },
+                .clickable { openHTTPLink(user.instagram) },
         )
     }
 }
@@ -191,20 +193,20 @@ private fun DrawUserInfo(user: User) {
         )
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_bigger)))
         Text(
-            text = user.name ?: "",
+            text = user.name.orEmpty(),
             color = colorResource(R.color.custom_white),
             fontSize = dimensionResource(R.dimen.myprofile_username_text_fontsize).value.sp,
             fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
         )
         Text(
-            text = stringResource(R.string.myprofile_text_user_profession),
+            text = user.career.orEmpty(),
             modifier = Modifier.padding(top = dimensionResource(R.dimen.myprofile_padding_smaller)),
             color = colorResource(R.color.custom_gray_2),
             fontSize = dimensionResource(R.dimen.myprofile_user_profession_text_fontsize).value.sp,
             fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
         )
         Text(
-            text = stringResource(R.string.myprofile_text_user_address),
+            text = user.address.orEmpty(),
             modifier = Modifier.padding(top = dimensionResource(R.dimen.myprofile_padding)),
             color = colorResource(R.color.custom_gray_2),
             fontSize = dimensionResource(R.dimen.myprofile_user_profession_text_fontsize).value.sp,
@@ -247,4 +249,9 @@ private fun DrawBackGround() {
                 ),
         )
     }
+}
+
+private fun openHTTPLink(uriString: String?) {
+    if (!uriString.isNullOrBlank())
+        Intent(Intent.ACTION_VIEW, Uri.parse(uriString))
 }
