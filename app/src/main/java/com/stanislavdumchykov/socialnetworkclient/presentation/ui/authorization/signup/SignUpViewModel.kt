@@ -82,7 +82,13 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
-    fun editProfile(name: String, phone: String) {
+    fun editProfile(
+        name: String = "",
+        career: String = "",
+        phone: String = "",
+        address: String = "",
+        birthday: String = ""
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             setLoadingStatus(_statusNetwork)
 
@@ -91,7 +97,11 @@ class SignUpViewModel @Inject constructor(
                     _user.value?.id ?: 0,
                     Constants.BEARER_TOKEN + _accessToken.value,
                     EditProfileUser(
-                        name = name, phone = phone
+                        name,
+                        phone,
+                        address,
+                        career,
+                        birthday,
                     )
                 )
             } catch (e: IOException) {
