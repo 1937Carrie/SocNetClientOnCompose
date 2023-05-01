@@ -1,10 +1,20 @@
 package com.stanislavdumchykov.socialnetworkclient.presentation.ui.signup
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -13,6 +23,8 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -26,28 +38,69 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.stanislavdumchykov.socialnetworkclient.R
+import com.stanislavdumchykov.socialnetworkclient.presentation.SharedViewModel
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Response
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Status
 
 @Composable
-fun SignUpExtendedScreen(onCancelClick: () -> Unit, onForwardClick: () -> Unit) {
+fun SignUpExtendedScreen(
+    sharedViewModel: SharedViewModel,
+    onCancelClick: () -> Unit,
+    onForwardClick: () -> Unit
+) {
+    val signUpViewModel: SignUpViewModel = hiltViewModel()
+
+    val userName = remember { mutableStateOf("") }
+    val phoneNumber = remember { mutableStateOf("") }
+
+    val statusUserData = signUpViewModel.statusUser.observeAsState()
+    setActionToStatusUserDataObserver(statusUserData, signUpViewModel, userName, phoneNumber)
+
+    if (signUpViewModel.user.value == null) {
+        signUpViewModel.setUser(sharedViewModel.user)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(colorResource(R.color.custom_blue))
             .padding(dimensionResource(R.dimen.spacer_smaller))
     ) {
-        val userName = remember { mutableStateOf("") }
-        val phoneNumber = remember { mutableStateOf("") }
-
         DrawSpaceBetweenTopParentAndPictures()
         DrawPictures()
         DrawSpaceBetweenPicturesAndText()
         DrawText()
         DrawSpaceBetweenTextAndTextFields()
         DrawTextFields(userName, phoneNumber)
-        DrawButtons(onCancelClick, onForwardClick)
+        DrawButtons(
+            onCancelClick,
+            onForwardClick,
+            userName,
+            phoneNumber,
+            sharedViewModel,
+            signUpViewModel
+        )
+    }
+}
+
+private fun setActionToStatusUserDataObserver(
+    statusUserData: State<Response<Status>?>,
+    signUpViewModel: SignUpViewModel,
+    userName: MutableState<String>,
+    phoneNumber: MutableState<String>
+) {
+    if (statusUserData.value?.status == Status.SUCCESS) {
+        with(signUpViewModel.user.value) {
+            if (this != null) {
+                Log.d("SignUpExtendedScreen", "Adding user to SignUpViewModel was applied")
+                userName.value = this.name.orEmpty()
+                phoneNumber.value = this.phone.orEmpty()
+            }
+        }
     }
 }
 
@@ -165,7 +218,21 @@ private fun DrawTextField(
 private fun DrawButtons(
     onCancelClick: () -> Unit,
     onForwardClick: () -> Unit,
+    userName: MutableState<String>,
+    phoneNumber: MutableState<String>,
+    sharedViewModel: SharedViewModel,
+    signUpViewModel: SignUpViewModel,
 ) {
+    val statusNetwork = signUpViewModel.statusNetwork.observeAsState()
+    if (statusNetwork.value?.status == Status.SUCCESS) {
+        Log.d("SignUpExtendedScreen", "Editing profile was applied")
+        with(signUpViewModel.user.value) {
+            if (this != null) sharedViewModel.addUser(this)
+        }
+        onForwardClick()
+        signUpViewModel.clearAllStatuses()
+    }
+
     Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Bottom) {
         Box(
             Modifier
@@ -198,7 +265,10 @@ private fun DrawButtons(
                 .clip(RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size)))
                 .background(colorResource(R.color.custom_orange))
                 .clickable {
-                    onForwardClick()
+                    signUpViewModel.editProfile(
+                        userName.value,
+                        phoneNumber.value,
+                    )
                 },
             contentAlignment = Alignment.Center
         ) {

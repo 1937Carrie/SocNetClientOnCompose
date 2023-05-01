@@ -12,4 +12,5 @@ object Constants {
     const val PREFERENCES_EMAIL = "EMAIL"
     const val PREFERENCES_PASSWORD = "PASSWORD"
     const val ACCESS_TOKEN = "AccessToken"
+    const val BEARER_TOKEN = "Bearer "
 }

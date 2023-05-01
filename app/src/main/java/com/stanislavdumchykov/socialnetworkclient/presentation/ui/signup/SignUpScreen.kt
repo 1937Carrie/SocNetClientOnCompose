@@ -2,14 +2,34 @@ package com.stanislavdumchykov.socialnetworkclient.presentation.ui.signup
 
 import android.content.res.Configuration
 import android.util.Patterns
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,10 +45,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.data.StorageRepositoryImpl
+import com.stanislavdumchykov.socialnetworkclient.domain.repository.StorageRepository
+import com.stanislavdumchykov.socialnetworkclient.presentation.SharedViewModel
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Status
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,27 +61,22 @@ private const val PASSWORD_MIN_LENGTH = 8
 private const val PASSWORD_PATTERN = "\\d+|\\w+"
 
 @Composable
-fun SignUpScreen(onRegisterClick: (String) -> Unit, onSignInClick: () -> Unit) {
-    val email = rememberSaveable { mutableStateOf("") }
+fun SignUpScreen(
+    sharedViewModel: SharedViewModel,
+    onRegisterClick: () -> Unit,
+    onSignInClick: () -> Unit
+) {
+    val email = rememberSaveable { mutableStateOf("testemail3@asd.ds") }
     val isErrorEmail = rememberSaveable { mutableStateOf(false) }
-    val password = rememberSaveable { mutableStateOf("") }
+    val password = rememberSaveable { mutableStateOf("qq11223344") }
     val isErrorPassword = rememberSaveable { mutableStateOf(false) }
     val autologinState = remember { mutableStateOf(true) }
     val currentConfiguration by remember { mutableStateOf(LocalConfiguration) }
     val currentContext = LocalContext.current
     val store = StorageRepositoryImpl(currentContext)
 
-    val emailValue by store.getEmailToken.collectAsState(initial = "")
-    val passwordValue by store.getPasswordToken.collectAsState(initial = "")
-
-    if (emailValue.isNotEmpty() && passwordValue.isNotEmpty()) {
-        email.value = emailValue
-        password.value = passwordValue
-
-        LaunchedEffect(Unit) {
-            onRegisterClick(emailValue)
-        }
-    }
+//    val emailValue by store.getEmailToken.collectAsState(initial = "")
+//    val passwordValue by store.getPasswordToken.collectAsState(initial = "")
 
     if (currentConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
         DrawSignUpPortrait(
@@ -68,7 +87,8 @@ fun SignUpScreen(onRegisterClick: (String) -> Unit, onSignInClick: () -> Unit) {
             password,
             isErrorPassword,
             autologinState,
-            store
+            store,
+            sharedViewModel
         )
     } else {
         DrawSignUpLandScape(
@@ -79,14 +99,15 @@ fun SignUpScreen(onRegisterClick: (String) -> Unit, onSignInClick: () -> Unit) {
             password,
             isErrorPassword,
             autologinState,
-            store
+            store,
+            sharedViewModel
         )
     }
 }
 
 @Composable
 private fun DrawSignUpPortrait(
-    onRegisterClick: (String) -> Unit,
+    onRegisterClick: () -> Unit,
     onSignInClick: () -> Unit,
     email: MutableState<String>,
     isErrorEmail: MutableState<Boolean>,
@@ -94,6 +115,7 @@ private fun DrawSignUpPortrait(
     isErrorPassword: MutableState<Boolean>,
     autologinState: MutableState<Boolean>,
     store: StorageRepositoryImpl,
+    sharedViewModel: SharedViewModel,
 ) {
     Column(
         modifier = Modifier
@@ -132,6 +154,7 @@ private fun DrawSignUpPortrait(
                 isErrorPassword,
                 autologinState,
                 store,
+                sharedViewModel,
                 onRegisterClick
             )
             Spacer(Modifier.height(dimensionResource(R.dimen.spacer_normal)))
@@ -144,14 +167,15 @@ private fun DrawSignUpPortrait(
 
 @Composable
 private fun DrawSignUpLandScape(
-    onRegisterClick: (String) -> Unit,
+    onRegisterClick: () -> Unit,
     onSignInClick: () -> Unit,
     email: MutableState<String>,
     isErrorEmail: MutableState<Boolean>,
     password: MutableState<String>,
     isErrorPassword: MutableState<Boolean>,
     autologinState: MutableState<Boolean>,
-    store: StorageRepositoryImpl
+    store: StorageRepositoryImpl,
+    sharedViewModel: SharedViewModel,
 ) {
     Column(
         modifier = Modifier
@@ -174,7 +198,14 @@ private fun DrawSignUpLandScape(
         DrawOrText()
         Spacer(Modifier.height(dimensionResource(R.dimen.spacer_small)))
         DrawRegisterButton(
-            email, isErrorEmail, password, isErrorPassword, autologinState, store, onRegisterClick
+            email,
+            isErrorEmail,
+            password,
+            isErrorPassword,
+            autologinState,
+            store,
+            sharedViewModel,
+            onRegisterClick
         )
         Spacer(Modifier.height(dimensionResource(R.dimen.spacer_normal)))
         DrawTermAndConditionsText()
@@ -225,9 +256,18 @@ private fun DrawRegisterButton(
     password: MutableState<String>,
     isErrorPassword: MutableState<Boolean>,
     autologinState: MutableState<Boolean>,
-    store: StorageRepositoryImpl,
-    onRegisterClick: (String) -> Unit
+    store: StorageRepository,
+    sharedViewModel: SharedViewModel,
+    onRegisterClick: () -> Unit
 ) {
+    val signUpViewModel: SignUpViewModel = hiltViewModel()
+
+    val status = signUpViewModel.statusNetwork.observeAsState()
+    if (status.value?.status == Status.SUCCESS) {
+        signUpViewModel.user.value?.let { sharedViewModel.addUser(it) }
+        onRegisterClick()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -251,7 +291,7 @@ private fun DrawRegisterButton(
                 }
 
                 if (!(isErrorEmail.value && isErrorPassword.value)) {
-                    onRegisterClick(email.value)
+                    signUpViewModel.register(email.value, password.value)
                 }
             }
             .border(

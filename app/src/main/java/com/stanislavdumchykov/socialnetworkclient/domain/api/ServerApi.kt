@@ -13,8 +13,8 @@ import retrofit2.Response
 import retrofit2.http.*
 
 interface ServerApi {
+    @FormUrlEncoded
     @POST("users")
-    @Headers("Content-type: multipart/form-data")
     suspend fun registerUser(
         @Field("email") email: String,
         @Field("password") password: String

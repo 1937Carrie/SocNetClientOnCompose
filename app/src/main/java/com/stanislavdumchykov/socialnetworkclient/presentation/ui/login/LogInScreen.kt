@@ -4,7 +4,17 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Text
@@ -12,6 +22,7 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -29,20 +40,27 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stanislavdumchykov.socialnetworkclient.R
+import com.stanislavdumchykov.socialnetworkclient.presentation.SharedViewModel
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
+import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Status
 
 @Composable
-fun LogInScreen(logInViewModel: LogInViewModel = hiltViewModel(), onSignUpClick: () -> Unit) {
+fun LogInScreen(
+    sharedViewModel: SharedViewModel,
+    logInViewModel: LogInViewModel = hiltViewModel(),
+    onLoginClick: () -> Unit,
+    onSignUpClick: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(colorResource(R.color.custom_blue))
             .padding(dimensionResource(R.dimen.spacer_smaller))
     ) {
-        val email = rememberSaveable { mutableStateOf("uzumymw@email.com") }
+        val email = rememberSaveable { mutableStateOf("testemail3@asd.ds") }
         val isErrorEmail = rememberSaveable { mutableStateOf(false) }
-        val password = rememberSaveable { mutableStateOf("kjkszpj") }
+        val password = rememberSaveable { mutableStateOf("qq11223344") }
         val isErrorPassword = rememberSaveable { mutableStateOf(false) }
         val autologinState = remember { mutableStateOf(true) }
 
@@ -56,7 +74,7 @@ fun LogInScreen(logInViewModel: LogInViewModel = hiltViewModel(), onSignUpClick:
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Bottom,
         ) {
-            DrawButtonLogin(email, password, logInViewModel)
+            DrawButtonLogin(email, password, logInViewModel, sharedViewModel, onLoginClick)
             Spacer(Modifier.height(dimensionResource(R.dimen.spacer_smaller)))
             DrawTextBottom(onSignUpClick)
         }
@@ -206,8 +224,18 @@ private fun DrawCheckBoxText() {
 private fun DrawButtonLogin(
     email: MutableState<String>,
     password: MutableState<String>,
-    logInViewModel: LogInViewModel
+    logInViewModel: LogInViewModel,
+    sharedViewModel: SharedViewModel,
+    onLoginClick: () -> Unit,
 ) {
+    val status = logInViewModel.status.observeAsState()
+    if (status.value?.status == Status.SUCCESS) {
+        logInViewModel.user.value?.let { sharedViewModel.addUser(it) }
+        onLoginClick()
+        logInViewModel.clearAllStatuses()
+
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
