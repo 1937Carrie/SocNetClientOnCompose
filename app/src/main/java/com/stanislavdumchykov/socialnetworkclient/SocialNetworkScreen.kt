@@ -81,7 +81,12 @@ fun SocialNetworkApp(navController: NavHostController = rememberNavController())
         }
         composable(route = NavigationRoutes.EditProfile.name) {
             EditProfileScreen(
-                onClick = { navController.popBackStack() }
+                onClick = {
+                    if (navController.currentDestination?.route == NavigationRoutes.EditProfile.name) {
+                        navController.popBackStack()
+                    }
+                },
+                sharedViewModel,
             )
         }
         composable(route = "${NavigationRoutes.ContactProfile.name}/{name}/{career}/{address}") {
