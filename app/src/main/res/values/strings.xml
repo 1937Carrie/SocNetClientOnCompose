@@ -13,6 +13,15 @@
     <string name="myprofile_button_editprofile">Edit profile</string>
     <string name="myprofile_button_viewmycontacts">View my contacts</string>
 
+    <!-- EditProfile screen -->
+    <string name="editprofile_text_edit_profile">Edit profile</string>
+    <string name="editprofile_text_save">Save</string>
+    <string name="editprofile_text_username">User name</string>
+    <string name="editprofile_text_career">Career</string>
+    <string name="editprofile_text_address">Address</string>
+    <string name="editprofile_text_phone">Phone</string>
+    <string name="editprofile_text_dateofbirth">Date of birth</string>
+
     <!-- LogIn screen   -->
     <string name="login_text_hello">Hello!</string>
     <string name="login_text_enter_email">Enter your email and password below!</string>

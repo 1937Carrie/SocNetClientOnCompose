@@ -1,4 +1,4 @@
-package com.stanislavdumchykov.socialnetworkclient.presentation.ui.signup
+package com.stanislavdumchykov.socialnetworkclient.presentation.ui.authorization.signup
 
 import android.util.Log
 import androidx.compose.foundation.Image

@@ -1,4 +1,4 @@
-package com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.contactlist
+package com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.viewpager.contactlist
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
