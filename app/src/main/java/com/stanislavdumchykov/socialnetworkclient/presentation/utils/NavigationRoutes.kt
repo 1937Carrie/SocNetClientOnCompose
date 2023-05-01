@@ -5,5 +5,6 @@ enum class NavigationRoutes {
     SignUp,
     SignUpExtended,
     Pager,
+    EditProfile,
     ContactProfile
 }

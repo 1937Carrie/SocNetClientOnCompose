@@ -4,6 +4,7 @@
     <dimen name="rounded_corner_size">6dp</dimen>
     <dimen name="spacer_small">8dp</dimen>
     <dimen name="spacer_smaller">16dp</dimen>
+    <dimen name="spacer_under_normal">24dp</dimen>
     <dimen name="spacer_normal">32dp</dimen>
     <dimen name="spacer_bigger">48dp</dimen>
     <dimen name="border_width">1dp</dimen>
@@ -19,6 +20,10 @@
     <dimen name="myprofile_button_editprofile_border_width">2dp</dimen>
     <dimen name="myprofile_button_editprofile_fontsize">14sp</dimen>
     <dimen name="myprofile_button_viewmycontacts_height">55dp</dimen>
+
+    <!-- EditProfile screen   -->
+    <dimen name="editprofile_button_save_fontsize">16sp</dimen>
+
 
     <!-- LogIn screen   -->
     <dimen name="login_text_fontsize">14sp</dimen>

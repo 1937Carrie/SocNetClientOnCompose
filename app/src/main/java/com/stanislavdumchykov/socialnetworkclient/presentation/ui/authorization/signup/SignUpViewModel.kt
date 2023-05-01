@@ -1,4 +1,4 @@
-package com.stanislavdumchykov.socialnetworkclient.presentation.ui.signup
+package com.stanislavdumchykov.socialnetworkclient.presentation.ui.authorization.signup
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

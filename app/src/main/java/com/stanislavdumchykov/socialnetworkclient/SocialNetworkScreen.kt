@@ -7,11 +7,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.stanislavdumchykov.socialnetworkclient.presentation.SharedViewModel
-import com.stanislavdumchykov.socialnetworkclient.presentation.ui.ContactProfile
-import com.stanislavdumchykov.socialnetworkclient.presentation.ui.login.LogInScreen
-import com.stanislavdumchykov.socialnetworkclient.presentation.ui.signup.SignUpExtendedScreen
-import com.stanislavdumchykov.socialnetworkclient.presentation.ui.signup.SignUpScreen
-import com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.Pages
+import com.stanislavdumchykov.socialnetworkclient.presentation.ui.authorization.login.LogInScreen
+import com.stanislavdumchykov.socialnetworkclient.presentation.ui.authorization.signup.SignUpExtendedScreen
+import com.stanislavdumchykov.socialnetworkclient.presentation.ui.authorization.signup.SignUpScreen
+import com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.ContactProfile
+import com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.EditProfileScreen
+import com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.viewpager.Pages
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.NavigationRoutes
 
 @Composable
@@ -28,7 +29,6 @@ fun SocialNetworkApp(navController: NavHostController = rememberNavController())
                 onLoginClick = {
                     if (navController.currentDestination?.route == NavigationRoutes.LogIn.name) {
                         navController.navigate(route = NavigationRoutes.Pager.name)
-//                        navController.navigate(route = NavigationRoutes.SignUpExtended.name)
                     }
                 },
                 onSignUpClick = {
@@ -51,9 +51,7 @@ fun SocialNetworkApp(navController: NavHostController = rememberNavController())
                 }
             )
         }
-        composable(
-            route = NavigationRoutes.SignUpExtended.name
-        ) {
+        composable(route = NavigationRoutes.SignUpExtended.name) {
             SignUpExtendedScreen(
                 sharedViewModel,
                 onCancelClick = {
@@ -68,6 +66,11 @@ fun SocialNetworkApp(navController: NavHostController = rememberNavController())
         }
         composable(route = NavigationRoutes.Pager.name) {
             Pages(
+                onEditProfileClick = {
+                    if (navController.currentDestination?.route == NavigationRoutes.Pager.name) {
+                        navController.navigate(route = NavigationRoutes.EditProfile.name)
+                    }
+                },
                 contactListOnItemClick = { name, career, address ->
                     if (navController.currentDestination?.route == NavigationRoutes.Pager.name) {
                         navController.navigate("${NavigationRoutes.ContactProfile.name}/${name}/${career}/${address}")
@@ -76,9 +79,12 @@ fun SocialNetworkApp(navController: NavHostController = rememberNavController())
                 sharedViewModel,
             )
         }
-        composable(
-            route = "${NavigationRoutes.ContactProfile.name}/{name}/{career}/{address}",
-        ) {
+        composable(route = NavigationRoutes.EditProfile.name) {
+            EditProfileScreen(
+                onClick = { navController.popBackStack() }
+            )
+        }
+        composable(route = "${NavigationRoutes.ContactProfile.name}/{name}/{career}/{address}") {
             ContactProfile(
                 onArrowClick = {
                     if (navController.currentDestination?.route == NavigationRoutes.ContactProfile.name) {

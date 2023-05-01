@@ -1,4 +1,4 @@
-package com.stanislavdumchykov.socialnetworkclient.presentation.ui.viewpager.myprofile
+package com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.viewpager.myprofile
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
@@ -33,7 +33,11 @@ import java.util.*
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MyProfile(pagerState: PagerState, sharedViewModel: SharedViewModel) {
+fun MyProfile(
+    pagerState: PagerState,
+    sharedViewModel: SharedViewModel,
+    onEditProfileClick: () -> Unit
+) {
     val context = LocalContext.current
 
     LaunchedEffect(true) {
@@ -42,13 +46,13 @@ fun MyProfile(pagerState: PagerState, sharedViewModel: SharedViewModel) {
     DrawBackGround()
     Column {
         DrawTopBlock(sharedViewModel.user)
-        DrawBottomBlock(pagerState)
+        DrawBottomBlock(pagerState, onEditProfileClick)
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun DrawBottomBlock(pagerState: PagerState) {
+private fun DrawBottomBlock(pagerState: PagerState, onEditProfileClick: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -66,7 +70,7 @@ private fun DrawBottomBlock(pagerState: PagerState) {
                 .padding(horizontal = dimensionResource(R.dimen.myprofile_padding))
                 .fillMaxSize()
         ) {
-            DrawButtonEditProfile()
+            DrawButtonEditProfile(onEditProfileClick)
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.myprofile_padding)))
             DrawButtonViewMyContacts(pagerState)
         }
@@ -101,14 +105,14 @@ private fun DrawButtonViewMyContacts(pagerState: PagerState) {
 }
 
 @Composable
-private fun DrawButtonEditProfile() {
+private fun DrawButtonEditProfile(onEditProfileClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(dimensionResource(R.dimen.myprofile_button_editprofile_height))
             .background(color = Color.Transparent)
             .clip(RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size)))
-            .clickable { }
+            .clickable { onEditProfileClick() }
             .border(
                 dimensionResource(R.dimen.myprofile_button_editprofile_border_width),
                 colorResource(R.color.custom_blue),
