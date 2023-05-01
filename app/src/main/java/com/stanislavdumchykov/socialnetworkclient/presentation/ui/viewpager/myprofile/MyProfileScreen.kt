@@ -23,6 +23,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import com.stanislavdumchykov.socialnetworkclient.R
+import com.stanislavdumchykov.socialnetworkclient.domain.model.User
+import com.stanislavdumchykov.socialnetworkclient.presentation.SharedViewModel
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.ScreenList
@@ -31,7 +33,7 @@ import java.util.*
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MyProfile(pagerState: PagerState, email: String) {
+fun MyProfile(pagerState: PagerState, sharedViewModel: SharedViewModel) {
     val context = LocalContext.current
 
     LaunchedEffect(true) {
@@ -39,7 +41,7 @@ fun MyProfile(pagerState: PagerState, email: String) {
     }
     DrawBackGround()
     Column {
-        DrawTopBlock(email.substring(0, email.indexOf('@')))
+        DrawTopBlock(sharedViewModel.user)
         DrawBottomBlock(pagerState)
     }
 }
@@ -154,19 +156,19 @@ fun DrawSocialNetworkLinksBlock() {
 }
 
 @Composable
-private fun DrawTopBlock(email: String) {
+private fun DrawTopBlock(user: User) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(Constants.PERCENT_050),
     ) {
         DrawText()
-        DrawUserInfo(email)
+        DrawUserInfo(user)
     }
 }
 
 @Composable
-private fun DrawUserInfo(email: String) {
+private fun DrawUserInfo(user: User) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -184,17 +186,8 @@ private fun DrawUserInfo(email: String) {
             contentScale = ContentScale.Crop
         )
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_bigger)))
-        val splittedEmail = email.split('.')
         Text(
-            text = if (splittedEmail.size == 2) "${
-                splittedEmail[0].replaceFirstChar {
-                    it.titlecase(Locale.ROOT)
-                }
-            } ${
-                splittedEmail[1].replaceFirstChar {
-                    it.titlecase(Locale.ROOT)
-                }
-            }" else email,
+            text = user.name ?: "",
             color = colorResource(R.color.custom_white),
             fontSize = dimensionResource(R.dimen.myprofile_username_text_fontsize).value.sp,
             fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,

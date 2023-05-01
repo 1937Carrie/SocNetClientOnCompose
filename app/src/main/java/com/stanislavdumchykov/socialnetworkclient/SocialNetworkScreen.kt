@@ -1,12 +1,12 @@
 package com.stanislavdumchykov.socialnetworkclient
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import com.stanislavdumchykov.socialnetworkclient.presentation.SharedViewModel
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.ContactProfile
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.login.LogInScreen
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.signup.SignUpExtendedScreen
@@ -16,65 +16,78 @@ import com.stanislavdumchykov.socialnetworkclient.presentation.utils.NavigationR
 
 @Composable
 fun SocialNetworkApp(navController: NavHostController = rememberNavController()) {
+    val sharedViewModel: SharedViewModel = hiltViewModel()
+
     NavHost(
         navController = navController,
         startDestination = NavigationRoutes.LogIn.name
     ) {
         composable(route = NavigationRoutes.LogIn.name) {
-            LogInScreen {
-                navController.navigate(route = NavigationRoutes.SignUp.name)
-            }
+            LogInScreen(
+                sharedViewModel,
+                onLoginClick = {
+                    if (navController.currentDestination?.route == NavigationRoutes.LogIn.name) {
+                        navController.navigate(route = NavigationRoutes.Pager.name)
+//                        navController.navigate(route = NavigationRoutes.SignUpExtended.name)
+                    }
+                },
+                onSignUpClick = {
+                    if (navController.currentDestination?.route == NavigationRoutes.LogIn.name) {
+                        navController.navigate(route = NavigationRoutes.SignUp.name)
+                    }
+                }
+            )
         }
         composable(route = NavigationRoutes.SignUp.name) {
             SignUpScreen(
+                sharedViewModel,
                 onSignInClick = {
                     navController.popBackStack()
                 },
-                onRegisterClick = { email ->
-                    navController.navigate(route = "${NavigationRoutes.SignUpExtended.name}/$email")
+                onRegisterClick = {
+                    if (navController.currentDestination?.route == NavigationRoutes.SignUp.name) {
+                        navController.navigate(route = NavigationRoutes.SignUpExtended.name)
+                    }
                 }
             )
         }
         composable(
-            route = "${NavigationRoutes.SignUpExtended.name}/{email}"
+            route = NavigationRoutes.SignUpExtended.name
         ) {
             SignUpExtendedScreen(
+                sharedViewModel,
                 onCancelClick = {
                     navController.popBackStack()
                 },
                 onForwardClick = {
-                    navController.navigate(
-                        route = "${NavigationRoutes.Pager.name}/${it.arguments?.getString("email") ?: ""}"
-                    )
+                    if (navController.currentDestination?.route == NavigationRoutes.SignUpExtended.name) {
+                        navController.navigate(route = NavigationRoutes.Pager.name)
+                    }
                 }
+            )
+        }
+        composable(route = NavigationRoutes.Pager.name) {
+            Pages(
+                contactListOnItemClick = { name, career, address ->
+                    if (navController.currentDestination?.route == NavigationRoutes.Pager.name) {
+                        navController.navigate("${NavigationRoutes.ContactProfile.name}/${name}/${career}/${address}")
+                    }
+                },
+                sharedViewModel,
             )
         }
         composable(
             route = "${NavigationRoutes.ContactProfile.name}/{name}/{career}/{address}",
-            arguments = listOf(
-                navArgument("name") { type = NavType.StringType },
-                navArgument("career") { type = NavType.StringType },
-                navArgument("address") { type = NavType.StringType },
-            ),
         ) {
             ContactProfile(
-                onArrowClick = { navController.popBackStack() },
+                onArrowClick = {
+                    if (navController.currentDestination?.route == NavigationRoutes.ContactProfile.name) {
+                        navController.popBackStack()
+                    }
+                },
                 name = it.arguments?.getString("name") ?: "",
                 career = it.arguments?.getString("career") ?: "",
                 address = it.arguments?.getString("address") ?: "",
-            )
-        }
-        composable(
-            route = "${NavigationRoutes.Pager.name}/{email}",
-            arguments = listOf(
-                navArgument("email") { type = NavType.StringType },
-            )
-        ) {
-            Pages(
-                contactListOnItemClick = { name, career, address ->
-                    navController.navigate("${NavigationRoutes.ContactProfile.name}/${name}/${career}/${address}")
-                },
-                email = it.arguments?.getString("email") ?: ""
             )
         }
     }
