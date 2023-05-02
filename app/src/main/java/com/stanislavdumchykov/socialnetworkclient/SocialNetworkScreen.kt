@@ -71,9 +71,9 @@ fun SocialNetworkApp(navController: NavHostController = rememberNavController())
                         navController.navigate(route = NavigationRoutes.EditProfile.name)
                     }
                 },
-                contactListOnItemClick = { name, career, address ->
+                contactListOnItemClick = {
                     if (navController.currentDestination?.route == NavigationRoutes.Pager.name) {
-                        navController.navigate("${NavigationRoutes.ContactProfile.name}/${name}/${career}/${address}")
+                        navController.navigate(NavigationRoutes.ContactProfile.name)
                     }
                 },
                 sharedViewModel,

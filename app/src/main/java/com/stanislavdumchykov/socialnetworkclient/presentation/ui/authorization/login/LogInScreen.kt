@@ -58,9 +58,9 @@ fun LogInScreen(
             .background(colorResource(R.color.custom_blue))
             .padding(dimensionResource(R.dimen.spacer_smaller))
     ) {
-        val email = rememberSaveable { mutableStateOf("testemail3@asd.ds") }
+        val email = rememberSaveable { mutableStateOf("uzumymw@email.com"/*"testemail3@asd.ds"*/) }
         val isErrorEmail = rememberSaveable { mutableStateOf(false) }
-        val password = rememberSaveable { mutableStateOf("qq11223344") }
+        val password = rememberSaveable { mutableStateOf("kjkszpj"/*"qq11223344"*/) }
         val isErrorPassword = rememberSaveable { mutableStateOf(false) }
         val autologinState = remember { mutableStateOf(true) }
 
