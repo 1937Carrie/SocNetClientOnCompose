@@ -14,7 +14,7 @@ import com.stanislavdumchykov.socialnetworkclient.presentation.utils.ScreenList
 @Composable
 fun Pages(
     onEditProfileClick: () -> Unit,
-    contactListOnItemClick: (String, String, String) -> Unit,
+    contactListOnItemClick: () -> Unit,
     sharedViewModel: SharedViewModel,
 ) {
     val pagerState = rememberPagerState()
@@ -26,7 +26,7 @@ fun Pages(
             }
 
             ScreenList.CONTACT_LIST.ordinal -> {
-                ContactList(contactListOnItemClick, pagerState)
+                ContactList(pagerState, sharedViewModel, contactListOnItemClick)
             }
         }
     }
