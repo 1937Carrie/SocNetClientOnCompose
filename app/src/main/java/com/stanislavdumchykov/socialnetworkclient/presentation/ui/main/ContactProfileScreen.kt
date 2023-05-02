@@ -37,13 +37,10 @@ import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 
 @Composable
 fun ContactProfile(
-    onArrowClick: () -> Unit,
-    name: String,
-    career: String,
-    address: String,
+    onArrowClick: () -> Unit
 ) {
     Column {
-        DrawTopBlock(onArrowClick, name, career, address)
+        DrawTopBlock(onArrowClick)
         DrawBottomBlock()
     }
 }
@@ -51,9 +48,6 @@ fun ContactProfile(
 @Composable
 private fun DrawTopBlock(
     onArrowClick: () -> Unit,
-    name: String,
-    career: String,
-    address: String,
 ) {
     Column(
         modifier = Modifier
@@ -62,7 +56,7 @@ private fun DrawTopBlock(
             .background(color = colorResource(R.color.custom_blue)),
     ) {
         DrawText(onArrowClick)
-        DrawUserInfo(name, career, address)
+        DrawUserInfo()
     }
 }
 
@@ -101,7 +95,7 @@ private fun DrawText(onArrowClick: () -> Unit) {
 }
 
 @Composable
-private fun DrawUserInfo(name: String, career: String, address: String) {
+private fun DrawUserInfo() {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -120,20 +114,20 @@ private fun DrawUserInfo(name: String, career: String, address: String) {
         )
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_bigger)))
         Text(
-            text = name,
+            text = "name",
             color = colorResource(R.color.custom_white),
             fontSize = dimensionResource(R.dimen.myprofile_username_text_fontsize).value.sp,
             fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
         )
         Text(
-            text = career,
+            text = "career",
             modifier = Modifier.padding(top = dimensionResource(R.dimen.myprofile_padding_smaller)),
             color = colorResource(R.color.custom_gray_2),
             fontSize = dimensionResource(R.dimen.myprofile_user_profession_text_fontsize).value.sp,
             fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,
         )
         Text(
-            text = address,
+            text = "address",
             modifier = Modifier.padding(top = dimensionResource(R.dimen.myprofile_padding)),
             color = colorResource(R.color.custom_gray_2),
             fontSize = dimensionResource(R.dimen.myprofile_user_profession_text_fontsize).value.sp,

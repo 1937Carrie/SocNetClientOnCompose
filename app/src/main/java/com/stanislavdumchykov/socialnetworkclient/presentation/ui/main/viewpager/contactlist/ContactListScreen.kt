@@ -48,6 +48,7 @@ import java.util.*
 fun ContactList(
     pagerState: PagerState,
     sharedViewModel: SharedViewModel,
+    onTextClick: () -> Unit,
     onItemClick: () -> Unit,
     contactListViewModel: ContactListViewModel = hiltViewModel()
 ) {
@@ -59,7 +60,7 @@ fun ContactList(
         val isOnThisScreen = remember { mutableStateOf(true) }
 
         DrawTopBlock(pagerState, isOnThisScreen)
-        DrawAddContactsText()
+        DrawAddContactsText(onTextClick)
         DrawContactList(onItemClick, contactListViewModel, sharedViewModel, isOnThisScreen)
     }
 }
@@ -419,10 +420,12 @@ private fun SwipeBackground(dismissState: DismissState) {
 }
 
 @Composable
-private fun DrawAddContactsText() {
+private fun DrawAddContactsText(onTextClick: () -> Unit) {
     Text(
         text = stringResource(R.string.contactlist_add_contacts_text),
-        modifier = Modifier.padding(dimensionResource(R.dimen.spacer_smaller)),
+        modifier = Modifier
+            .padding(dimensionResource(R.dimen.spacer_smaller))
+            .clickable { onTextClick() },
         color = colorResource(R.color.custom_white),
         fontSize = dimensionResource(R.dimen.contactlist_add_contacts_font_size).value.sp,
         fontFamily = Fonts.FONT_OPEN_SANS_SEMI_BOLD.fontFamily,

@@ -12,6 +12,7 @@ import com.stanislavdumchykov.socialnetworkclient.presentation.ui.authorization.
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.authorization.signup.SignUpScreen
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.ContactProfile
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.EditProfileScreen
+import com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.alluserslist.AllUsersListScreen
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.viewpager.Pages
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.NavigationRoutes
 
@@ -64,21 +65,6 @@ fun SocialNetworkApp(navController: NavHostController = rememberNavController())
                 }
             )
         }
-        composable(route = NavigationRoutes.Pager.name) {
-            Pages(
-                onEditProfileClick = {
-                    if (navController.currentDestination?.route == NavigationRoutes.Pager.name) {
-                        navController.navigate(route = NavigationRoutes.EditProfile.name)
-                    }
-                },
-                contactListOnItemClick = {
-                    if (navController.currentDestination?.route == NavigationRoutes.Pager.name) {
-                        navController.navigate(NavigationRoutes.ContactProfile.name)
-                    }
-                },
-                sharedViewModel,
-            )
-        }
         composable(route = NavigationRoutes.EditProfile.name) {
             EditProfileScreen(
                 onClick = {
@@ -89,16 +75,42 @@ fun SocialNetworkApp(navController: NavHostController = rememberNavController())
                 sharedViewModel,
             )
         }
-        composable(route = "${NavigationRoutes.ContactProfile.name}/{name}/{career}/{address}") {
+        composable(route = NavigationRoutes.Pager.name) {
+            Pages(
+                onEditProfileClick = {
+                    if (navController.currentDestination?.route == NavigationRoutes.Pager.name) {
+                        navController.navigate(route = NavigationRoutes.EditProfile.name)
+                    }
+                },
+                onTextClick = {
+                    if (navController.currentDestination?.route == NavigationRoutes.Pager.name) {
+                        navController.navigate(NavigationRoutes.AllUsersList.name)
+                    }
+                },
+                contactListOnItemClick = {
+                    if (navController.currentDestination?.route == NavigationRoutes.Pager.name) {
+                        navController.navigate(NavigationRoutes.ContactProfile.name)
+                    }
+                },
+                sharedViewModel,
+            )
+        }
+        composable(route = NavigationRoutes.AllUsersList.name) {
+            AllUsersListScreen(
+                onArrowClick = {
+                    if (navController.currentDestination?.route == NavigationRoutes.AllUsersList.name) {
+                        navController.popBackStack()
+                    }
+                }
+            )
+        }
+        composable(route = NavigationRoutes.ContactProfile.name) {
             ContactProfile(
                 onArrowClick = {
                     if (navController.currentDestination?.route == NavigationRoutes.ContactProfile.name) {
                         navController.popBackStack()
                     }
-                },
-                name = it.arguments?.getString("name") ?: "",
-                career = it.arguments?.getString("career") ?: "",
-                address = it.arguments?.getString("address") ?: "",
+                }
             )
         }
     }
