@@ -40,7 +40,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stanislavdumchykov.socialnetworkclient.R
-import com.stanislavdumchykov.socialnetworkclient.presentation.SharedViewModel
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Response
@@ -48,7 +47,6 @@ import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Status
 
 @Composable
 fun SignUpExtendedScreen(
-    sharedViewModel: SharedViewModel,
     onCancelClick: () -> Unit,
     onForwardClick: () -> Unit
 ) {
@@ -59,10 +57,6 @@ fun SignUpExtendedScreen(
 
     val statusUserData = signUpViewModel.statusUser.observeAsState()
     setActionToStatusUserDataObserver(statusUserData, signUpViewModel, userName, phoneNumber)
-
-    if (signUpViewModel.user.value == null) {
-        signUpViewModel.setUser(sharedViewModel.user)
-    }
 
     Column(
         modifier = Modifier
@@ -81,7 +75,6 @@ fun SignUpExtendedScreen(
             onForwardClick,
             userName,
             phoneNumber,
-            sharedViewModel,
             signUpViewModel
         )
     }
@@ -96,7 +89,6 @@ private fun setActionToStatusUserDataObserver(
     if (statusUserData.value?.status == Status.SUCCESS) {
         with(signUpViewModel.user.value) {
             if (this != null) {
-                Log.d("SignUpExtendedScreen", "Adding user to SignUpViewModel was applied")
                 userName.value = this.name.orEmpty()
                 phoneNumber.value = this.phone.orEmpty()
             }
@@ -220,15 +212,10 @@ private fun DrawButtons(
     onForwardClick: () -> Unit,
     userName: MutableState<String>,
     phoneNumber: MutableState<String>,
-    sharedViewModel: SharedViewModel,
     signUpViewModel: SignUpViewModel,
 ) {
     val statusNetwork = signUpViewModel.statusNetwork.observeAsState()
     if (statusNetwork.value?.status == Status.SUCCESS) {
-        Log.d("SignUpExtendedScreen", "Editing profile was applied")
-        with(signUpViewModel.user.value) {
-            if (this != null) sharedViewModel.addUser(this)
-        }
         onForwardClick()
         signUpViewModel.clearAllStatuses()
     }

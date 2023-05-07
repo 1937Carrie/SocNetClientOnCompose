@@ -49,7 +49,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.data.StorageRepositoryImpl
 import com.stanislavdumchykov.socialnetworkclient.domain.repository.StorageRepository
-import com.stanislavdumchykov.socialnetworkclient.presentation.SharedViewModel
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Status
@@ -62,7 +61,6 @@ private const val PASSWORD_PATTERN = "\\d+|\\w+"
 
 @Composable
 fun SignUpScreen(
-    sharedViewModel: SharedViewModel,
     onRegisterClick: () -> Unit,
     onSignInClick: () -> Unit
 ) {
@@ -88,7 +86,6 @@ fun SignUpScreen(
             isErrorPassword,
             autologinState,
             store,
-            sharedViewModel
         )
     } else {
         DrawSignUpLandScape(
@@ -100,7 +97,6 @@ fun SignUpScreen(
             isErrorPassword,
             autologinState,
             store,
-            sharedViewModel
         )
     }
 }
@@ -115,7 +111,6 @@ private fun DrawSignUpPortrait(
     isErrorPassword: MutableState<Boolean>,
     autologinState: MutableState<Boolean>,
     store: StorageRepositoryImpl,
-    sharedViewModel: SharedViewModel,
 ) {
     Column(
         modifier = Modifier
@@ -154,7 +149,6 @@ private fun DrawSignUpPortrait(
                 isErrorPassword,
                 autologinState,
                 store,
-                sharedViewModel,
                 onRegisterClick
             )
             Spacer(Modifier.height(dimensionResource(R.dimen.spacer_normal)))
@@ -175,7 +169,6 @@ private fun DrawSignUpLandScape(
     isErrorPassword: MutableState<Boolean>,
     autologinState: MutableState<Boolean>,
     store: StorageRepositoryImpl,
-    sharedViewModel: SharedViewModel,
 ) {
     Column(
         modifier = Modifier
@@ -204,7 +197,6 @@ private fun DrawSignUpLandScape(
             isErrorPassword,
             autologinState,
             store,
-            sharedViewModel,
             onRegisterClick
         )
         Spacer(Modifier.height(dimensionResource(R.dimen.spacer_normal)))
@@ -257,14 +249,12 @@ private fun DrawRegisterButton(
     isErrorPassword: MutableState<Boolean>,
     autologinState: MutableState<Boolean>,
     store: StorageRepository,
-    sharedViewModel: SharedViewModel,
     onRegisterClick: () -> Unit
 ) {
     val signUpViewModel: SignUpViewModel = hiltViewModel()
 
     val status = signUpViewModel.statusNetwork.observeAsState()
     if (status.value?.status == Status.SUCCESS) {
-        signUpViewModel.user.value?.let { sharedViewModel.addUser(it) }
         onRegisterClick()
     }
 

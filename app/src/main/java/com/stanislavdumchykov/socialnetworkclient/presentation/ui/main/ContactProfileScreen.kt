@@ -30,7 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import com.stanislavdumchykov.socialnetworkclient.R
-import com.stanislavdumchykov.socialnetworkclient.domain.model.User
+import com.stanislavdumchykov.socialnetworkclient.data.database.user.User
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.viewpager.myprofile.DrawSocialNetworkLinksBlock
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts

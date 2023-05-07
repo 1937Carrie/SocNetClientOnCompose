@@ -35,7 +35,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.domain.model.LocalUser
 import com.stanislavdumchykov.socialnetworkclient.domain.model.User
-import com.stanislavdumchykov.socialnetworkclient.presentation.SharedViewModel
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.ScreenList
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Status
@@ -47,7 +46,6 @@ import java.util.*
 @Composable
 fun ContactList(
     pagerState: PagerState,
-    sharedViewModel: SharedViewModel,
     onTextClick: () -> Unit,
     onItemClick: () -> Unit,
     contactListViewModel: ContactListViewModel = hiltViewModel()
@@ -61,7 +59,7 @@ fun ContactList(
 
         DrawTopBlock(pagerState, isOnThisScreen)
         DrawAddContactsText(onTextClick)
-        DrawContactList(onItemClick, contactListViewModel, sharedViewModel, isOnThisScreen)
+        DrawContactList(onItemClick, contactListViewModel, isOnThisScreen)
     }
 }
 
@@ -70,7 +68,6 @@ fun ContactList(
 private fun DrawContactList(
     onItemClick: () -> Unit,
     contactListViewModel: ContactListViewModel,
-    sharedViewModel: SharedViewModel,
     isOnThisScreen: MutableState<Boolean>
 ) {
     val scaffoldState: ScaffoldState = rememberScaffoldState()
@@ -94,9 +91,7 @@ private fun DrawContactList(
             val networkUserList = contactListViewModel.userContacts.collectAsState(emptyList())
 
             val statusUserData = contactListViewModel.statusUser.observeAsState()
-            if (contactListViewModel.user.value == null) {
-                contactListViewModel.setUser(sharedViewModel.user)
-            }
+
             if (statusUserData.value?.status == Status.SUCCESS) {
                 Log.d("ContactListScreen", "OnSuccessStatus: ${networkUserList.value}")
             }
@@ -119,7 +114,8 @@ private fun DrawContactList(
                         .padding(bottom = it.calculateBottomPadding()),
                     state = lazyListState,
                     content = {
-                        itemsIndexed(items = networkUserList.value,
+                        itemsIndexed(
+                            items = networkUserList.value,
 //                            key = { user -> localUserList.indexOf(user) },
                             itemContent = { index: Int, item: User ->
                                 val currentItem by rememberUpdatedState(item)

@@ -1,9 +1,8 @@
 package com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.viewpager.myprofile
 
-import android.app.Activity
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.PagerState
@@ -11,7 +10,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,9 +22,9 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.stanislavdumchykov.socialnetworkclient.R
-import com.stanislavdumchykov.socialnetworkclient.domain.model.User
-import com.stanislavdumchykov.socialnetworkclient.presentation.SharedViewModel
+import com.stanislavdumchykov.socialnetworkclient.data.database.user.User
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.ScreenList
@@ -37,18 +35,18 @@ import java.util.*
 @Composable
 fun MyProfile(
     pagerState: PagerState,
-    sharedViewModel: SharedViewModel,
     onEditProfileClick: () -> Unit
 ) {
     val context = LocalContext.current
+    val myProfileViewModel: MyProfileViewModel = hiltViewModel()
 
-    LaunchedEffect(true) {
-        (context as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-    }
+//    LaunchedEffect(true) {
+//        (context as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+//    }
     DrawBackGround()
     Column {
-        DrawTopBlock(sharedViewModel.user)
-        DrawBottomBlock(pagerState, onEditProfileClick, sharedViewModel.user)
+        DrawTopBlock(myProfileViewModel.getUser())
+        DrawBottomBlock(pagerState, onEditProfileClick, myProfileViewModel.getUser())
     }
 }
 
@@ -156,7 +154,10 @@ fun DrawSocialNetworkLinksBlock(user: User) {
             contentDescription = "",
             modifier = Modifier
                 .clip(CircleShape)
-                .clickable { openHTTPLink(user.instagram) },
+                .clickable {
+                    Log.d("das", "clicked on instagram")
+                    openHTTPLink(user.instagram)
+                },
         )
     }
 }

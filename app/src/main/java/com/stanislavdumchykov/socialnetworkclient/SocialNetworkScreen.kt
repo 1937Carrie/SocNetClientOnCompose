@@ -6,7 +6,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.stanislavdumchykov.socialnetworkclient.presentation.SharedViewModel
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.authorization.login.LogInScreen
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.authorization.signup.SignUpExtendedScreen
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.authorization.signup.SignUpScreen
@@ -18,15 +17,12 @@ import com.stanislavdumchykov.socialnetworkclient.presentation.utils.NavigationR
 
 @Composable
 fun SocialNetworkApp(navController: NavHostController = rememberNavController()) {
-    val sharedViewModel: SharedViewModel = hiltViewModel()
-
     NavHost(
         navController = navController,
         startDestination = NavigationRoutes.LogIn.name
     ) {
         composable(route = NavigationRoutes.LogIn.name) {
             LogInScreen(
-                sharedViewModel,
                 onLoginClick = {
                     if (navController.currentDestination?.route == NavigationRoutes.LogIn.name) {
                         navController.navigate(route = NavigationRoutes.Pager.name)
@@ -41,7 +37,6 @@ fun SocialNetworkApp(navController: NavHostController = rememberNavController())
         }
         composable(route = NavigationRoutes.SignUp.name) {
             SignUpScreen(
-                sharedViewModel,
                 onSignInClick = {
                     navController.popBackStack()
                 },
@@ -54,7 +49,6 @@ fun SocialNetworkApp(navController: NavHostController = rememberNavController())
         }
         composable(route = NavigationRoutes.SignUpExtended.name) {
             SignUpExtendedScreen(
-                sharedViewModel,
                 onCancelClick = {
                     navController.popBackStack()
                 },
@@ -72,7 +66,6 @@ fun SocialNetworkApp(navController: NavHostController = rememberNavController())
                         navController.popBackStack()
                     }
                 },
-                sharedViewModel,
             )
         }
         composable(route = NavigationRoutes.Pager.name) {
@@ -92,7 +85,6 @@ fun SocialNetworkApp(navController: NavHostController = rememberNavController())
                         navController.navigate(NavigationRoutes.ContactProfile.name)
                     }
                 },
-                sharedViewModel,
             )
         }
         composable(route = NavigationRoutes.AllUsersList.name) {

@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.domain.model.LocalUser
 import com.stanislavdumchykov.socialnetworkclient.domain.model.User
+import com.stanislavdumchykov.socialnetworkclient.domain.repository.DatabaseRepository
 import com.stanislavdumchykov.socialnetworkclient.domain.repository.NetworkUsersRepository
 import com.stanislavdumchykov.socialnetworkclient.domain.repository.StorageRepository
 import com.stanislavdumchykov.socialnetworkclient.domain.repository.UsersRepository
@@ -26,7 +27,8 @@ import javax.inject.Inject
 class ContactListViewModel @Inject constructor(
     private val storage: StorageRepository,
     private val usersRepository: UsersRepository,
-    private val serverApi: NetworkUsersRepository
+    private val serverApi: NetworkUsersRepository,
+    private val databaseRepository: DatabaseRepository,
 ) : ViewModel() {
     private val _localUserList = MutableStateFlow<List<LocalUser>>(emptyList())
     val localUserList: Flow<List<LocalUser>> = _localUserList
@@ -74,7 +76,7 @@ class ContactListViewModel @Inject constructor(
 
             val response = try {
                 serverApi.getAccountUsers(
-                    user.value?.id ?: 0,
+                    databaseRepository.getDatabase().userDao().getUser().serverId,
                     Constants.BEARER_TOKEN + _accessToken.value
                 )
             } catch (e: IOException) {

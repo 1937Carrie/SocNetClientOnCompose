@@ -40,14 +40,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stanislavdumchykov.socialnetworkclient.R
-import com.stanislavdumchykov.socialnetworkclient.presentation.SharedViewModel
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Status
 
 @Composable
 fun LogInScreen(
-    sharedViewModel: SharedViewModel,
     logInViewModel: LogInViewModel = hiltViewModel(),
     onLoginClick: () -> Unit,
     onSignUpClick: () -> Unit,
@@ -74,7 +72,7 @@ fun LogInScreen(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Bottom,
         ) {
-            DrawButtonLogin(email, password, logInViewModel, sharedViewModel, onLoginClick)
+            DrawButtonLogin(email, password, logInViewModel, onLoginClick)
             Spacer(Modifier.height(dimensionResource(R.dimen.spacer_smaller)))
             DrawTextBottom(onSignUpClick)
         }
@@ -225,15 +223,12 @@ private fun DrawButtonLogin(
     email: MutableState<String>,
     password: MutableState<String>,
     logInViewModel: LogInViewModel,
-    sharedViewModel: SharedViewModel,
     onLoginClick: () -> Unit,
 ) {
     val status = logInViewModel.status.observeAsState()
     if (status.value?.status == Status.SUCCESS) {
-        logInViewModel.user.value?.let { sharedViewModel.addUser(it) }
         onLoginClick()
         logInViewModel.clearAllStatuses()
-
     }
 
     Box(

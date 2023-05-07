@@ -4,7 +4,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
-import com.stanislavdumchykov.socialnetworkclient.presentation.SharedViewModel
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.viewpager.contactlist.ContactList
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.viewpager.myprofile.MyProfile
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.ScreenList
@@ -16,18 +15,17 @@ fun Pages(
     onEditProfileClick: () -> Unit,
     onTextClick: () -> Unit,
     contactListOnItemClick: () -> Unit,
-    sharedViewModel: SharedViewModel,
 ) {
     val pagerState = rememberPagerState()
 
     HorizontalPager(pageCount = ScreenList.values().size, state = pagerState) { page ->
         when (page) {
             ScreenList.MY_PROFILE.ordinal -> {
-                MyProfile(pagerState, sharedViewModel, onEditProfileClick)
+                MyProfile(pagerState, onEditProfileClick)
             }
 
             ScreenList.CONTACT_LIST.ordinal -> {
-                ContactList(pagerState, sharedViewModel, onTextClick, contactListOnItemClick)
+                ContactList(pagerState, onTextClick, contactListOnItemClick)
             }
         }
     }

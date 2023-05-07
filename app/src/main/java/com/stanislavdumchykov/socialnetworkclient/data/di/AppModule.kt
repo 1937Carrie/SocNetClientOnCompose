@@ -1,8 +1,10 @@
 package com.stanislavdumchykov.socialnetworkclient.data.di
 
 import com.stanislavdumchykov.socialnetworkclient.data.StorageRepositoryImpl
+import com.stanislavdumchykov.socialnetworkclient.data.repository.DatabaseRepositoryImpl
 import com.stanislavdumchykov.socialnetworkclient.data.repository.NetworkUsersRepositoryImpl
 import com.stanislavdumchykov.socialnetworkclient.data.repository.UsersRepositoryImpl
+import com.stanislavdumchykov.socialnetworkclient.domain.repository.DatabaseRepository
 import com.stanislavdumchykov.socialnetworkclient.domain.repository.NetworkUsersRepository
 import com.stanislavdumchykov.socialnetworkclient.domain.repository.StorageRepository
 import com.stanislavdumchykov.socialnetworkclient.domain.repository.UsersRepository
@@ -32,4 +34,10 @@ abstract class AppModule {
     abstract fun bindNetworkRepository(
         networkUsersRepository: NetworkUsersRepositoryImpl
     ): NetworkUsersRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDataBaseRepository(
+        databaseRepository: DatabaseRepositoryImpl
+    ): DatabaseRepository
 }
