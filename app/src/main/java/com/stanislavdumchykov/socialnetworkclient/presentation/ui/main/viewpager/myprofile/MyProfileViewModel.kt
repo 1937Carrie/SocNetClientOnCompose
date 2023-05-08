@@ -1,25 +1,27 @@
 package com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.viewpager.myprofile
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.stanislavdumchykov.socialnetworkclient.data.database.user.User
 import com.stanislavdumchykov.socialnetworkclient.domain.repository.DatabaseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class MyProfileViewModel @Inject constructor(
     private val databaseRepository: DatabaseRepository,
 ) : ViewModel() {
-    private var user1 = User()
+    private var user = User()
 
     fun getUser(): User {
-        viewModelScope.launch(Dispatchers.IO) {
-            user1 = databaseRepository.getDatabase().userDao().getUser()
+        runBlocking {
+            withContext(Dispatchers.IO) {
+                user = databaseRepository.getDatabase().userDao().getUser()
+            }
         }
 
-        return user1
+        return user
     }
 }

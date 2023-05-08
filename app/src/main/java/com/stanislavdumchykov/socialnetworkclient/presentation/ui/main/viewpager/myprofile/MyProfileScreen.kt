@@ -1,8 +1,8 @@
 package com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.viewpager.myprofile
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.PagerState
@@ -22,6 +22,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.data.database.user.User
@@ -37,16 +38,16 @@ fun MyProfile(
     pagerState: PagerState,
     onEditProfileClick: () -> Unit
 ) {
-    val context = LocalContext.current
     val myProfileViewModel: MyProfileViewModel = hiltViewModel()
+    val user = myProfileViewModel.getUser()
 
 //    LaunchedEffect(true) {
 //        (context as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 //    }
     DrawBackGround()
     Column {
-        DrawTopBlock(myProfileViewModel.getUser())
-        DrawBottomBlock(pagerState, onEditProfileClick, myProfileViewModel.getUser())
+        DrawTopBlock(user)
+        DrawBottomBlock(pagerState, onEditProfileClick, user)
     }
 }
 
@@ -135,19 +136,24 @@ fun DrawSocialNetworkLinksBlock(user: User) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
+        val context = LocalContext.current
         Image(
             painter = painterResource(R.drawable.ic_facebook),
             contentDescription = "",
             modifier = Modifier
                 .clip(CircleShape)
-                .clickable { openHTTPLink(user.facebook) },
+                .clickable {
+                    context.openHTTPLink(user.facebook)
+                },
         )
         Image(
             painter = painterResource(R.drawable.ic_linkedin),
             contentDescription = "",
             modifier = Modifier
                 .clip(CircleShape)
-                .clickable { openHTTPLink(user.linkedin) },
+                .clickable {
+                    context.openHTTPLink(user.linkedin)
+                },
         )
         Image(
             painter = painterResource(R.drawable.ic_instagram),
@@ -155,8 +161,7 @@ fun DrawSocialNetworkLinksBlock(user: User) {
             modifier = Modifier
                 .clip(CircleShape)
                 .clickable {
-                    Log.d("das", "clicked on instagram")
-                    openHTTPLink(user.instagram)
+                    context.openHTTPLink(user.instagram)
                 },
         )
     }
@@ -252,7 +257,13 @@ private fun DrawBackGround() {
     }
 }
 
-private fun openHTTPLink(uriString: String?) {
-    if (!uriString.isNullOrBlank())
-        Intent(Intent.ACTION_VIEW, Uri.parse(uriString))
+private fun Context.openHTTPLink(uriString: String?) {
+    startActivity(
+        this,
+        Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse(uriString)
+        ),
+        null
+    )
 }
