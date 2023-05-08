@@ -1,6 +1,5 @@
-package com.stanislavdumchykov.socialnetworkclient.presentation.ui.main
+package com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.editprofile
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,12 +26,10 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -41,11 +38,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stanislavdumchykov.socialnetworkclient.R
-import com.stanislavdumchykov.socialnetworkclient.data.database.user.User
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Status
-import kotlinx.coroutines.runBlocking
 
 
 @Composable
@@ -59,33 +54,16 @@ fun EditProfileScreen(
             .fillMaxSize()
             .background(colorResource(R.color.white))
     ) {
-        val lifecycle = LocalLifecycleOwner.current.lifecycle
         var textFieldList: List<Pair<String, MutableState<String>>>
 
-        var user: User
-        runBlocking {
-            user = editProfileViewModel.getUser()
-        }
-        with(user) {
-            //TODO Data not arriving in time
+        with(editProfileViewModel.getUser()) {
             textFieldList = listOf(
-                stringResource(R.string.editprofile_text_username) to remember {
-                    mutableStateOf(this.name.orEmpty())
-                },
-                stringResource(R.string.editprofile_text_career) to remember {
-                    mutableStateOf(this.career.orEmpty())
-                },
-                stringResource(R.string.editprofile_text_phone) to remember {
-                    mutableStateOf(this.phone.orEmpty())
-                },
-                stringResource(R.string.editprofile_text_address) to remember {
-                    mutableStateOf(this.address.orEmpty())
-                },
-                stringResource(R.string.editprofile_text_dateofbirth) to remember {
-                    mutableStateOf(this.birthday.orEmpty())
-                },
+                stringResource(R.string.editprofile_text_username) to remember { mutableStateOf(this.name.orEmpty()) },
+                stringResource(R.string.editprofile_text_career) to remember { mutableStateOf(this.career.orEmpty()) },
+                stringResource(R.string.editprofile_text_phone) to remember { mutableStateOf(this.phone.orEmpty()) },
+                stringResource(R.string.editprofile_text_address) to remember { mutableStateOf(this.address.orEmpty()) },
+                stringResource(R.string.editprofile_text_dateofbirth) to remember { mutableStateOf(this.birthday.orEmpty()) },
             )
-
         }
 
         DrawTopBlock(onClick)

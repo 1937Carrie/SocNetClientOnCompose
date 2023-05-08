@@ -1,4 +1,4 @@
-package com.stanislavdumchykov.socialnetworkclient.presentation.ui.main
+package com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.editprofile
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -16,6 +16,8 @@ import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Status
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
@@ -26,7 +28,7 @@ class EditProfileViewModel @Inject constructor(
     private val serverRepository: ServerApi,
     private val databaseRepository: DatabaseRepository,
 ) : ViewModel() {
-    private var user1 = User()
+    private var user = User()
 
     private val _statusNetwork = MutableLiveData<Response<Status>>()
     val statusNetwork: LiveData<Response<Status>> = _statusNetwork
@@ -38,11 +40,13 @@ class EditProfileViewModel @Inject constructor(
     }
 
     fun getUser(): User {
-        viewModelScope.launch(Dispatchers.IO) {
-            user1 = databaseRepository.getDatabase().userDao().getUser()
+        runBlocking {
+            withContext(Dispatchers.IO) {
+                user = databaseRepository.getDatabase().userDao().getUser()
+            }
         }
 
-        return user1
+        return user
     }
 
     fun editProfile(
@@ -57,7 +61,7 @@ class EditProfileViewModel @Inject constructor(
 
             val response = try {
                 serverRepository.editUser(
-                    user1.serverId,
+                    user.serverId,
                     Constants.BEARER_TOKEN + _accessToken.value,
                     EditProfileUser(
                         name,

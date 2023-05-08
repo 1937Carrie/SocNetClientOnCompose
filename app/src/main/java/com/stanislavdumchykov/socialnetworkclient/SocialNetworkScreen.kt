@@ -1,7 +1,6 @@
 package com.stanislavdumchykov.socialnetworkclient
 
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -10,7 +9,7 @@ import com.stanislavdumchykov.socialnetworkclient.presentation.ui.authorization.
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.authorization.signup.SignUpExtendedScreen
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.authorization.signup.SignUpScreen
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.ContactProfile
-import com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.EditProfileScreen
+import com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.editprofile.EditProfileScreen
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.alluserslist.AllUsersListScreen
 import com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.viewpager.Pages
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.NavigationRoutes
