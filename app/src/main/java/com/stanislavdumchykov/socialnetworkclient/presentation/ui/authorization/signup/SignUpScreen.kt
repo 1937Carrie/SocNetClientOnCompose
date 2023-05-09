@@ -27,7 +27,6 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -51,7 +50,6 @@ import com.stanislavdumchykov.socialnetworkclient.data.StorageRepositoryImpl
 import com.stanislavdumchykov.socialnetworkclient.domain.repository.StorageRepository
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Status
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -253,11 +251,6 @@ private fun DrawRegisterButton(
 ) {
     val signUpViewModel: SignUpViewModel = hiltViewModel()
 
-    val status = signUpViewModel.statusNetwork.observeAsState()
-    if (status.value?.status == Status.SUCCESS) {
-        onRegisterClick()
-    }
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -282,6 +275,7 @@ private fun DrawRegisterButton(
 
                 if (!(isErrorEmail.value && isErrorPassword.value)) {
                     signUpViewModel.register(email.value, password.value)
+                    onRegisterClick()
                 }
             }
             .border(

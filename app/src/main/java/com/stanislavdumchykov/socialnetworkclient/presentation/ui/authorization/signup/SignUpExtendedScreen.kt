@@ -1,6 +1,5 @@
 package com.stanislavdumchykov.socialnetworkclient.presentation.ui.authorization.signup
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,8 +22,6 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -42,8 +39,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Response
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Status
 
 @Composable
 fun SignUpExtendedScreen(
@@ -55,8 +50,7 @@ fun SignUpExtendedScreen(
     val userName = remember { mutableStateOf("") }
     val phoneNumber = remember { mutableStateOf("") }
 
-    val statusUserData = signUpViewModel.statusUser.observeAsState()
-    setActionToStatusUserDataObserver(statusUserData, signUpViewModel, userName, phoneNumber)
+    setActionToStatusUserDataObserver(signUpViewModel, userName, phoneNumber)
 
     Column(
         modifier = Modifier
@@ -81,18 +75,13 @@ fun SignUpExtendedScreen(
 }
 
 private fun setActionToStatusUserDataObserver(
-    statusUserData: State<Response<Status>?>,
     signUpViewModel: SignUpViewModel,
     userName: MutableState<String>,
     phoneNumber: MutableState<String>
 ) {
-    if (statusUserData.value?.status == Status.SUCCESS) {
-        with(signUpViewModel.user.value) {
-            if (this != null) {
-                userName.value = this.name.orEmpty()
-                phoneNumber.value = this.phone.orEmpty()
-            }
-        }
+    with(signUpViewModel.user.value) {
+        userName.value = this.name.orEmpty()
+        phoneNumber.value = this.phone.orEmpty()
     }
 }
 
@@ -214,12 +203,6 @@ private fun DrawButtons(
     phoneNumber: MutableState<String>,
     signUpViewModel: SignUpViewModel,
 ) {
-    val statusNetwork = signUpViewModel.statusNetwork.observeAsState()
-    if (statusNetwork.value?.status == Status.SUCCESS) {
-        onForwardClick()
-        signUpViewModel.clearAllStatuses()
-    }
-
     Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Bottom) {
         Box(
             Modifier
@@ -256,6 +239,7 @@ private fun DrawButtons(
                         userName.value,
                         phoneNumber.value,
                     )
+                    onForwardClick()
                 },
             contentAlignment = Alignment.Center
         ) {

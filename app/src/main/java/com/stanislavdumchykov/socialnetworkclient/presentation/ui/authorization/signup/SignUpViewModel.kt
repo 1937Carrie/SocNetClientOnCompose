@@ -1,7 +1,6 @@
 package com.stanislavdumchykov.socialnetworkclient.presentation.ui.authorization.signup
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stanislavdumchykov.socialnetworkclient.R
@@ -10,10 +9,11 @@ import com.stanislavdumchykov.socialnetworkclient.domain.model.requestModels.Edi
 import com.stanislavdumchykov.socialnetworkclient.domain.repository.NetworkUsersRepository
 import com.stanislavdumchykov.socialnetworkclient.domain.repository.StorageRepository
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Response
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Status
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -24,16 +24,11 @@ class SignUpViewModel @Inject constructor(
     private val storage: StorageRepository,
     private val serverRepository: NetworkUsersRepository,
 ) : ViewModel() {
-    private val _statusNetwork = MutableLiveData<Response<Status>>()
-    val statusNetwork: LiveData<Response<Status>> = _statusNetwork
 
-    private val _statusUser = MutableLiveData<Response<Status>>()
-    val statusUser: LiveData<Response<Status>> = _statusUser
+    private val _user = MutableStateFlow(User())
+    val user: StateFlow<User> = _user.asStateFlow()
 
-    private val _user = MutableLiveData<User>()
-    val user: LiveData<User> = _user
-
-    private val _accessToken = MutableLiveData<String>()
+    private val _accessToken = MutableStateFlow("")
 
     init {
         getAccessToken()
@@ -41,14 +36,13 @@ class SignUpViewModel @Inject constructor(
 
     fun register(email: String, password: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            setLoadingStatus(_statusNetwork)
             val response = try {
                 serverRepository.registerUser(email, password)
             } catch (e: IOException) {
-                setErrorStatus(_statusNetwork, R.string.messageIOException)
+                Log.e("IOException", R.string.messageIOException.toString())
                 return@launch
             } catch (e: HttpException) {
-                setErrorStatus(_statusNetwork, R.string.messageHTTPException)
+                Log.e("HttpException", R.string.messageHTTPException.toString())
                 return@launch
             }
 
@@ -70,14 +64,13 @@ class SignUpViewModel @Inject constructor(
                     twitter = user?.twitter
                 )
 
-                _user.postValue(userData)
+                _user.value = userData
 
                 storage.saveString(
                     Constants.ACCESS_TOKEN, response.body()?.data?.accessToken ?: ""
                 )
-                setSuccessStatus(_statusNetwork)
             } else {
-                setErrorStatus(_statusNetwork, R.string.messageUnexpectedState)
+                Log.e("UnexpectedException", R.string.messageUnexpectedState.toString())
             }
         }
     }
@@ -90,11 +83,10 @@ class SignUpViewModel @Inject constructor(
         birthday: String = ""
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            setLoadingStatus(_statusNetwork)
 
             val response = try {
                 serverRepository.editUser(
-                    _user.value?.id ?: 0,
+                    _user.value.id,
                     Constants.BEARER_TOKEN + _accessToken.value,
                     EditProfileUser(
                         name,
@@ -105,10 +97,10 @@ class SignUpViewModel @Inject constructor(
                     )
                 )
             } catch (e: IOException) {
-                setErrorStatus(_statusNetwork, R.string.messageIOException)
+                Log.e("IOException", R.string.messageIOException.toString())
                 return@launch
             } catch (e: HttpException) {
-                setErrorStatus(_statusNetwork, R.string.messageHTTPException)
+                Log.e("HttpException", R.string.messageHTTPException.toString())
                 return@launch
             }
             if (response.isSuccessful) {
@@ -127,46 +119,19 @@ class SignUpViewModel @Inject constructor(
                     phone = user?.phone,
                     twitter = user?.twitter
                 )
-                _user.postValue(userData)
 
-                setSuccessStatus(_statusNetwork)
+                _user.value = userData
+
             } else {
-                setErrorStatus(_statusNetwork, R.string.messageUnexpectedState)
+                Log.e("UnexpectedException", R.string.messageUnexpectedState.toString())
             }
-        }
-    }
-
-    private fun setSuccessStatus(status: MutableLiveData<Response<Status>>) {
-        status.postValue(Response.success(Status.SUCCESS))
-    }
-
-    private fun setLoadingStatus(status: MutableLiveData<Response<Status>>) {
-        status.postValue(Response.loading(null))
-    }
-
-    private fun setErrorStatus(
-        status: MutableLiveData<Response<Status>>, messageResourceId: Int
-    ) {
-        status.postValue(Response.error(messageResourceId, null))
-    }
-
-    fun clearAllStatuses() {
-        _statusNetwork.value = null
-        _statusUser.value = null
-    }
-
-    fun setUser(newUser: User) {
-        viewModelScope.launch(Dispatchers.IO) {
-            setLoadingStatus(_statusUser)
-            _user.postValue(newUser)
-            setSuccessStatus(_statusUser)
         }
     }
 
     private fun getAccessToken() {
         viewModelScope.launch(Dispatchers.IO) {
             storage.getToken.collect {
-                _accessToken.postValue(it)
+                _accessToken.value = it
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.alluserslist
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,7 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,7 +39,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.domain.model.User
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Status
 
 @Composable
 fun AllUsersListScreen(onArrowClick: () -> Unit) {
@@ -86,18 +84,15 @@ private fun DrawTopBlock(onArrowClick: () -> Unit) {
 private fun DrawAllUsersList() {
     val allUsersListViewModel: AllUsersListViewModel = hiltViewModel()
 
-    val allUsersList = allUsersListViewModel.allUsers.collectAsState(emptyList())
-    val statusUserData = allUsersListViewModel.statusNetwork.observeAsState()
+    val allUsersList by allUsersListViewModel.allUsers.collectAsState(emptyList())
+
     allUsersListViewModel.getAllUsers()
-    if (statusUserData.value?.status == Status.SUCCESS) {
-        Log.d("ContactListScreen", "OnSuccessStatus: ${allUsersList.value}")
-    }
 
     LazyColumn(
         modifier = Modifier.background(colorResource(R.color.white)),
         content = {
             itemsIndexed(
-                items = allUsersList.value,
+                items = allUsersList, // TODO LazyColumn not always shows itself when data not received yet
                 itemContent = { index: Int, user: User -> DrawItem(networkUser = user) })
         }
     )

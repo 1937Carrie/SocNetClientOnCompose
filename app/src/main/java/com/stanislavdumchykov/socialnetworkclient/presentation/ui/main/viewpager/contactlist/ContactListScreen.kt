@@ -1,6 +1,5 @@
 package com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.viewpager.contactlist
 
-import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.*
@@ -17,7 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,7 +35,6 @@ import com.stanislavdumchykov.socialnetworkclient.domain.model.LocalUser
 import com.stanislavdumchykov.socialnetworkclient.domain.model.User
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.ScreenList
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Status
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.*
@@ -88,13 +85,8 @@ private fun DrawContactList(
             val localUserList: List<LocalUser> by contactListViewModel.localUserList.collectAsState(
                 emptyList()
             )
-            val networkUserList = contactListViewModel.userContacts.collectAsState(emptyList())
+            val networkUserList by contactListViewModel.userContacts.collectAsState(emptyList())
 
-            val statusUserData = contactListViewModel.statusUser.observeAsState()
-
-            if (statusUserData.value?.status == Status.SUCCESS) {
-                Log.d("ContactListScreen", "OnSuccessStatus: ${networkUserList.value}")
-            }
             contactListViewModel.apiGetUserContacts()
 
             val lazyListState = rememberLazyListState()
@@ -114,11 +106,11 @@ private fun DrawContactList(
                         .padding(bottom = it.calculateBottomPadding()),
                     state = lazyListState,
                     content = {
-                        itemsIndexed(
-                            items = networkUserList.value,
+                        itemsIndexed(items = networkUserList,
 //                            key = { user -> localUserList.indexOf(user) },
                             itemContent = { index: Int, item: User ->
                                 val currentItem by rememberUpdatedState(item)
+                                // TODO Wrong dismissing behaviour
                                 val dismissState =
                                     rememberDismissState(confirmStateChange = { dismissValue ->
                                         if (dismissValue == DismissValue.DismissedToStart) {
@@ -176,9 +168,7 @@ private fun DrawContactList(
                                 .clickable {
                                     selectedItemsList.forEach {
                                         contactListViewModel.removeUser(
-                                            networkUserList.value.indexOf(
-                                                it
-                                            )
+                                            networkUserList.indexOf(it)
                                         )
                                     }
                                     selectedItemsList.clear()
@@ -223,21 +213,19 @@ private fun DrawItem(
                 RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size))
             )
             .clip(RoundedCornerShape(dimensionResource(R.dimen.rounded_corner_size)))
-            .combinedClickable(
-                onLongClick = {
+            .combinedClickable(onLongClick = {
+                handleItemMultiSelectState(
+                    isSelect, selectedItemsList, networkUser, isMultiSelect
+                )
+            }, onClick = {
+                if (isMultiSelect.value) {
                     handleItemMultiSelectState(
                         isSelect, selectedItemsList, networkUser, isMultiSelect
                     )
-                },
-                onClick = {
-                    if (isMultiSelect.value) {
-                        handleItemMultiSelectState(
-                            isSelect, selectedItemsList, networkUser, isMultiSelect
-                        )
-                    } else {
-                        onItemClick()
-                    }
-                })
+                } else {
+                    onItemClick()
+                }
+            })
     ) {
         Row(
             modifier = Modifier

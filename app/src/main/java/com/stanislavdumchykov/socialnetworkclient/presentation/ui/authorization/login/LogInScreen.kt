@@ -22,7 +22,6 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,7 +41,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Status
 
 @Composable
 fun LogInScreen(
@@ -225,12 +223,6 @@ private fun DrawButtonLogin(
     logInViewModel: LogInViewModel,
     onLoginClick: () -> Unit,
 ) {
-    val status = logInViewModel.status.observeAsState()
-    if (status.value?.status == Status.SUCCESS) {
-        onLoginClick()
-        logInViewModel.clearAllStatuses()
-    }
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -244,6 +236,7 @@ private fun DrawButtonLogin(
             )
             .clickable {
                 logInViewModel.authorizeUser(email.value, password.value)
+                onLoginClick()
             },
         contentAlignment = Alignment.Center,
     ) {

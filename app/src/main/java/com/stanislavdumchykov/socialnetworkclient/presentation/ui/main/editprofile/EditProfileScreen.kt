@@ -23,7 +23,6 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -40,7 +39,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Fonts
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Status
 
 
 @Composable
@@ -62,7 +60,11 @@ fun EditProfileScreen(
                 stringResource(R.string.editprofile_text_career) to remember { mutableStateOf(this.career.orEmpty()) },
                 stringResource(R.string.editprofile_text_phone) to remember { mutableStateOf(this.phone.orEmpty()) },
                 stringResource(R.string.editprofile_text_address) to remember { mutableStateOf(this.address.orEmpty()) },
-                stringResource(R.string.editprofile_text_dateofbirth) to remember { mutableStateOf(this.birthday.orEmpty()) },
+                stringResource(R.string.editprofile_text_dateofbirth) to remember {
+                    mutableStateOf(
+                        this.birthday.orEmpty()
+                    )
+                },
             )
         }
 
@@ -206,12 +208,6 @@ private fun DrawButtonBlock(
     textFieldList: List<Pair<String, MutableState<String>>>,
     editProfileUpViewModel: EditProfileViewModel,
 ) {
-    val statusNetwork = editProfileUpViewModel.statusNetwork.observeAsState()
-    if (statusNetwork.value?.status == Status.SUCCESS) {
-        onSaveClick()
-        editProfileUpViewModel.clearAllStatuses()
-    }
-
     Box(
         modifier = Modifier
             .padding(
@@ -230,6 +226,7 @@ private fun DrawButtonBlock(
                     textFieldList[3].second.value,
                     textFieldList[4].second.value,
                 )
+                onSaveClick()
             },
         contentAlignment = Alignment.Center
     ) {

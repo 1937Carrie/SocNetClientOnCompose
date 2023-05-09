@@ -1,27 +1,26 @@
 package com.stanislavdumchykov.socialnetworkclient.presentation.ui.main.viewpager.contactlist
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stanislavdumchykov.socialnetworkclient.R
 import com.stanislavdumchykov.socialnetworkclient.domain.model.LocalUser
-import com.stanislavdumchykov.socialnetworkclient.domain.model.User
 import com.stanislavdumchykov.socialnetworkclient.domain.repository.DatabaseRepository
 import com.stanislavdumchykov.socialnetworkclient.domain.repository.NetworkUsersRepository
 import com.stanislavdumchykov.socialnetworkclient.domain.repository.StorageRepository
 import com.stanislavdumchykov.socialnetworkclient.domain.repository.UsersRepository
 import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Constants
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Response
-import com.stanislavdumchykov.socialnetworkclient.presentation.utils.Status
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
+import com.stanislavdumchykov.socialnetworkclient.data.database.user.User as UserDB
+import com.stanislavdumchykov.socialnetworkclient.domain.model.User as UserNetwork
 
 @HiltViewModel
 class ContactListViewModel @Inject constructor(
@@ -31,29 +30,21 @@ class ContactListViewModel @Inject constructor(
     private val databaseRepository: DatabaseRepository,
 ) : ViewModel() {
     private val _localUserList = MutableStateFlow<List<LocalUser>>(emptyList())
-    val localUserList: Flow<List<LocalUser>> = _localUserList
+    val localUserList: StateFlow<List<LocalUser>> = _localUserList.asStateFlow()
 
-    private val _userContacts = MutableStateFlow<List<User>>(emptyList())
-    val userContacts: Flow<List<User>> = _userContacts
+    private val _userContacts = MutableStateFlow<List<UserNetwork>>(emptyList())
+    val userContacts: StateFlow<List<UserNetwork>> = _userContacts.asStateFlow()
 
-    private val _statusUserContacts = MutableLiveData<Response<Status>>()
-    val statusUserContacts: LiveData<Response<Status>> = _statusUserContacts
+    private val _user = MutableStateFlow(UserDB())
+    val user: StateFlow<UserDB> = _user.asStateFlow()
 
-    private val _user = MutableLiveData<User>()
-    val user: LiveData<User> = _user
-
-    private val _statusUser = MutableLiveData<Response<Status>>()
-    val statusUser: LiveData<Response<Status>> = _statusUser
-
-    private val _statusNetwork = MutableLiveData<Response<Status>>()
-    val statusNetwork: LiveData<Response<Status>> = _statusNetwork
-
-    private val _accessToken = MutableLiveData<String>()
+    private val _accessToken = MutableStateFlow("")
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
 //            _localUserList.value = usersRepository.getUsers()
             getAccessToken()
+            setUser()
         }
     }
 
@@ -61,7 +52,7 @@ class ContactListViewModel @Inject constructor(
         _localUserList.value = _localUserList.value.toMutableList().apply { add(index, localUser) }
     }
 
-    fun addUser2(index: Int, user: User) {
+    fun addUser2(index: Int, user: UserNetwork) {
         _userContacts.value = _userContacts.value.toMutableList().apply { add(index, user) }
     }
 
@@ -72,7 +63,6 @@ class ContactListViewModel @Inject constructor(
 
     fun apiGetUserContacts() {
         viewModelScope.launch(Dispatchers.IO) {
-            setLoadingStatus(_statusNetwork)
 
             val response = try {
                 serverApi.getAccountUsers(
@@ -80,10 +70,10 @@ class ContactListViewModel @Inject constructor(
                     Constants.BEARER_TOKEN + _accessToken.value
                 )
             } catch (e: IOException) {
-                setErrorStatus(_statusNetwork, R.string.messageIOException)
+                Log.e("IOException", R.string.messageIOException.toString())
                 return@launch
             } catch (e: HttpException) {
-                setErrorStatus(_statusNetwork, R.string.messageHTTPException)
+                Log.e("HttpException", R.string.messageHTTPException.toString())
                 return@launch
             }
 
@@ -91,39 +81,22 @@ class ContactListViewModel @Inject constructor(
                 response.body()?.let {
                     _userContacts.value = it.data.contacts
                 }
-                setSuccessStatus(_statusNetwork)
             } else {
-                setErrorStatus(_statusNetwork, R.string.messageUnexpectedState)
+                Log.e("UnexpectedException", R.string.messageUnexpectedState.toString())
             }
         }
     }
 
-    private fun setLoadingStatus(status: MutableLiveData<Response<Status>>) {
-        status.postValue(Response.loading(null))
-    }
-
-    private fun setSuccessStatus(status: MutableLiveData<Response<Status>>) {
-        status.postValue(Response.success(Status.SUCCESS))
-    }
-
-    private fun setErrorStatus(
-        status: MutableLiveData<Response<Status>>, messageResourceId: Int
-    ) {
-        status.postValue(Response.error(messageResourceId, null))
-    }
-
-    fun setUser(newUser: User) {
+    private fun setUser() {
         viewModelScope.launch(Dispatchers.IO) {
-            setLoadingStatus(_statusUser)
-            _user.postValue(newUser)
-            setSuccessStatus(_statusUser)
+            _user.value = databaseRepository.getDatabase().userDao().getUser()
         }
     }
 
     private fun getAccessToken() {
         viewModelScope.launch(Dispatchers.IO) {
             storage.getToken.collect {
-                _accessToken.postValue(it)
+                _accessToken.value = it
             }
         }
     }
