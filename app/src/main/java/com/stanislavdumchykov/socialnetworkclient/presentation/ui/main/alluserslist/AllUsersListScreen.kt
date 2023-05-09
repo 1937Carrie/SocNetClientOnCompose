@@ -92,7 +92,7 @@ private fun DrawAllUsersList() {
         modifier = Modifier.background(colorResource(R.color.white)),
         content = {
             itemsIndexed(
-                items = allUsersList, // TODO LazyColumn not always shows itself when data not received yet
+                items = allUsersList, // TODO Server is guilty
                 itemContent = { index: Int, user: User -> DrawItem(networkUser = user) })
         }
     )
