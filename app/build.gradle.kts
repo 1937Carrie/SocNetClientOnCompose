@@ -61,4 +61,9 @@ dependencies {
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
     debugImplementation(libs.androidx.ui.tooling)
+
+    implementation(libs.glide)
+    implementation(libs.navigation.compose)
+
+    implementation(libs.datastore.preferences)
 }
