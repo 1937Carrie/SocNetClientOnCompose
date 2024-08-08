@@ -20,4 +20,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "SocialNetworkClient"
-include ':app'
+include(":app")

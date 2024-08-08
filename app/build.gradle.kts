@@ -1,14 +1,15 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
-    namespace = "com.stanislavdumchykov.socialnetworkclient"
+    namespace = "com.dumchykov.socialnetworkdemo"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.stanislavdumchykov.socialnetworkclient"
+        applicationId = "com.dumchykov.socialnetworkdemo"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -37,10 +38,6 @@ android {
     }
     buildFeatures {
         buildConfig = true
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.10"
     }
     packaging {
         resources {
@@ -60,5 +57,7 @@ dependencies {
     implementation(libs.androidx.material3)
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }
