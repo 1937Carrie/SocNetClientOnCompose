@@ -1,6 +1,5 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.signup
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -41,6 +40,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.screens.MyProfile
+import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
 import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
@@ -59,9 +59,8 @@ fun SignUpScreen(
     val signUpState = signUpViewModel.signUpState.collectAsState().value
 
     LaunchedEffect(signUpState.autoLogin) {
-        Log.d("AAA", signUpState.toString())
         if (signUpState.autoLogin) {
-            navController.navigate(MyProfile(signUpState.email))
+            navigateNext(navController, signUpState)
         }
     }
 
@@ -222,7 +221,7 @@ fun SignUpScreen(
                         if (signUpState.rememberMe) {
                             signUpViewModel.saveCredentials()
                         }
-                        navController.navigate(MyProfile(signUpState.email))
+                        navigateNext(navController, signUpState)
                     } else {
                         if (signUpState.email.isEmpty()) {
                             signUpViewModel.updateState {
@@ -293,6 +292,17 @@ fun SignUpScreen(
                     fontFamily = OPENS_SANS
                 )
             }
+        }
+    }
+}
+
+private fun navigateNext(
+    navController: NavHostController,
+    signUpState: SignUpState,
+) {
+    navController.navigate(MyProfile(signUpState.email)) {
+        popUpTo(SignUp) {
+            inclusive = true
         }
     }
 }

@@ -41,6 +41,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.screens.MyProfile
+import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
 import com.dumchykov.socialnetworkdemo.ui.theme.GrayText
@@ -63,7 +64,11 @@ fun MyProfileScreen(
     }
     LaunchedEffect(myProfileState.credentialsIsCleared) {
         if (myProfileState.credentialsIsCleared) {
-            navController.navigateUp()
+            navController.navigate(SignUp) {
+                popUpTo(MyProfile(myProfile.email)) {
+                    inclusive = true
+                }
+            }
         }
     }
     Column {
