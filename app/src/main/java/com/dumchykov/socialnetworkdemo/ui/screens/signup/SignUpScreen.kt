@@ -1,5 +1,6 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.signup
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,11 +22,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -51,8 +54,16 @@ fun SignUpScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    val signUpViewModel: SignUpViewModel = viewModel()
+    val context = LocalContext.current
+    val signUpViewModel: SignUpViewModel = viewModel(factory = SignUpViewModel.factory(context))
     val signUpState = signUpViewModel.signUpState.collectAsState().value
+
+    LaunchedEffect(signUpState.autoLogin) {
+        Log.d("AAA", signUpState.toString())
+        if (signUpState.autoLogin) {
+            navController.navigate(MyProfile(signUpState.email))
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -208,6 +219,9 @@ fun SignUpScreen(
             Button(
                 onClick = {
                     if (signUpState.email.isNotEmpty() && signUpState.emailError.not() && signUpState.password.isNotEmpty() && signUpState.passwordError.not()) {
+                        if (signUpState.rememberMe) {
+                            signUpViewModel.saveCredentials()
+                        }
                         navController.navigate(MyProfile(signUpState.email))
                     } else {
                         if (signUpState.email.isEmpty()) {

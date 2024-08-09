@@ -8,4 +8,5 @@ data class SignUpState(
     val passwordError: Boolean = false,
     val passwordIsFocused: Boolean = false,
     val rememberMe: Boolean = true,
+    val autoLogin: Boolean = false,
 )

@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,13 +55,20 @@ fun MyProfileScreen(
     myProfile: MyProfile,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel: MyProfileViewModel = viewModel()
+    val context = LocalContext.current
+    val viewModel: MyProfileViewModel = viewModel(factory = MyProfileViewModel.factory(context))
     val myProfileState = viewModel.myProfileState.collectAsState().value
     LaunchedEffect(true) {
         viewModel.parseEmail(myProfile.email)
     }
+    LaunchedEffect(myProfileState.credentialsIsCleared) {
+        if (myProfileState.credentialsIsCleared) {
+            navController.navigateUp()
+        }
+    }
     Column {
         ContainerTop(
+            viewModel,
             myProfileState,
             Modifier
                 .background(Blue)
@@ -179,6 +187,7 @@ private fun ContainerBottom(modifier: Modifier = Modifier) {
 
 @Composable
 private fun ContainerTop(
+    viewModel: MyProfileViewModel,
     myProfileState: MyProfileState,
     modifier: Modifier = Modifier,
 ) {
@@ -205,7 +214,9 @@ private fun ContainerTop(
                 modifier = Modifier
                     .border(2.dp, Gray, RoundedCornerShape(6.dp))
                     .padding(vertical = 10.dp, horizontal = 34.dp)
-                    .clickable { },
+                    .clickable {
+                        viewModel.clearCredentials()
+                    },
                 color = Gray,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.W600,

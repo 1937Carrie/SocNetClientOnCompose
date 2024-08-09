@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "SocialNetworkClient"
 include(":app")
+include(":datastore:data")
