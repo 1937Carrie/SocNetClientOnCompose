@@ -1,4 +1,4 @@
-package com.dumchykov.socialnetworkdemo.ui.screens
+package com.dumchykov.socialnetworkdemo.ui.screens.myprofile
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -22,6 +22,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,7 +35,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.dumchykov.socialnetworkdemo.R
+import com.dumchykov.socialnetworkdemo.ui.screens.MyProfile
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
 import com.dumchykov.socialnetworkdemo.ui.theme.GrayText
@@ -44,10 +50,18 @@ import com.dumchykov.socialnetworkdemo.ui.theme.White
 @Composable
 fun MyProfileScreen(
     padding: PaddingValues,
+    navController: NavHostController,
+    myProfile: MyProfile,
     modifier: Modifier = Modifier,
 ) {
+    val viewModel: MyProfileViewModel = viewModel()
+    val myProfileState = viewModel.myProfileState.collectAsState().value
+    LaunchedEffect(true) {
+        viewModel.parseEmail(myProfile.email)
+    }
     Column {
         ContainerTop(
+            myProfileState,
             Modifier
                 .background(Blue)
                 .weight(1f)
@@ -164,7 +178,10 @@ private fun ContainerBottom(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun ContainerTop(modifier: Modifier = Modifier) {
+private fun ContainerTop(
+    myProfileState: MyProfileState,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.SpaceBetween
@@ -220,7 +237,7 @@ private fun ContainerTop(modifier: Modifier = Modifier) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Lucile Alvarado",
+                        text = myProfileState.name,
                         color = White,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.W600,
@@ -249,5 +266,9 @@ private fun ContainerTop(modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 private fun MyProfileScreenPreview() {
-    MyProfileScreen(PaddingValues(0.dp))
+    MyProfileScreen(
+        PaddingValues(0.dp),
+        rememberNavController(),
+        MyProfile("lucile.alvarado@email.com")
+    )
 }
