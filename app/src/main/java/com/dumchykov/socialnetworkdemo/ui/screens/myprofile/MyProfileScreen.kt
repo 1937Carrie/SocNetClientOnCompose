@@ -213,10 +213,10 @@ private fun ContainerTop(
                 text = "Log out",
                 modifier = Modifier
                     .border(2.dp, Gray, RoundedCornerShape(6.dp))
-                    .padding(vertical = 10.dp, horizontal = 34.dp)
                     .clickable {
                         viewModel.clearCredentials()
-                    },
+                    }
+                    .padding(vertical = 10.dp, horizontal = 34.dp),
                 color = Gray,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.W600,
