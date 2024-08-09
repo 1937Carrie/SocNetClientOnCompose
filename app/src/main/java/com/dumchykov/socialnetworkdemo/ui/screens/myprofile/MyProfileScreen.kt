@@ -273,7 +273,6 @@ private fun ContainerTop(
             verticalArrangement = Arrangement.spacedBy(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // TODO: there is problems on big screen devices
             Image(
                 painter = painterResource(R.drawable.image_main),
                 contentDescription = "image main",
