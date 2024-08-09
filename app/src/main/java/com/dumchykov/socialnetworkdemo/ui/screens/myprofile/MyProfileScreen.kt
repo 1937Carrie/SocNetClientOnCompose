@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -71,37 +72,74 @@ fun MyProfileScreen(
             }
         }
     }
-    Column {
-        ContainerTop(
-            viewModel,
-            myProfileState,
-            Modifier
-                .background(Blue)
-                .weight(1f)
-                .fillMaxSize()
-                .then(
-                    Modifier.padding(
-                        top = padding.calculateTopPadding(),
-                        start = padding.calculateStartPadding(LayoutDirection.Ltr),
-                        end = padding.calculateEndPadding(LayoutDirection.Ltr)
-                    )
+    BoxWithConstraints {
+        if (maxWidth < 500.dp) {
+            Column {
+                ContainerTop(
+                    viewModel,
+                    myProfileState,
+                    Modifier
+                        .background(Blue)
+                        .weight(1f)
+                        .fillMaxSize()
+                        .then(
+                            Modifier.padding(
+                                top = padding.calculateTopPadding(),
+                                start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                                end = padding.calculateEndPadding(LayoutDirection.Ltr)
+                            )
+                        )
                 )
-        )
-        ContainerBottom(
-            Modifier
-                .background(White)
-                .weight(1f)
-                .fillMaxSize()
-                .padding(16.dp)
-                .then(
-                    Modifier.padding(
-                        bottom = padding.calculateBottomPadding(),
-                        start = padding.calculateStartPadding(LayoutDirection.Ltr),
-                        end = padding.calculateEndPadding(LayoutDirection.Ltr)
-                    )
+                ContainerBottom(
+                    Modifier
+                        .background(White)
+                        .weight(1f)
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .then(
+                            Modifier.padding(
+                                bottom = padding.calculateBottomPadding(),
+                                start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                                end = padding.calculateEndPadding(LayoutDirection.Ltr)
+                            )
+                        )
                 )
-        )
+            }
+        } else {
+            Row {
+                ContainerTop(
+                    viewModel,
+                    myProfileState,
+                    Modifier
+                        .background(Blue)
+                        .weight(1f)
+                        .fillMaxSize()
+                        .then(
+                            Modifier.padding(
+                                top = padding.calculateTopPadding(),
+                                start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                                end = padding.calculateEndPadding(LayoutDirection.Ltr)
+                            )
+                        )
+                )
+                ContainerBottom(
+                    Modifier
+                        .background(White)
+                        .weight(1f)
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .then(
+                            Modifier.padding(
+                                bottom = padding.calculateBottomPadding(),
+                                start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                                end = padding.calculateEndPadding(LayoutDirection.Ltr)
+                            )
+                        )
+                )
+            }
+        }
     }
+
 }
 
 @Composable
@@ -277,6 +315,19 @@ private fun ContainerTop(
             }
         }
     }
+}
+
+@Preview(
+    showBackground = true,
+    device = "spec:width=411dp,height=891dp,dpi=420,orientation=landscape"
+)
+@Composable
+private fun MyProfileScreenLandscapePreview() {
+    MyProfileScreen(
+        PaddingValues(0.dp),
+        rememberNavController(),
+        MyProfile("lucile.alvarado@email.com")
+    )
 }
 
 @Preview(showBackground = true)
