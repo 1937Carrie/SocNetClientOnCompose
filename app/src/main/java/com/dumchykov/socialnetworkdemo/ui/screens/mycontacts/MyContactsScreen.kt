@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -31,6 +32,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -42,8 +44,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
@@ -60,6 +64,8 @@ fun MyContactsScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
+    val viewModel: MyContactsViewModel = viewModel(factory = MyContactsViewModel.factory())
+    val myContactsState = viewModel.myContactsState.collectAsState().value
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
@@ -124,19 +130,19 @@ fun MyContactsScreen(
                     fontFamily = OPENS_SANS
                 )
             }
-            ContactsColumn()
+            ContactsColumn(myContactsState.contacts)
         }
     }
 }
 
 @Composable
-private fun ContactsColumn() {
+private fun ContactsColumn(contacts: List<Contact>) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        items(5) {
+        itemsIndexed(contacts, { _: Int, item: Contact -> item.id }) { index, contact ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -146,7 +152,7 @@ private fun ContactsColumn() {
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Image(
-                    painter = painterResource(R.drawable.image_main),
+                    painter = painterResource(R.drawable.black_guy_happy),
                     modifier = Modifier
                         .clip(CircleShape)
                         .aspectRatio(1f),
@@ -160,14 +166,14 @@ private fun ContactsColumn() {
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "Name",
+                        text = contact.name,
                         color = GrayText,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.W600,
                         fontFamily = OPENS_SANS
                     )
                     Text(
-                        text = "Profession",
+                        text = contact.profession,
                         color = Gray828282,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.W400,
