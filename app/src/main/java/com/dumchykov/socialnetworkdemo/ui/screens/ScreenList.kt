@@ -6,4 +6,7 @@ import kotlinx.serialization.Serializable
 data class MyProfile(val email: String)
 
 @Serializable
-object SignUp
+data object SignUp
+
+@Serializable
+data object MyContacts
