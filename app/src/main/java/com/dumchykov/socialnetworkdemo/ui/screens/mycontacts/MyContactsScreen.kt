@@ -78,6 +78,7 @@ import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
 import com.dumchykov.socialnetworkdemo.ui.theme.Orange
 import com.dumchykov.socialnetworkdemo.ui.theme.White
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -184,6 +185,9 @@ private fun ContactsColumn(
                 onDelete = {
                     viewModel.deleteContact(it)
                     scope.launch {
+                        // Check if a snackbar is currently being displayed
+                        snackbarHostState.currentSnackbarData?.dismiss()
+
                         val result = snackbarHostState
                             .showSnackbar(
                                 message = "${contact.name} has been deleted",
@@ -228,7 +232,7 @@ private fun SwipeableContainer(
 
     LaunchedEffect(isRemoved) {
         if (isRemoved) {
-            delay(animationDuration.toLong())
+//            delay(animationDuration.toLong())
             onDelete(contact)
             Log.d("AAA", "onDelete ItemContact ${contact.name}: ${state.currentValue.name}")
         }
