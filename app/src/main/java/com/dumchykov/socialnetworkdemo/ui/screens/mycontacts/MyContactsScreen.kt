@@ -22,7 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -34,8 +34,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -74,7 +76,9 @@ import com.dumchykov.socialnetworkdemo.ui.theme.GrayText
 import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
 import com.dumchykov.socialnetworkdemo.ui.theme.Orange
 import com.dumchykov.socialnetworkdemo.ui.theme.White
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -156,7 +160,7 @@ fun MyContactsScreen(
                     fontFamily = OPENS_SANS
                 )
             }
-            ContactsColumn(myContactsState.contacts, viewModel)
+            ContactsColumn(myContactsState.contacts, viewModel, scope, snackbarHostState)
         }
     }
 }
@@ -165,16 +169,38 @@ fun MyContactsScreen(
 private fun ContactsColumn(
     contacts: List<Contact>,
     viewModel: MyContactsViewModel,
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        items(contacts, { it }) { contact ->
-            ItemContact(
+        itemsIndexed(contacts, { _, item -> item }) { index, contact ->
+            SwipeableContainer(
                 contact = contact,
-                onDelete = viewModel::deleteContact
+                onDelete = {
+                    viewModel.deleteContact(it)
+                    scope.launch {
+                        val result = snackbarHostState
+                            .showSnackbar(
+                                message = "${contact.name} has been deleted",
+                                actionLabel = "Undo",
+                                duration = SnackbarDuration.Long
+                            )
+                        when (result) {
+                            SnackbarResult.ActionPerformed -> {
+                                viewModel.addContact(index, contact)
+
+                            }
+
+                            SnackbarResult.Dismissed -> {
+                                /* Handle snackbar dismissed */
+                            }
+                        }
+                    }
+                }
             )
         }
     }
@@ -182,7 +208,7 @@ private fun ContactsColumn(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ItemContact(
+private fun SwipeableContainer(
     contact: Contact,
     onDelete: (Contact) -> Unit,
     animationDuration: Int = 500,
@@ -218,57 +244,66 @@ private fun ItemContact(
 //                DeleteBackground(swipeDismissState = state)
             },
             content = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(1.dp, Gray, RoundedCornerShape(6.dp))
-                        .padding(8.dp)
-                        .height(50.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    val image = if (state.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
-                        R.drawable.black_guy_disappointed
-                    } else R.drawable.black_guy_happy
-                    Image(
-                        painter = painterResource(image),
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .aspectRatio(1f),
-                        contentDescription = "",
-                        contentScale = ContentScale.Crop
-                    )
-                    Column(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .weight(1f),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = contact.name,
-                            color = GrayText,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.W600,
-                            fontFamily = OPENS_SANS
-                        )
-                        Text(
-                            text = contact.profession,
-                            color = Gray828282,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.W400,
-                            fontFamily = OPENS_SANS
-                        )
-                    }
-                    IconButton(onClick = { }) {
-                        Icon(
-                            imageVector = Icons.Filled.Delete,
-                            contentDescription = "Localized description",
-                            tint = Orange
-                        )
-                    }
-                }
+                ItemContact(state, contact)
             },
             enableDismissFromStartToEnd = false
         )
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun ItemContact(
+    state: SwipeToDismissBoxState,
+    contact: Contact,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, Gray, RoundedCornerShape(6.dp))
+            .padding(8.dp)
+            .height(50.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        val image = if (state.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+            R.drawable.black_guy_disappointed
+        } else R.drawable.black_guy_happy
+        Image(
+            painter = painterResource(image),
+            modifier = Modifier
+                .clip(CircleShape)
+                .aspectRatio(1f),
+            contentDescription = "",
+            contentScale = ContentScale.Crop
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = contact.name,
+                color = GrayText,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.W600,
+                fontFamily = OPENS_SANS
+            )
+            Text(
+                text = contact.profession,
+                color = Gray828282,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.W400,
+                fontFamily = OPENS_SANS
+            )
+        }
+        IconButton(onClick = { }) {
+            Icon(
+                imageVector = Icons.Filled.Delete,
+                contentDescription = "Localized description",
+                tint = Orange
+            )
+        }
     }
 }
 
