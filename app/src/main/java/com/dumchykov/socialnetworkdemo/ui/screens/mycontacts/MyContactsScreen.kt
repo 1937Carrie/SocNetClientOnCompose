@@ -78,8 +78,6 @@ import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
 import com.dumchykov.socialnetworkdemo.ui.theme.Orange
 import com.dumchykov.socialnetworkdemo.ui.theme.White
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -251,7 +249,7 @@ private fun SwipeableContainer(
 //                DeleteBackground(swipeDismissState = state)
             },
             content = {
-                ItemContact(state, contact)
+                ItemContact(state, contact, onDelete)
             },
             enableDismissFromStartToEnd = false
         )
@@ -270,6 +268,7 @@ private fun SwipeableContainer(
 private fun ItemContact(
     state: SwipeToDismissBoxState,
     contact: Contact,
+    onDelete: (Contact) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -311,7 +310,7 @@ private fun ItemContact(
                 fontFamily = OPENS_SANS
             )
         }
-        IconButton(onClick = { }) {
+        IconButton(onClick = { onDelete(contact) }) {
             Icon(
                 imageVector = Icons.Filled.Delete,
                 contentDescription = "Localized description",
