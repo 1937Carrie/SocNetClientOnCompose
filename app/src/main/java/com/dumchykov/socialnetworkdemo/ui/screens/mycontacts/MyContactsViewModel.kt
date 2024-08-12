@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.dumchykov.contactsprovider.data.ContactsProvider
+import com.dumchykov.contactsprovider.domain.Contact
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -21,6 +22,12 @@ class MyContactsViewModel(
 
     fun updateState(reducer: MyContactsState.() -> MyContactsState) {
         _myContactsState.update(reducer)
+    }
+
+    fun deleteContact(contact: Contact) {
+        val tempContacts = myContactsState.value.contacts.toMutableList()
+        tempContacts -= contact
+        updateState { copy(contacts = tempContacts) }
     }
 
     companion object {

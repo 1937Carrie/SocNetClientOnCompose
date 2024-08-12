@@ -146,13 +146,16 @@ fun MyContactsScreen(
                     fontFamily = OPENS_SANS
                 )
             }
-            ContactsColumn(myContactsState.contacts)
+            ContactsColumn(myContactsState.contacts, viewModel)
         }
     }
 }
 
 @Composable
-private fun ContactsColumn(contacts: List<Contact>) {
+private fun ContactsColumn(
+    contacts: List<Contact>,
+    viewModel: MyContactsViewModel,
+) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -161,9 +164,7 @@ private fun ContactsColumn(contacts: List<Contact>) {
         items(contacts, { it }) { contact ->
             ItemContact(
                 contact = contact,
-                onDelete = {
-
-                }
+                onDelete = viewModel::deleteContact
             )
         }
     }
