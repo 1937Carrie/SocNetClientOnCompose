@@ -1,5 +1,6 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.mycontacts
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
@@ -229,8 +230,10 @@ private fun SwipeableContainer(
         if (isRemoved) {
             delay(animationDuration.toLong())
             onDelete(contact)
+            Log.d("AAA", "onDelete ItemContact ${contact.name}: ${state.currentValue.name}")
         }
     }
+
     AnimatedVisibility(
         visible = isRemoved.not(),
         exit = shrinkVertically(
@@ -248,6 +251,13 @@ private fun SwipeableContainer(
             },
             enableDismissFromStartToEnd = false
         )
+    }
+    LaunchedEffect(isRemoved) {
+        if (isRemoved.not()) {
+            state.reset()
+            Log.d("AAA", "onRestore ItemContact ${contact.name}: ${state.currentValue.name}")
+            isRemoved = false
+        }
     }
 }
 

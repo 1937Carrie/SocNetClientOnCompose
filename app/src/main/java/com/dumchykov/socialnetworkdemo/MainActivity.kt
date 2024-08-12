@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
                     contentWindowInsets = WindowInsets.displayCutout.union(ScaffoldDefaults.contentWindowInsets),
                 ) { innerPadding ->
                     val navController = rememberNavController()
-                    NavHost(navController = navController, startDestination = SignUp) {
+                    NavHost(navController = navController, startDestination = MyContacts) {
                         composable<MyProfile> { backStackEntry ->
                             val myProfile: MyProfile = backStackEntry.toRoute()
                             MyProfileScreen(innerPadding, navController, myProfile)
