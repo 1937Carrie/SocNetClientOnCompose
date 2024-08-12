@@ -24,6 +24,12 @@ class MyContactsViewModel(
         _myContactsState.update(reducer)
     }
 
+    fun addContact(contact: Contact) {
+        val tempContacts = myContactsState.value.contacts.toMutableList()
+        tempContacts.add(contact)
+        updateState { copy(contacts = tempContacts) }
+    }
+
     fun addContact(index: Int, contact: Contact) {
         val tempContacts = myContactsState.value.contacts.toMutableList()
         tempContacts.add(index, contact)

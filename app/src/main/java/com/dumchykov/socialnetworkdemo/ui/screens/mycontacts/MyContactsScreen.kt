@@ -26,10 +26,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -43,10 +47,12 @@ import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,11 +66,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -73,10 +82,12 @@ import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray828282
+import com.dumchykov.socialnetworkdemo.ui.theme.GrayBDBDBD
 import com.dumchykov.socialnetworkdemo.ui.theme.GrayText
 import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
 import com.dumchykov.socialnetworkdemo.ui.theme.Orange
 import com.dumchykov.socialnetworkdemo.ui.theme.White
+import com.dumchykov.socialnetworkdemo.ui.util.customTextFieldsColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -91,6 +102,7 @@ fun MyContactsScreen(
     val myContactsState = viewModel.myContactsState.collectAsState().value
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val addContactState = remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -153,7 +165,7 @@ fun MyContactsScreen(
                     text = "Add contacts",
                     modifier = Modifier
                         .padding(16.dp)
-                        .clickable { },
+                        .clickable { addContactState.value = true },
                     color = White,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.W600,
@@ -162,6 +174,15 @@ fun MyContactsScreen(
             }
             ContactsColumn(myContactsState.contacts, viewModel, scope, snackbarHostState)
         }
+    }
+    if (addContactState.value) {
+        DialogAddContact(
+            onDismissRequest = { addContactState.value = false },
+            onConfirmation = { contact ->
+                addContactState.value = false
+                viewModel.addContact(contact)
+            }
+        )
     }
 }
 
@@ -342,6 +363,157 @@ fun DeleteBackground(
             tint = Color.White
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DialogAddContact(
+    onDismissRequest: () -> Unit = {},
+    onConfirmation: (Contact) -> Unit = {},
+) {
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false
+        )
+    ) {
+        val nameState = remember { mutableStateOf("") }
+        val careerState = remember { mutableStateOf("") }
+        val emailState = remember { mutableStateOf("") }
+        val phoneState = remember { mutableStateOf("") }
+        val addressState = remember { mutableStateOf("") }
+        val dateOfBirthState = remember { mutableStateOf("") }
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = "Add contact",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.W600,
+                            fontFamily = OPENS_SANS,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { onDismissRequest() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Localized description",
+                                tint = White
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = Blue,
+                        titleContentColor = White
+                    )
+                )
+            }
+        ) { innerPaddings ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPaddings)
+            ) {
+                Box(
+                    Modifier
+                        .background(Blue)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.black_guy_happy),
+                        contentDescription = "",
+                        modifier = Modifier
+                            .padding(28.dp)
+                            .fillMaxWidth(0.4f)
+                            .aspectRatio(1f)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    DialogTextField(nameState, "Username")
+                    DialogTextField(careerState, "Career")
+                    DialogTextField(emailState, "Email")
+                    DialogTextField(phoneState, "Phone")
+                    DialogTextField(addressState, "Address")
+                    DialogTextField(dateOfBirthState, "Date of birth")
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .padding(16.dp),
+                    contentAlignment = Alignment.BottomCenter
+                ) {
+                    Button(
+                        onClick = {
+                            val contact = Contact(
+                                name = nameState.value,
+                                profession = careerState.value,
+                                address = addressState.value
+                            )
+                            onConfirmation(contact)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(55.dp),
+                        shape = RoundedCornerShape(6.dp),
+                        colors = ButtonColors(Orange, Color.Transparent, Orange, Color.Transparent)
+                    ) {
+                        Text(
+                            text = "Save",
+                            color = White,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.W600,
+                            fontFamily = OPENS_SANS,
+                            letterSpacing = 1.5.sp
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DialogTextField(state: MutableState<String>, label: String) {
+    TextField(
+        value = state.value,
+        onValueChange = { state.value = it },
+        modifier = Modifier.fillMaxWidth(),
+        label = { Text(text = label, color = Gray) },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+        colors = customTextFieldsColors(
+            focusedTextColor = GrayText,
+            unfocusedTextColor = GrayText,
+            disabledTextColor = GrayText,
+            errorTextColor = GrayText,
+            cursorColor = GrayText,
+            errorCursorColor = GrayText,
+            selectionColors = TextSelectionColors(GrayBDBDBD, GrayBDBDBD.copy(0.4f)),
+            focusedIndicatorColor = GrayBDBDBD,
+            unfocusedIndicatorColor = GrayBDBDBD,
+            disabledIndicatorColor = GrayBDBDBD,
+            errorIndicatorColor = GrayBDBDBD
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DialogAddContactPreview() {
+    DialogAddContact()
 }
 
 @Preview(showBackground = true)

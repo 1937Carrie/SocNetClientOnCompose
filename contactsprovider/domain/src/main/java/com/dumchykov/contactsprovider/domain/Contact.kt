@@ -7,6 +7,6 @@ data class Contact(
     val name: String = "",
     val profession: String = "",
     val address: String = "",
-    val imageHolder: Int,
+    val imageHolder: Int = 0,
     val imageInternet: String = "",
 ): Serializable

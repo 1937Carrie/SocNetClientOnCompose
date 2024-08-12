@@ -11,8 +11,7 @@ class ContactsProvider {
                     id = it,
                     name = "Name $it",
                     profession = "Profession $it",
-                    address = "Address $it",
-                    imageHolder = 0
+                    address = "Address $it"
                 )
             )
         }
