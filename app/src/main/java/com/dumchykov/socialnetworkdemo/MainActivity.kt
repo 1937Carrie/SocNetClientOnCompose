@@ -17,6 +17,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.dumchykov.socialnetworkdemo.ui.screens.MyContacts
+import com.dumchykov.socialnetworkdemo.ui.screens.mycontacts.MyContactsScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.MyProfile
 import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
 import com.dumchykov.socialnetworkdemo.ui.screens.myprofile.MyProfileScreen
@@ -36,13 +38,13 @@ class MainActivity : ComponentActivity() {
                     contentWindowInsets = WindowInsets.displayCutout.union(ScaffoldDefaults.contentWindowInsets),
                 ) { innerPadding ->
                     val navController = rememberNavController()
-                    NavHost(navController = navController, startDestination = SignUp) {
+                    NavHost(navController = navController, startDestination = MyContacts) {
                         composable<MyProfile> { backStackEntry ->
                             val myProfile: MyProfile = backStackEntry.toRoute()
                             MyProfileScreen(innerPadding, navController, myProfile)
                         }
                         composable<SignUp> { SignUpScreen(innerPadding, navController) }
-
+                        composable<MyContacts> { MyContactsScreen(innerPadding, navController) }
                     }
                 }
             }

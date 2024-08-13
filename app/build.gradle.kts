@@ -50,6 +50,8 @@ android {
 
 dependencies {
     implementation(project(":datastore:data"))
+    implementation(project(":contactsprovider:data"))
+    implementation(project(":contactsprovider:domain"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
