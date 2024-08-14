@@ -78,10 +78,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.R
+import com.dumchykov.socialnetworkdemo.ui.screens.Detail
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray828282
@@ -178,7 +180,13 @@ fun MyContactsScreen(
                     fontFamily = OPENS_SANS
                 )
             }
-            ContactsColumn(myContactsState.contacts, viewModel, scope, snackbarHostState)
+            ContactsColumn(
+                myContactsState.contacts,
+                viewModel,
+                scope,
+                snackbarHostState,
+                navController
+            )
         }
     }
     if (addContactState.value) {
@@ -198,6 +206,7 @@ private fun ContactsColumn(
     viewModel: MyContactsViewModel,
     scope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
+    navController: NavController
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -230,7 +239,8 @@ private fun ContactsColumn(
                             }
                         }
                     }
-                }
+                },
+                navController
             )
         }
     }
@@ -241,6 +251,7 @@ private fun ContactsColumn(
 private fun SwipeableContainer(
     contact: Contact,
     onDelete: (Contact) -> Unit,
+    navController: NavController,
     animationDuration: Int = 500,
 ) {
     var isRemoved by remember { mutableStateOf(false) }
@@ -276,7 +287,7 @@ private fun SwipeableContainer(
 //                DeleteBackground(swipeDismissState = state)
             },
             content = {
-                ItemContact(state, contact, onDelete)
+                ItemContact(state, contact, onDelete, navController)
             },
             enableDismissFromStartToEnd = false
         )
@@ -296,11 +307,14 @@ private fun ItemContact(
     state: SwipeToDismissBoxState,
     contact: Contact,
     onDelete: (Contact) -> Unit,
+    navController: NavController,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .border(1.dp, Gray, RoundedCornerShape(6.dp))
+            .clip(RoundedCornerShape(6.dp))
+            .clickable { navController.navigate(Detail(contact)) }
             .padding(8.dp)
             .height(50.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -518,12 +532,12 @@ private fun DialogTextField(state: MutableState<String>, label: String) {
 
 @Preview(showBackground = true)
 @Composable
-fun DialogAddContactPreview() {
-    DialogAddContact()
+fun MyContactsScreenPreview() {
+    MyContactsScreen(padding = PaddingValues(0.dp), navController = rememberNavController())
 }
 
 @Preview(showBackground = true)
 @Composable
-fun MyContactsScreenPreview() {
-    MyContactsScreen(padding = PaddingValues(0.dp), navController = rememberNavController())
+fun DialogAddContactPreview() {
+    DialogAddContact()
 }
