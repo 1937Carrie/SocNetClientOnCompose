@@ -38,10 +38,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dumchykov.datastore.data.DataStoreProvider
 import com.dumchykov.socialnetworkdemo.R
+import com.dumchykov.socialnetworkdemo.ui.screens.MyContacts
 import com.dumchykov.socialnetworkdemo.ui.screens.MyProfile
 import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
@@ -91,7 +93,8 @@ fun MyProfileScreen(
                         )
                 )
                 ContainerBottom(
-                    Modifier
+                    navController = navController,
+                    modifier = Modifier
                         .background(White)
                         .weight(1f)
                         .fillMaxSize()
@@ -123,7 +126,8 @@ fun MyProfileScreen(
                         )
                 )
                 ContainerBottom(
-                    Modifier
+                    navController = navController,
+                    modifier = Modifier
                         .background(White)
                         .weight(1f)
                         .fillMaxSize()
@@ -143,7 +147,10 @@ fun MyProfileScreen(
 }
 
 @Composable
-private fun ContainerBottom(modifier: Modifier = Modifier) {
+private fun ContainerBottom(
+    navController: NavController,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.SpaceBetween,
@@ -203,7 +210,7 @@ private fun ContainerBottom(modifier: Modifier = Modifier) {
                 )
             }
             Button(
-                onClick = {},
+                onClick = { navController.navigate(MyContacts) },
                 modifier = Modifier
                     .height(55.dp)
                     .fillMaxWidth(),
