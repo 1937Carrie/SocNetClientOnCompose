@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.dumchykov.datastore.data.DataStoreProvider
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.screens.MyProfile
 import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
@@ -54,19 +55,18 @@ import com.dumchykov.socialnetworkdemo.ui.theme.White
 fun MyProfileScreen(
     padding: PaddingValues,
     navController: NavHostController,
-    myProfile: MyProfile,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val viewModel: MyProfileViewModel = viewModel(factory = MyProfileViewModel.factory(context))
+    val dataStoreProvider = DataStoreProvider(context)
+    val viewModel: MyProfileViewModel =
+        viewModel(factory = MyProfileViewModel.factory(dataStoreProvider))
     val myProfileState = viewModel.myProfileState.collectAsState().value
-    LaunchedEffect(true) {
-        viewModel.parseEmail(myProfile.email)
-    }
+
     LaunchedEffect(myProfileState.credentialsIsCleared) {
         if (myProfileState.credentialsIsCleared) {
             navController.navigate(SignUp) {
-                popUpTo(MyProfile(myProfile.email)) {
+                popUpTo(MyProfile(myProfileState.argEmail)) {
                     inclusive = true
                 }
             }
@@ -324,8 +324,7 @@ private fun ContainerTop(
 private fun MyProfileScreenLandscapePreview() {
     MyProfileScreen(
         PaddingValues(0.dp),
-        rememberNavController(),
-        MyProfile("lucile.alvarado@email.com")
+        rememberNavController()
     )
 }
 
@@ -334,7 +333,6 @@ private fun MyProfileScreenLandscapePreview() {
 private fun MyProfileScreenPreview() {
     MyProfileScreen(
         PaddingValues(0.dp),
-        rememberNavController(),
-        MyProfile("lucile.alvarado@email.com")
+        rememberNavController()
     )
 }

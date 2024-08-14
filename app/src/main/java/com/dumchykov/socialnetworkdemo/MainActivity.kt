@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.navigation.parcelableType
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
@@ -43,16 +42,13 @@ class MainActivity : ComponentActivity() {
                     contentWindowInsets = WindowInsets.displayCutout.union(ScaffoldDefaults.contentWindowInsets),
                 ) { innerPadding ->
                     val navController = rememberNavController()
-                    NavHost(navController = navController, startDestination = MyContacts) {
-                        composable<MyProfile> { backStackEntry ->
-                            val myProfile: MyProfile = backStackEntry.toRoute()
-                            MyProfileScreen(innerPadding, navController, myProfile)
-                        }
+                    NavHost(navController = navController, startDestination = SignUp) {
+                        composable<MyProfile> { MyProfileScreen(innerPadding, navController) }
                         composable<SignUp> { SignUpScreen(innerPadding, navController) }
                         composable<MyContacts> { MyContactsScreen(innerPadding, navController) }
                         composable<Detail>(
                             typeMap = mapOf(typeOf<Contact>() to parcelableType<Contact>())
-                        ) { backStackEntry ->
+                        ) {
                             DetailScreen(innerPadding, navController)
                         }
                     }
