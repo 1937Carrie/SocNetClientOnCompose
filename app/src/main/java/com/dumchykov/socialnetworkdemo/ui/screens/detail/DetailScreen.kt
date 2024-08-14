@@ -130,7 +130,7 @@ fun DetailScreen(
                             fontFamily = OPENS_SANS,
                         )
                         Text(
-                            text = "Graphic designer",
+                            text = contact.profession,
                             color = Gray,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.W600,
@@ -138,7 +138,7 @@ fun DetailScreen(
                         )
                     }
                     Text(
-                        text = "5295 Gaylord Walks Apk. 110",
+                        text = contact.address,
                         color = Gray,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.W600,
