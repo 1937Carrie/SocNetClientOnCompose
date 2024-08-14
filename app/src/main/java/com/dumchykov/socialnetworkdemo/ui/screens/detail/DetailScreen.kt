@@ -28,6 +28,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
@@ -41,9 +42,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
@@ -56,8 +57,10 @@ import com.dumchykov.socialnetworkdemo.ui.theme.White
 fun DetailScreen(
     parentPadding: PaddingValues,
     navController: NavController,
-    contact: Contact,
 ) {
+    val viewModel: DetailViewModel = viewModel()
+    val detailState = viewModel.detailState.collectAsState().value
+
     Column {
         Column(
             modifier = Modifier
@@ -123,14 +126,14 @@ fun DetailScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = contact.name,
+                            text = detailState.contact.name,
                             color = White,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.W600,
                             fontFamily = OPENS_SANS,
                         )
                         Text(
-                            text = contact.profession,
+                            text = detailState.contact.profession,
                             color = Gray,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.W600,
@@ -138,7 +141,7 @@ fun DetailScreen(
                         )
                     }
                     Text(
-                        text = contact.address,
+                        text = detailState.contact.address,
                         color = Gray,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.W600,
@@ -221,11 +224,6 @@ fun DetailScreen(
 fun DetailScreenPreview() {
     DetailScreen(
         parentPadding = PaddingValues(0.dp),
-        navController = rememberNavController(),
-        contact = Contact(
-            name = "Test Name",
-            profession = "Test profession",
-            address = "Test address"
-        )
+        navController = rememberNavController()
     )
 }

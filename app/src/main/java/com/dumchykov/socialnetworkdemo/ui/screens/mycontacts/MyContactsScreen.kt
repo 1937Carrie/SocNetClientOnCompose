@@ -206,7 +206,7 @@ private fun ContactsColumn(
     viewModel: MyContactsViewModel,
     scope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
-    navController: NavController
+    navController: NavController,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -295,7 +295,6 @@ private fun SwipeableContainer(
     LaunchedEffect(isRemoved) {
         if (isRemoved.not()) {
             state.reset()
-            Log.d("AAA", "onRestore ItemContact ${contact.name}: ${state.currentValue.name}")
             isRemoved = false
         }
     }

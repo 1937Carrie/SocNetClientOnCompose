@@ -53,8 +53,7 @@ class MainActivity : ComponentActivity() {
                         composable<Detail>(
                             typeMap = mapOf(typeOf<Contact>() to parcelableType<Contact>())
                         ) { backStackEntry ->
-                            val detail: Detail = backStackEntry.toRoute()
-                            DetailScreen(innerPadding, navController, detail.contact)
+                            DetailScreen(innerPadding, navController)
                         }
                     }
                 }
