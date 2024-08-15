@@ -42,6 +42,30 @@ class MyContactsViewModel(
         updateState { copy(contacts = tempContacts) }
     }
 
+    fun changeContactSelectedState(contact: Contact) {
+        val searchedContact = myContactsState.value.contacts.first { it == contact }
+        val searchedIndex = myContactsState.value.contacts.indexOf(searchedContact)
+        val updatedContacts = myContactsState
+            .value
+            .contacts
+            .toMutableList()
+        updatedContacts[searchedIndex] =
+            searchedContact.copy(isChecked = searchedContact.isChecked.not())
+        updateState { copy(contacts = updatedContacts) }
+        updateState { copy(isMultiselect = updateMultiselectState()) }
+    }
+
+    private fun updateMultiselectState(): Boolean {
+        return myContactsState.value.contacts.count { it.isChecked } != 0
+    }
+
+    fun deleteSelected() {
+        val contacts = myContactsState.value.contacts.toMutableList()
+        contacts.removeIf { it.isChecked }
+        updateState { copy(contacts = contacts) }
+        updateState { copy(isMultiselect = updateMultiselectState()) }
+    }
+
     companion object {
         fun factory(): ViewModelProvider.Factory {
             return viewModelFactory {

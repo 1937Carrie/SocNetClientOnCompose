@@ -13,4 +13,5 @@ data class Contact(
     val address: String = "",
     val imageHolder: Int = 0,
     val imageInternet: String = "",
+    val isChecked: Boolean = false,
 ) : Parcelable
