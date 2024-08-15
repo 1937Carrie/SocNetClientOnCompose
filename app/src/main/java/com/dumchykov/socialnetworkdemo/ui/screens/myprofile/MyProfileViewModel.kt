@@ -10,7 +10,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.toRoute
 import com.dumchykov.datastore.data.DataStoreProvider
-import com.dumchykov.socialnetworkdemo.ui.screens.MyProfile
+import com.dumchykov.socialnetworkdemo.ui.screens.Pager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -24,7 +24,7 @@ class MyProfileViewModel(
     val myProfileState get() = _myProfileState.asStateFlow()
 
     init {
-        val email = savedStateHandle.toRoute<MyProfile>().email
+        val email = savedStateHandle.toRoute<Pager>().email
         update { copy(argEmail = email) }
         val parsedName = parseEmail(email)
         update { copy(name = parsedName) }

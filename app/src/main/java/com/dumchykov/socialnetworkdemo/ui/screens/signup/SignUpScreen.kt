@@ -40,7 +40,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dumchykov.socialnetworkdemo.R
-import com.dumchykov.socialnetworkdemo.ui.screens.MyProfile
+import com.dumchykov.socialnetworkdemo.ui.screens.Pager
 import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
@@ -369,7 +369,7 @@ private fun navigateNext(
     navController: NavHostController,
     signUpState: SignUpState,
 ) {
-    navController.navigate(MyProfile(signUpState.email)) {
+    navController.navigate(Pager(signUpState.email)) {
         popUpTo(SignUp) {
             inclusive = true
         }

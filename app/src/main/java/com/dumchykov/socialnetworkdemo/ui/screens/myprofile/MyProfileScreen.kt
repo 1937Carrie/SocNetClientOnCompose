@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -25,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,13 +41,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dumchykov.datastore.data.DataStoreProvider
 import com.dumchykov.socialnetworkdemo.R
-import com.dumchykov.socialnetworkdemo.ui.screens.MyContacts
-import com.dumchykov.socialnetworkdemo.ui.screens.MyProfile
+import com.dumchykov.socialnetworkdemo.ui.screens.Pager
 import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
@@ -52,11 +53,13 @@ import com.dumchykov.socialnetworkdemo.ui.theme.GrayText
 import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
 import com.dumchykov.socialnetworkdemo.ui.theme.Orange
 import com.dumchykov.socialnetworkdemo.ui.theme.White
+import kotlinx.coroutines.launch
 
 @Composable
 fun MyProfileScreen(
     padding: PaddingValues,
     navController: NavHostController,
+    pagerState: PagerState,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -68,7 +71,7 @@ fun MyProfileScreen(
     LaunchedEffect(myProfileState.credentialsIsCleared) {
         if (myProfileState.credentialsIsCleared) {
             navController.navigate(SignUp) {
-                popUpTo(MyProfile(myProfileState.argEmail)) {
+                popUpTo(Pager(myProfileState.argEmail)) {
                     inclusive = true
                 }
             }
@@ -93,7 +96,7 @@ fun MyProfileScreen(
                         )
                 )
                 ContainerBottom(
-                    navController = navController,
+                    pagerState = pagerState,
                     modifier = Modifier
                         .background(White)
                         .weight(1f)
@@ -126,7 +129,7 @@ fun MyProfileScreen(
                         )
                 )
                 ContainerBottom(
-                    navController = navController,
+                    pagerState = pagerState,
                     modifier = Modifier
                         .background(White)
                         .weight(1f)
@@ -148,7 +151,7 @@ fun MyProfileScreen(
 
 @Composable
 private fun ContainerBottom(
-    navController: NavController,
+    pagerState: PagerState,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -209,8 +212,13 @@ private fun ContainerBottom(
                     fontFamily = OPENS_SANS,
                 )
             }
+            val coroutineScope = rememberCoroutineScope()
             Button(
-                onClick = { navController.navigate(MyContacts) },
+                onClick = {
+                    coroutineScope.launch {
+                        pagerState.scrollToPage(1)
+                    }
+                },
                 modifier = Modifier
                     .height(55.dp)
                     .fillMaxWidth(),
@@ -331,7 +339,8 @@ private fun ContainerTop(
 private fun MyProfileScreenLandscapePreview() {
     MyProfileScreen(
         PaddingValues(0.dp),
-        rememberNavController()
+        rememberNavController(),
+        rememberPagerState { 2 }
     )
 }
 
@@ -340,6 +349,7 @@ private fun MyProfileScreenLandscapePreview() {
 private fun MyProfileScreenPreview() {
     MyProfileScreen(
         PaddingValues(0.dp),
-        rememberNavController()
+        rememberNavController(),
+        rememberPagerState { 2 }
     )
 }

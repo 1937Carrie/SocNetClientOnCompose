@@ -26,6 +26,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -101,6 +103,7 @@ import kotlinx.coroutines.launch
 fun MyContactsScreen(
     padding: PaddingValues,
     navController: NavHostController,
+    pagerState: PagerState,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -111,6 +114,7 @@ fun MyContactsScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val addContactState = remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
     Scaffold(
         modifier = modifier
             .fillMaxSize()
@@ -132,7 +136,11 @@ fun MyContactsScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
+                    IconButton(onClick = {
+                        coroutineScope.launch {
+                            pagerState.scrollToPage(0)
+                        }
+                    }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Localized description",
@@ -532,7 +540,7 @@ private fun DialogTextField(state: MutableState<String>, label: String) {
 @Preview(showBackground = true)
 @Composable
 fun MyContactsScreenPreview() {
-    MyContactsScreen(padding = PaddingValues(0.dp), navController = rememberNavController())
+    MyContactsScreen(PaddingValues(0.dp), rememberNavController(), rememberPagerState { 2 })
 }
 
 @Preview(showBackground = true)
