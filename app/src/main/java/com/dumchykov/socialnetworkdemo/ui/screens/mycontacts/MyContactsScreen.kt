@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -114,7 +115,6 @@ fun MyContactsScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val addContactState = remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
     Scaffold(
         modifier = modifier
             .fillMaxSize()
@@ -137,7 +137,7 @@ fun MyContactsScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = {
-                        coroutineScope.launch {
+                        scope.launch {
                             pagerState.scrollToPage(0)
                         }
                     }) {
@@ -157,6 +157,7 @@ fun MyContactsScreen(
                         )
                     }
                 },
+                windowInsets = WindowInsets(0.dp),
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Blue,
                     titleContentColor = White,

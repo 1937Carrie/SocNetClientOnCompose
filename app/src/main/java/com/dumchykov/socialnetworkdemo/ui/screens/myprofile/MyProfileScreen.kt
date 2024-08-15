@@ -89,7 +89,6 @@ fun MyProfileScreen(
                         .fillMaxSize()
                         .then(
                             Modifier.padding(
-                                top = padding.calculateTopPadding(),
                                 start = padding.calculateStartPadding(LayoutDirection.Ltr),
                                 end = padding.calculateEndPadding(LayoutDirection.Ltr)
                             )
@@ -122,7 +121,6 @@ fun MyProfileScreen(
                         .fillMaxSize()
                         .then(
                             Modifier.padding(
-                                top = padding.calculateTopPadding(),
                                 start = padding.calculateStartPadding(LayoutDirection.Ltr),
                                 end = padding.calculateEndPadding(LayoutDirection.Ltr)
                             )
