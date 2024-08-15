@@ -1,5 +1,6 @@
 package com.dumchykov.socialnetworkdemo.ui.screens
 
+import com.dumchykov.contactsprovider.domain.Contact
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -10,3 +11,6 @@ data object SignUp
 
 @Serializable
 data object MyContacts
+
+@Serializable
+data class Detail(val contact: Contact)

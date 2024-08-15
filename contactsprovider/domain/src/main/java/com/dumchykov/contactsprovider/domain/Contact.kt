@@ -1,7 +1,11 @@
 package com.dumchykov.contactsprovider.domain
 
-import java.io.Serializable
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 
+@Serializable
+@Parcelize
 data class Contact(
     val id: Int = 0,
     val name: String = "",
@@ -9,4 +13,4 @@ data class Contact(
     val address: String = "",
     val imageHolder: Int = 0,
     val imageInternet: String = "",
-): Serializable
+) : Parcelable

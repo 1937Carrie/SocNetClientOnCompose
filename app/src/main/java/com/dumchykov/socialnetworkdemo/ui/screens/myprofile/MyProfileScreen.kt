@@ -38,9 +38,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.dumchykov.datastore.data.DataStoreProvider
 import com.dumchykov.socialnetworkdemo.R
+import com.dumchykov.socialnetworkdemo.ui.screens.MyContacts
 import com.dumchykov.socialnetworkdemo.ui.screens.MyProfile
 import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
@@ -54,19 +57,18 @@ import com.dumchykov.socialnetworkdemo.ui.theme.White
 fun MyProfileScreen(
     padding: PaddingValues,
     navController: NavHostController,
-    myProfile: MyProfile,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val viewModel: MyProfileViewModel = viewModel(factory = MyProfileViewModel.factory(context))
+    val dataStoreProvider = DataStoreProvider(context)
+    val viewModel: MyProfileViewModel =
+        viewModel(factory = MyProfileViewModel.factory(dataStoreProvider))
     val myProfileState = viewModel.myProfileState.collectAsState().value
-    LaunchedEffect(true) {
-        viewModel.parseEmail(myProfile.email)
-    }
+
     LaunchedEffect(myProfileState.credentialsIsCleared) {
         if (myProfileState.credentialsIsCleared) {
             navController.navigate(SignUp) {
-                popUpTo(MyProfile(myProfile.email)) {
+                popUpTo(MyProfile(myProfileState.argEmail)) {
                     inclusive = true
                 }
             }
@@ -91,7 +93,8 @@ fun MyProfileScreen(
                         )
                 )
                 ContainerBottom(
-                    Modifier
+                    navController = navController,
+                    modifier = Modifier
                         .background(White)
                         .weight(1f)
                         .fillMaxSize()
@@ -123,7 +126,8 @@ fun MyProfileScreen(
                         )
                 )
                 ContainerBottom(
-                    Modifier
+                    navController = navController,
+                    modifier = Modifier
                         .background(White)
                         .weight(1f)
                         .fillMaxSize()
@@ -143,7 +147,10 @@ fun MyProfileScreen(
 }
 
 @Composable
-private fun ContainerBottom(modifier: Modifier = Modifier) {
+private fun ContainerBottom(
+    navController: NavController,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.SpaceBetween,
@@ -203,7 +210,7 @@ private fun ContainerBottom(modifier: Modifier = Modifier) {
                 )
             }
             Button(
-                onClick = {},
+                onClick = { navController.navigate(MyContacts) },
                 modifier = Modifier
                     .height(55.dp)
                     .fillMaxWidth(),
@@ -324,8 +331,7 @@ private fun ContainerTop(
 private fun MyProfileScreenLandscapePreview() {
     MyProfileScreen(
         PaddingValues(0.dp),
-        rememberNavController(),
-        MyProfile("lucile.alvarado@email.com")
+        rememberNavController()
     )
 }
 
@@ -334,7 +340,6 @@ private fun MyProfileScreenLandscapePreview() {
 private fun MyProfileScreenPreview() {
     MyProfileScreen(
         PaddingValues(0.dp),
-        rememberNavController(),
-        MyProfile("lucile.alvarado@email.com")
+        rememberNavController()
     )
 }
