@@ -1,5 +1,6 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.pager
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,7 +40,9 @@ fun PagerScreen(
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
     val pagerState = rememberPagerState { tabItems.size }
     val coroutineScope = rememberCoroutineScope()
-    Column {
+    Column(
+        modifier = modifier.background(Blue)
+    ) {
         TabRow(
             selectedTabIndex = selectedTabIndex,
             modifier = modifier
