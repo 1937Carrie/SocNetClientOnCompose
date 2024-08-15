@@ -112,11 +112,10 @@ fun MyContactsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val addContactState = remember { mutableStateOf(false) }
     Scaffold(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Blue)
             .padding(
-                bottom = padding.calculateBottomPadding(),
                 start = padding.calculateStartPadding(LayoutDirection.Rtl),
                 end = padding.calculateEndPadding(LayoutDirection.Rtl)
             ),
@@ -160,14 +159,15 @@ fun MyContactsScreen(
     ) { contentPadding ->
         Column(
             modifier = Modifier
-                .padding(contentPadding)
+                .padding(
+                    top = contentPadding.calculateTopPadding()
+                )
                 .fillMaxSize()
         ) {
             Row(
                 modifier = Modifier
                     .background(Blue)
                     .fillMaxWidth()
-
             ) {
                 Text(
                     text = "Add contacts",
@@ -185,7 +185,7 @@ fun MyContactsScreen(
                 viewModel,
                 scope,
                 snackbarHostState,
-                navController
+                navController,
             )
         }
     }
@@ -207,9 +207,10 @@ private fun ContactsColumn(
     scope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
     navController: NavController,
+    modifier: Modifier = Modifier,
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
@@ -231,7 +232,6 @@ private fun ContactsColumn(
                         when (result) {
                             SnackbarResult.ActionPerformed -> {
                                 viewModel.addContact(index, contact)
-
                             }
 
                             SnackbarResult.Dismissed -> {
