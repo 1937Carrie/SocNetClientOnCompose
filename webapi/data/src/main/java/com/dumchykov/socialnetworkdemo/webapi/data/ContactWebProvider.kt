@@ -1,12 +1,13 @@
 package com.dumchykov.socialnetworkdemo.webapi.data
 
 import com.dumchykov.datastore.data.DataStoreProvider
+import com.dumchykov.socialnetworkdemo.webapi.domain.ContactApiService
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.ContactResponse
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.EmailPassword
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.SingleUserResponse
-import com.dumchykov.socialnetworkdemo.webapi.domain.ContactApiService
+import jakarta.inject.Inject
 
-class ContactWebProvider(
+class ContactWebProvider @Inject constructor(
     private val contactApiService: ContactApiService,
     private val dataStoreProvider: DataStoreProvider,
 ) {

@@ -33,17 +33,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.dumchykov.datastore.data.DataStoreProvider
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.screens.Pager
 import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
@@ -61,11 +59,8 @@ fun MyProfileScreen(
     navController: NavHostController,
     pagerState: PagerState,
     modifier: Modifier = Modifier,
+    viewModel: MyProfileViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
-    val dataStoreProvider = DataStoreProvider(context)
-    val viewModel: MyProfileViewModel =
-        viewModel(factory = MyProfileViewModel.factory(dataStoreProvider))
     val myProfileState = viewModel.myProfileState.collectAsState().value
 
     LaunchedEffect(myProfileState.credentialsIsCleared) {

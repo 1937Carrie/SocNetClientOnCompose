@@ -2,19 +2,19 @@ package com.dumchykov.socialnetworkdemo.ui.screens.detail
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.toRoute
 import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.navigation.parcelableType
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import javax.inject.Inject
 import kotlin.reflect.typeOf
 
-class DetailViewModel(
+@HiltViewModel
+class DetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -28,15 +28,5 @@ class DetailViewModel(
 
     fun updateState(reducer: DetailState.() -> DetailState) {
         _detailState.update(reducer)
-    }
-
-    companion object {
-        fun factory(savedStateHandle: SavedStateHandle): ViewModelProvider.Factory {
-            return viewModelFactory {
-                initializer {
-                    DetailViewModel(savedStateHandle)
-                }
-            }
-        }
     }
 }

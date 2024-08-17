@@ -42,7 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.dumchykov.socialnetworkdemo.R
@@ -57,8 +57,8 @@ import com.dumchykov.socialnetworkdemo.ui.theme.White
 fun DetailScreen(
     parentPadding: PaddingValues,
     navController: NavController,
+    viewModel: DetailViewModel = hiltViewModel(),
 ) {
-    val viewModel: DetailViewModel = viewModel()
     val detailState = viewModel.detailState.collectAsState().value
 
     Column {

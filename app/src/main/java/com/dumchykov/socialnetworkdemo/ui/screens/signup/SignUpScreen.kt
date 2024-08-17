@@ -28,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -36,7 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dumchykov.socialnetworkdemo.R
@@ -54,10 +53,9 @@ fun SignUpScreen(
     padding: PaddingValues,
     navController: NavHostController,
     modifier: Modifier = Modifier,
+    viewModel: SignUpViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
-    val signUpViewModel: SignUpViewModel = viewModel(factory = SignUpViewModel.factory(context))
-    val signUpState = signUpViewModel.signUpState.collectAsState().value
+    val signUpState = viewModel.signUpState.collectAsState().value
 
     LaunchedEffect(signUpState.autoLogin) {
         if (signUpState.autoLogin) {
@@ -83,7 +81,7 @@ fun SignUpScreen(
                 )
                 Container2(
                     signUpState,
-                    signUpViewModel,
+                    viewModel,
                     Modifier
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
@@ -91,7 +89,7 @@ fun SignUpScreen(
                 )
                 Container3(
                     signUpState,
-                    signUpViewModel,
+                    viewModel,
                     navController,
                     Modifier
                         .padding(horizontal = 16.dp)
@@ -114,13 +112,13 @@ fun SignUpScreen(
                     )
                     Container2(
                         signUpState = signUpState,
-                        signUpViewModel = signUpViewModel,
+                        signUpViewModel = viewModel,
                         modifier = Modifier.weight(2f)
                     )
                 }
                 Container3(
                     signUpState = signUpState,
-                    signUpViewModel = signUpViewModel,
+                    signUpViewModel = viewModel,
                     navController = navController,
                     modifier = Modifier.weight(1f)
                 )

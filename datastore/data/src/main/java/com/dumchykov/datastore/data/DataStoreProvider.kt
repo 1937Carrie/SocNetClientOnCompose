@@ -7,12 +7,13 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.dumchykov.datastore.data.DataStoreProvider.Companion.CREDENTIALS
+import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = CREDENTIALS)
 
-class DataStoreProvider(private val context: Context) {
+class DataStoreProvider @Inject constructor(private val context: Context) {
 
     private suspend fun saveString(stringKey: String, stringValue: String) {
         context.dataStore.edit { credentials ->

@@ -25,8 +25,10 @@ import com.dumchykov.socialnetworkdemo.ui.screens.detail.DetailScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.pager.PagerScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.signup.SignUpScreen
 import com.dumchykov.socialnetworkdemo.ui.theme.SocialNetworkClientTheme
+import dagger.hilt.android.AndroidEntryPoint
 import kotlin.reflect.typeOf
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

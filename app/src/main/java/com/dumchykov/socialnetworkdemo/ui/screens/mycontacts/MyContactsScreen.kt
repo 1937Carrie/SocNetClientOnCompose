@@ -84,7 +84,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -111,11 +111,11 @@ fun MyContactsScreen(
     navController: NavHostController,
     pagerState: PagerState,
     modifier: Modifier = Modifier,
+    viewModel: MyContactsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     (context as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
 
-    val viewModel: MyContactsViewModel = viewModel(factory = MyContactsViewModel.factory())
     val myContactsState = viewModel.myContactsState.collectAsState().value
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }

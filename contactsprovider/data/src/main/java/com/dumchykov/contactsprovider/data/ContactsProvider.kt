@@ -1,8 +1,9 @@
 package com.dumchykov.contactsprovider.data
 
 import com.dumchykov.contactsprovider.domain.Contact
+import jakarta.inject.Inject
 
-class ContactsProvider {
+class ContactsProvider @Inject constructor() {
     fun getContacts(): List<Contact> {
         val list = mutableListOf<Contact>()
         repeat(20) {

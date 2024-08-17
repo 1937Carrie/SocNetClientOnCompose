@@ -38,4 +38,6 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 //    DataStore
     implementation(libs.androidx.datastore.preferences)
+
+    implementation(libs.jakarta.inject)
 }
