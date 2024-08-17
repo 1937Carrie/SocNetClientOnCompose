@@ -1,19 +1,13 @@
-package com.dumchykov.socialnetworkdemo.data
+package com.dumchykov.socialnetworkdemo.webapi.domain
 
-import com.dumchykov.socialnetworkdemo.data.models.Contact
-import com.dumchykov.socialnetworkdemo.data.models.ContactId
-import com.dumchykov.socialnetworkdemo.data.models.ContactResponse
-import com.dumchykov.socialnetworkdemo.data.models.EmailPassword
-import com.dumchykov.socialnetworkdemo.data.models.MultipleContactResponse
-import com.dumchykov.socialnetworkdemo.data.models.MultipleUserResponse
-import com.dumchykov.socialnetworkdemo.data.models.SingleUserResponse
-import com.dumchykov.socialnetworkdemo.data.models.TokenResponse
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
+import com.dumchykov.socialnetworkdemo.webapi.domain.models.Contact
+import com.dumchykov.socialnetworkdemo.webapi.domain.models.ContactId
+import com.dumchykov.socialnetworkdemo.webapi.domain.models.ContactResponse
+import com.dumchykov.socialnetworkdemo.webapi.domain.models.EmailPassword
+import com.dumchykov.socialnetworkdemo.webapi.domain.models.MultipleContactResponse
+import com.dumchykov.socialnetworkdemo.webapi.domain.models.MultipleUserResponse
+import com.dumchykov.socialnetworkdemo.webapi.domain.models.SingleUserResponse
+import com.dumchykov.socialnetworkdemo.webapi.domain.models.TokenResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.Field
@@ -25,23 +19,7 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 
-private val baseUrl = "http://178.63.9.114:7777/api/"
-
-private val retrofit: Retrofit = Retrofit.Builder()
-    .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
-    .baseUrl(baseUrl)
-    .client(
-        OkHttpClient.Builder()
-            .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-            .build()
-    )
-    .build()
-
-val retrofitService: ContactsApiService by lazy {
-    retrofit.create(ContactsApiService::class.java)
-}
-
-interface ContactsApiService {
+interface ContactApiService {
     @FormUrlEncoded
     @Headers("Content-Type: multipart/form-data")
     @POST("users")

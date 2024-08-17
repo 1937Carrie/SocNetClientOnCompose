@@ -1,4 +1,4 @@
-package com.dumchykov.socialnetworkdemo.data.models
+package com.dumchykov.socialnetworkdemo.webapi.domain.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
