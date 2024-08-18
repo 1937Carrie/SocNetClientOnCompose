@@ -17,3 +17,6 @@ data class Detail(val contact: Contact)
 
 @Serializable
 data class Pager(val email: String)
+
+@Serializable
+data object LogIn

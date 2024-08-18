@@ -17,7 +17,6 @@ import javax.inject.Inject
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     private val dataStoreProvider: DataStoreProvider,
-    private val contactWebProvider: ContactWebProvider,
 ) : ViewModel() {
     private val _signUpState = MutableStateFlow(SignUpState())
     val signUpState get() = _signUpState.asStateFlow()

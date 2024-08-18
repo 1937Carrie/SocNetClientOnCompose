@@ -43,8 +43,10 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
@@ -221,9 +223,13 @@ fun DetailScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun DetailScreenPreview() {
+private fun DetailScreenPreview() {
+    val savedStateHandle = SavedStateHandle(
+        mapOf("contact" to Contact.previewContact)
+    )
     DetailScreen(
         parentPadding = PaddingValues(0.dp),
-        navController = rememberNavController()
+        navController = rememberNavController(),
+        viewModel = DetailViewModel(savedStateHandle)
     )
 }

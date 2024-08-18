@@ -14,4 +14,16 @@ data class Contact(
     val imageHolder: Int = 0,
     val imageInternet: String = "",
     val isChecked: Boolean = false,
-) : Parcelable
+) : Parcelable {
+    companion object {
+        val previewContact = Contact(
+            id = 3616,
+            name = "Traci",
+            profession = "Garin",
+            address = "Cristi",
+            imageHolder = 7961,
+            imageInternet = "Kellyn",
+            isChecked = true
+        )
+    }
+}

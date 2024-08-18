@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.dumchykov.datastore.data.DataStoreProvider
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.screens.Pager
 import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
@@ -374,17 +376,31 @@ private fun navigateNext(
     }
 }
 
+@Composable
+private fun SignUpScreen() {
+    val context = LocalContext.current
+    val dataStoreProvider = DataStoreProvider(context)
+
+    SignUpScreen(
+        padding = PaddingValues(0.dp),
+        navController = rememberNavController(),
+        viewModel = SignUpViewModel(dataStoreProvider = dataStoreProvider)
+    )
+}
+
 @Preview(
     showBackground = true,
     device = "spec:width=411dp,height=891dp,dpi=420,orientation=landscape"
 )
 @Composable
 fun SignUpScreenLandscapePreview() {
-    SignUpScreen(padding = PaddingValues(0.dp), rememberNavController())
+//    SignUpScreen(padding = PaddingValues(0.dp), rememberNavController())
+    SignUpScreen()
 }
 
 @Preview(showBackground = true)
 @Composable
 fun SignUpScreenPreview() {
-    SignUpScreen(padding = PaddingValues(0.dp), rememberNavController())
+//    SignUpScreen(padding = PaddingValues(0.dp), rememberNavController())
+    SignUpScreen()
 }

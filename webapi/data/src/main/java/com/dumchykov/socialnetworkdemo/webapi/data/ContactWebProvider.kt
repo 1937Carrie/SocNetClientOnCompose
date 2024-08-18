@@ -2,6 +2,7 @@ package com.dumchykov.socialnetworkdemo.webapi.data
 
 import com.dumchykov.datastore.data.DataStoreProvider
 import com.dumchykov.socialnetworkdemo.webapi.domain.ContactApiService
+import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.ContactResponse
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.EmailPassword
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.SingleUserResponse
@@ -10,8 +11,8 @@ import jakarta.inject.Inject
 class ContactWebProvider @Inject constructor(
     private val contactApiService: ContactApiService,
     private val dataStoreProvider: DataStoreProvider,
-) {
-    suspend fun register(email: String, password: String, saveCredentials: Boolean = false) {
+): ContactRepository {
+    override suspend fun register(email: String, password: String, saveCredentials: Boolean) {
         try {
             val registerResponse = contactApiService.register(email, password)
             if (saveCredentials) {
@@ -23,15 +24,15 @@ class ContactWebProvider @Inject constructor(
         }
     }
 
-    suspend fun authorize(email: String, password: String): ContactResponse<SingleUserResponse> {
+    override suspend fun authorize(email: String, password: String): ContactResponse<SingleUserResponse> {
         return contactApiService.authorize(EmailPassword(email, password))
     }
 
-    suspend fun refreshToken() {}
-    suspend fun getUser() {}
-    suspend fun editUser() {}
-    suspend fun getUsers() {}
-    suspend fun addContact() {}
-    suspend fun deleteContact() {}
-    suspend fun getUserContacts() {}
+    override suspend fun refreshToken() {}
+    override suspend fun getUser() {}
+    override suspend fun editUser() {}
+    override suspend fun getUsers() {}
+    override suspend fun addContact() {}
+    override suspend fun deleteContact() {}
+    override suspend fun getUserContacts() {}
 }

@@ -88,6 +88,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.dumchykov.contactsprovider.data.ContactsProvider
 import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
@@ -603,8 +604,14 @@ private fun DialogTextField(state: MutableState<String>, label: String) {
 
 @Preview(showBackground = true)
 @Composable
-fun MyContactsScreenPreview() {
-    MyContactsScreen(PaddingValues(0.dp), rememberNavController(), rememberPagerState { 2 })
+private fun MyContactsScreenPreview() {
+    val contactsProvider = ContactsProvider()
+    MyContactsScreen(
+        padding = PaddingValues(0.dp),
+        navController = rememberNavController(),
+        pagerState = rememberPagerState { 2 },
+        viewModel = MyContactsViewModel(contactsProvider)
+    )
 }
 
 @Preview(showBackground = true)

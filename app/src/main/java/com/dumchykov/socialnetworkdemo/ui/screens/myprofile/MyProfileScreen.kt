@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,8 +41,10 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.dumchykov.datastore.data.DataStoreProvider
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.screens.Pager
 import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
@@ -328,21 +331,24 @@ private fun ContainerTop(
     showBackground = true,
     device = "spec:width=411dp,height=891dp,dpi=420,orientation=landscape"
 )
-@Composable
-private fun MyProfileScreenLandscapePreview() {
-    MyProfileScreen(
-        PaddingValues(0.dp),
-        rememberNavController(),
-        rememberPagerState { 2 }
-    )
-}
-
-@Preview(showBackground = true)
+@Preview(
+    showBackground = true,
+)
 @Composable
 private fun MyProfileScreenPreview() {
+    val pagerState = rememberPagerState { 2 }
+    val context = LocalContext.current
+    val dataStoreProvider = DataStoreProvider(context)
+
+    val savedStateHandle = SavedStateHandle(mapOf("email" to "test.name@example.com"))
+
     MyProfileScreen(
-        PaddingValues(0.dp),
-        rememberNavController(),
-        rememberPagerState { 2 }
+        padding = PaddingValues(0.dp),
+        navController = rememberNavController(),
+        pagerState = pagerState,
+        viewModel = MyProfileViewModel(
+            dataStoreProvider = dataStoreProvider,
+            savedStateHandle = savedStateHandle
+        )
     )
 }
