@@ -30,8 +30,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -110,9 +108,9 @@ import kotlinx.coroutines.launch
 fun MyContactsScreen(
     padding: PaddingValues,
     navController: NavHostController,
-    pagerState: PagerState,
     modifier: Modifier = Modifier,
     viewModel: MyContactsViewModel = hiltViewModel(),
+    onNavigationArrowClick: () -> Unit = {},
 ) {
     val context = LocalContext.current
     (context as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
@@ -142,11 +140,7 @@ fun MyContactsScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        scope.launch {
-                            pagerState.scrollToPage(0)
-                        }
-                    }) {
+                    IconButton(onClick = onNavigationArrowClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Localized description",
@@ -609,7 +603,6 @@ private fun MyContactsScreenPreview() {
     MyContactsScreen(
         padding = PaddingValues(0.dp),
         navController = rememberNavController(),
-        pagerState = rememberPagerState { 2 },
         viewModel = MyContactsViewModel(contactsProvider)
     )
 }

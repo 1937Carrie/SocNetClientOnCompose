@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -27,7 +25,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,15 +51,14 @@ import com.dumchykov.socialnetworkdemo.ui.theme.GrayText
 import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
 import com.dumchykov.socialnetworkdemo.ui.theme.Orange
 import com.dumchykov.socialnetworkdemo.ui.theme.White
-import kotlinx.coroutines.launch
 
 @Composable
 fun MyProfileScreen(
     padding: PaddingValues,
     navController: NavHostController,
-    pagerState: PagerState,
     modifier: Modifier = Modifier,
     viewModel: MyProfileViewModel = hiltViewModel(),
+    onViewMyContactsClick: () -> Unit = {},
 ) {
     val myProfileState = viewModel.myProfileState.collectAsState().value
 
@@ -93,7 +89,7 @@ fun MyProfileScreen(
                         )
                 )
                 ContainerBottom(
-                    pagerState = pagerState,
+                    onViewMyContactsClick = onViewMyContactsClick,
                     modifier = Modifier
                         .background(White)
                         .weight(1f)
@@ -125,7 +121,7 @@ fun MyProfileScreen(
                         )
                 )
                 ContainerBottom(
-                    pagerState = pagerState,
+                    onViewMyContactsClick = onViewMyContactsClick,
                     modifier = Modifier
                         .background(White)
                         .weight(1f)
@@ -147,7 +143,7 @@ fun MyProfileScreen(
 
 @Composable
 private fun ContainerBottom(
-    pagerState: PagerState,
+    onViewMyContactsClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -208,13 +204,8 @@ private fun ContainerBottom(
                     fontFamily = OPENS_SANS,
                 )
             }
-            val coroutineScope = rememberCoroutineScope()
             Button(
-                onClick = {
-                    coroutineScope.launch {
-                        pagerState.scrollToPage(1)
-                    }
-                },
+                onClick = onViewMyContactsClick,
                 modifier = Modifier
                     .height(55.dp)
                     .fillMaxWidth(),
@@ -336,7 +327,6 @@ private fun ContainerTop(
 )
 @Composable
 private fun MyProfileScreenPreview() {
-    val pagerState = rememberPagerState { 2 }
     val context = LocalContext.current
     val dataStoreProvider = DataStoreProvider(context)
 
@@ -345,7 +335,6 @@ private fun MyProfileScreenPreview() {
     MyProfileScreen(
         padding = PaddingValues(0.dp),
         navController = rememberNavController(),
-        pagerState = pagerState,
         viewModel = MyProfileViewModel(
             dataStoreProvider = dataStoreProvider,
             savedStateHandle = savedStateHandle

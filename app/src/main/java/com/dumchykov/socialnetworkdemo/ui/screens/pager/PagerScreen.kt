@@ -79,11 +79,26 @@ fun PagerScreen(
         HorizontalPager(state = pagerState) { page ->
             when (page) {
                 0 -> {
-                    MyProfileScreen(padding, navController, pagerState)
+                    MyProfileScreen(
+                        padding = padding,
+                        navController = navController,
+                        onViewMyContactsClick = {
+                            coroutineScope.launch {
+                                pagerState.scrollToPage(1)
+                            }
+                        })
                 }
 
                 1 -> {
-                    MyContactsScreen(padding, navController, pagerState)
+                    MyContactsScreen(
+                        padding = padding,
+                        navController = navController,
+                        onNavigationArrowClick = {
+                            coroutineScope.launch {
+                                pagerState.scrollToPage(0)
+                            }
+                        }
+                    )
                 }
             }
         }
