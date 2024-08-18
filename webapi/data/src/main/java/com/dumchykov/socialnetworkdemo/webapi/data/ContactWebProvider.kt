@@ -6,12 +6,11 @@ import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.ContactResponse
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.EmailPassword
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.SingleUserResponse
-import jakarta.inject.Inject
 
-class ContactWebProvider @Inject constructor(
+class ContactWebProvider(
     private val contactApiService: ContactApiService,
     private val dataStoreProvider: DataStoreProvider,
-): ContactRepository {
+) : ContactRepository {
     override suspend fun register(email: String, password: String, saveCredentials: Boolean) {
         try {
             val registerResponse = contactApiService.register(email, password)
@@ -24,7 +23,10 @@ class ContactWebProvider @Inject constructor(
         }
     }
 
-    override suspend fun authorize(email: String, password: String): ContactResponse<SingleUserResponse> {
+    override suspend fun authorize(
+        email: String,
+        password: String,
+    ): ContactResponse<SingleUserResponse> {
         return contactApiService.authorize(EmailPassword(email, password))
     }
 
