@@ -1,6 +1,5 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.signup
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -88,10 +87,6 @@ private fun SignUpScreen(
     navigateToSignUpExtended: () -> Unit,
     navigateUp: () -> Unit,
 ) {
-    BackHandler {
-        navigateUp()
-    }
-
     LaunchedEffect(signUpState.autoLogin) {
         if (signUpState.autoLogin) {
             navigateToSignUpExtended()
