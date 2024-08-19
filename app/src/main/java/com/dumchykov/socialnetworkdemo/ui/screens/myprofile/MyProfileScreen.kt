@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,8 +38,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.dumchykov.datastore.data.DataStoreProvider
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.screens.LogIn
 import com.dumchykov.socialnetworkdemo.ui.screens.Pager
@@ -60,6 +57,7 @@ fun MyProfileScreen(
     onViewMyContactsClick: () -> Unit = {},
 ) {
     val myProfileState = viewModel.myProfileState.collectAsState().value
+    val clearCredentials = { viewModel.clearCredentials() }
 
     LaunchedEffect(myProfileState.credentialsIsCleared) {
         if (myProfileState.credentialsIsCleared) {
@@ -70,13 +68,29 @@ fun MyProfileScreen(
             }
         }
     }
+
+    MyProfileScreen(
+        padding = padding,
+        myProfileState = myProfileState,
+        clearCredentials = clearCredentials,
+        onViewMyContactsClick = onViewMyContactsClick
+    )
+}
+
+@Composable
+private fun MyProfileScreen(
+    padding: PaddingValues,
+    myProfileState: MyProfileState,
+    clearCredentials: () -> Unit,
+    onViewMyContactsClick: () -> Unit,
+) {
     BoxWithConstraints {
         if (maxWidth < 500.dp) {
             Column {
                 ContainerTop(
-                    viewModel,
-                    myProfileState,
-                    Modifier
+                    myProfileState = myProfileState,
+                    clearCredentials = clearCredentials,
+                    modifier = Modifier
                         .background(Blue)
                         .weight(1f)
                         .fillMaxSize()
@@ -106,9 +120,9 @@ fun MyProfileScreen(
         } else {
             Row {
                 ContainerTop(
-                    viewModel,
-                    myProfileState,
-                    Modifier
+                    myProfileState = myProfileState,
+                    clearCredentials = clearCredentials,
+                    modifier = Modifier
                         .background(Blue)
                         .weight(1f)
                         .fillMaxSize()
@@ -137,7 +151,6 @@ fun MyProfileScreen(
             }
         }
     }
-
 }
 
 @Composable
@@ -231,8 +244,8 @@ private fun ContainerBottom(
 
 @Composable
 private fun ContainerTop(
-    viewModel: MyProfileViewModel,
     myProfileState: MyProfileState,
+    clearCredentials: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -257,9 +270,7 @@ private fun ContainerTop(
                 text = "Log out",
                 modifier = Modifier
                     .border(2.dp, Gray, RoundedCornerShape(6.dp))
-                    .clickable {
-                        viewModel.clearCredentials()
-                    }
+                    .clickable(onClick = clearCredentials)
                     .padding(vertical = 10.dp, horizontal = 34.dp),
                 color = Gray,
                 fontSize = 14.sp,
@@ -319,21 +330,17 @@ private fun ContainerTop(
 
 @Preview(
     showBackground = true,
-    device = "spec:width=411dp,height=891dp,dpi=420,orientation=landscape"
 )
 @Preview(
     showBackground = true,
+    device = "spec:width=411dp,height=891dp,dpi=420,orientation=landscape"
 )
 @Composable
 private fun MyProfileScreenPreview() {
-    val context = LocalContext.current
-    val dataStoreProvider = DataStoreProvider(context)
-
     MyProfileScreen(
         padding = PaddingValues(0.dp),
-        navController = rememberNavController(),
-        viewModel = MyProfileViewModel(
-            dataStoreProvider = dataStoreProvider
-        )
+        myProfileState = MyProfileState(),
+        clearCredentials = { },
+        onViewMyContactsClick = {}
     )
 }
