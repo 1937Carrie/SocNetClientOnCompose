@@ -4,12 +4,13 @@ import com.dumchykov.datastore.data.DataStoreProvider
 import com.dumchykov.socialnetworkdemo.webapi.domain.ContactApiService
 import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.Contact
+import com.dumchykov.socialnetworkdemo.webapi.domain.models.ContactId
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.ContactResponse
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.EmailPassword
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.SingleUserResponse
 import kotlinx.coroutines.flow.first
 
-class ContactWebProvider(
+class ContactRepositoryImpl(
     private val contactApiService: ContactApiService,
     private val dataStoreProvider: DataStoreProvider,
 ) : ContactRepository {
@@ -35,8 +36,8 @@ class ContactWebProvider(
     override suspend fun refreshToken() {}
     override suspend fun getUser() {}
     override suspend fun editUser(user: Contact) {
-        val userId = dataStoreProvider.readUserId().first()
-        val token = dataStoreProvider.readAuthToken().first()
+        val userId = getUserId()
+        val token = getAccessToken()
         val editedUserResponse = contactApiService.editUser(
             userId = userId,
             bearerToken = token,
@@ -47,8 +48,45 @@ class ContactWebProvider(
         }
     }
 
-    override suspend fun getUsers() {}
-    override suspend fun addContact() {}
-    override suspend fun deleteContact() {}
-    override suspend fun getUserContacts() {}
+    override suspend fun getUsers(): List<Contact> {
+        val getUsersResponse =
+            contactApiService.getUserContacts(userId = getUserId(), bearerToken = getAccessToken())
+        return if (getUsersResponse.code == 200) {
+            getUsersResponse.data.contacts
+        } else emptyList()
+    }
+
+    /**
+     * @return True if contact was successfully added. False otherwise
+     */
+    override suspend fun addContact(contactId: Int): Boolean {
+        val addContactResponse =
+            contactApiService.addContact(getAccessToken(), getUserId(), ContactId(contactId))
+        return addContactResponse.code == 200
+    }
+
+    /**
+     * @return True if contact was successfully deleted. False otherwise
+     */
+    override suspend fun deleteContact(contactId: Int): Boolean {
+        val deleteContactResponse =
+            contactApiService.deleteContact(getUserId(), contactId, getAccessToken())
+        return deleteContactResponse.code == 200
+    }
+
+    override suspend fun getUserContacts(): List<Contact> {
+        val getUserContactsResponse =
+            contactApiService.getUserContacts(getUserId(), getAccessToken())
+        return if (getUserContactsResponse.code == 200) {
+            getUserContactsResponse.data.contacts
+        } else emptyList()
+    }
+
+    private suspend fun getUserId(): Int {
+        return dataStoreProvider.getContact().first().id
+    }
+
+    private suspend fun getAccessToken(): String {
+        return dataStoreProvider.readAccessToken().first()
+    }
 }

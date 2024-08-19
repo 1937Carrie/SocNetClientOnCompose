@@ -67,6 +67,8 @@ class LogInViewModel @Inject constructor(
             val password = logInState.value.password
             val response = contactWebProvider.authorize(email, password)
             dataStoreProvider.saveContact(response.data.user)
+            dataStoreProvider.saveAccessToken(response.data.accessToken)
+            dataStoreProvider.saveRefreshToken(response.data.refreshToken)
             if (response.code == 200) {
                 updateState { copy(navigateToMyProfile = true) }
             }

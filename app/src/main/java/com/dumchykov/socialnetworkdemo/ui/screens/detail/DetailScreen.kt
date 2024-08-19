@@ -128,14 +128,14 @@ fun DetailScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = detailState.contact.name,
+                            text = detailState.contact.name.orEmpty(),
                             color = White,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.W600,
                             fontFamily = OPENS_SANS,
                         )
                         Text(
-                            text = detailState.contact.profession,
+                            text = detailState.contact.career.orEmpty(),
                             color = Gray,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.W600,
@@ -143,7 +143,7 @@ fun DetailScreen(
                         )
                     }
                     Text(
-                        text = detailState.contact.address,
+                        text = detailState.contact.address.orEmpty(),
                         color = Gray,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.W600,

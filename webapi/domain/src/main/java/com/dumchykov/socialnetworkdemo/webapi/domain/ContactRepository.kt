@@ -10,8 +10,8 @@ interface ContactRepository {
     suspend fun refreshToken()
     suspend fun getUser()
     suspend fun editUser(user: Contact)
-    suspend fun getUsers()
-    suspend fun addContact()
-    suspend fun deleteContact()
-    suspend fun getUserContacts()
+    suspend fun getUsers(): List<Contact>
+    suspend fun addContact(contactId: Int): Boolean
+    suspend fun deleteContact(contactId: Int): Boolean
+    suspend fun getUserContacts(): List<Contact>
 }

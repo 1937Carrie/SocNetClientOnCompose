@@ -1,23 +1,30 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.mycontacts
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.dumchykov.contactsprovider.data.ContactsProvider
 import com.dumchykov.contactsprovider.domain.Contact
+import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MyContactsViewModel @Inject constructor(
     private val contactsProvider: ContactsProvider,
+    private val contactRepository: ContactRepository,
 ) : ViewModel() {
     private val _myContactsState = MutableStateFlow(MyContactsState())
     val myContactsState get() = _myContactsState.asStateFlow()
 
     init {
-        updateState { copy(contacts = contactsProvider.getContacts()) }
+        viewModelScope.launch {
+            val userContacts = contactsProvider.getUserContacts()
+            updateState { copy(contacts = userContacts) }
+        }
     }
 
     fun updateState(reducer: MyContactsState.() -> MyContactsState) {
@@ -25,21 +32,23 @@ class MyContactsViewModel @Inject constructor(
     }
 
     fun addContact(contact: Contact) {
-        val tempContacts = myContactsState.value.contacts.toMutableList()
-        tempContacts.add(contact)
-        updateState { copy(contacts = tempContacts) }
-    }
-
-    fun addContact(index: Int, contact: Contact) {
-        val tempContacts = myContactsState.value.contacts.toMutableList()
-        tempContacts.add(index, contact)
-        updateState { copy(contacts = tempContacts) }
+        viewModelScope.launch {
+            val onAddContactResult = contactRepository.addContact(contact.id)
+            if (onAddContactResult) {
+                val userContacts = contactsProvider.getUserContacts()
+                updateState { copy(contacts = userContacts) }
+            }
+        }
     }
 
     fun deleteContact(contact: Contact) {
-        val tempContacts = myContactsState.value.contacts.toMutableList()
-        tempContacts -= contact
-        updateState { copy(contacts = tempContacts) }
+        viewModelScope.launch {
+            val onDeleteResult = contactRepository.deleteContact(contact.id)
+            if (onDeleteResult) {
+                val userContacts = contactsProvider.getUserContacts()
+                updateState { copy(contacts = userContacts) }
+            }
+        }
     }
 
     fun changeContactSelectedState(contact: Contact) {

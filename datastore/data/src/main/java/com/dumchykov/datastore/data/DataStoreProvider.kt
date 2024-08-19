@@ -70,20 +70,20 @@ class DataStoreProvider @Inject constructor(private val context: Context) {
         return readString(KEY_PASSWORD)
     }
 
-    fun readUserId(): Flow<Int> {
-        return readInt(KEY_USER_ID)
+    fun readAccessToken(): Flow<String> {
+        return readString(KEY_ACCESS_TOKEN)
     }
 
-    suspend fun saveUserId(userId: Int) {
-        saveInt(KEY_USER_ID, userId)
+    suspend fun saveAccessToken(token: String) {
+        saveString(KEY_ACCESS_TOKEN, token)
     }
 
-    fun readAuthToken(): Flow<String> {
-        return readString(KEY_BEARER_TOKEN)
+    fun readRefreshToken(): Flow<String> {
+        return readString(KEY_REFRESH_TOKEN)
     }
 
-    suspend fun saveAuthToken(token: String) {
-        saveString(KEY_BEARER_TOKEN, token)
+    suspend fun saveRefreshToken(token: String) {
+        saveString(KEY_REFRESH_TOKEN, token)
     }
 
     // Save contact
@@ -100,7 +100,7 @@ class DataStoreProvider @Inject constructor(private val context: Context) {
         const val COMMON = "common"
         const val KEY_EMAIL = "email"
         const val KEY_PASSWORD = "password"
-        const val KEY_USER_ID = "user_id"
-        const val KEY_BEARER_TOKEN = "bearer_token"
+        const val KEY_ACCESS_TOKEN = "access_token"
+        const val KEY_REFRESH_TOKEN = "refresh_token"
     }
 }

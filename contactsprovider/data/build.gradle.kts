@@ -34,6 +34,8 @@ android {
 
 dependencies {
     implementation(project(":contactsprovider:domain"))
+    implementation(project(":webapi:domain"))
+
     implementation(libs.androidx.core.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

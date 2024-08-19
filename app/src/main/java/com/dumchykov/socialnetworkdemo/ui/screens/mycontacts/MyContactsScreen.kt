@@ -3,6 +3,7 @@ package com.dumchykov.socialnetworkdemo.ui.screens.mycontacts
 import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
@@ -84,7 +85,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.dumchykov.contactsprovider.data.ContactsProvider
+import com.dumchykov.contactsprovider.data.getContacts
 import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
@@ -109,6 +110,10 @@ fun MyContactsScreen(
     viewModel: MyContactsViewModel = hiltViewModel(),
     onNavigationArrowClick: () -> Unit = {},
 ) {
+    BackHandler {
+        onNavigationArrowClick()
+    }
+
     val context = LocalContext.current
     (context as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
@@ -119,8 +124,6 @@ fun MyContactsScreen(
     val deleteContact: (Contact) -> Unit = { contact -> viewModel.deleteContact(contact) }
     val deleteSelected: () -> Unit = { viewModel.deleteSelected() }
     val addContact: (Contact) -> Unit = { contact -> viewModel.addContact(contact) }
-    val addContactByIndex: (Int, Contact) -> Unit =
-        { index, contact -> viewModel.addContact(index, contact) }
     val changeContactSelectedState: (Contact) -> Unit =
         { contact -> viewModel.changeContactSelectedState(contact) }
     val navigateToDetail: (Contact) -> Unit = { contact -> navController.navigate(Detail(contact)) }
@@ -134,7 +137,6 @@ fun MyContactsScreen(
         deleteContact = deleteContact,
         deleteSelected = deleteSelected,
         addContact = addContact,
-        addContactByIndex = addContactByIndex,
         changeContactSelectedState = changeContactSelectedState,
         onNavigationArrowClick = onNavigationArrowClick,
         navigateToDetail = navigateToDetail
@@ -152,7 +154,6 @@ private fun MyContactsScreen(
     deleteContact: (Contact) -> Unit,
     deleteSelected: () -> Unit,
     addContact: (Contact) -> Unit,
-    addContactByIndex: (Int, Contact) -> Unit,
     changeContactSelectedState: (Contact) -> Unit,
     onNavigationArrowClick: () -> Unit,
     navigateToDetail: (Contact) -> Unit,
@@ -252,7 +253,7 @@ private fun MyContactsScreen(
                 coroutineScope = coroutineScope,
                 snackbarHostState = snackbarHostState,
                 deleteContact = deleteContact,
-                addContactByIndex = addContactByIndex,
+                addContact = addContact,
                 changeContactSelectedState = changeContactSelectedState,
                 navigateToDetail = navigateToDetail
             )
@@ -275,7 +276,7 @@ private fun ContactsColumn(
     coroutineScope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
     deleteContact: (Contact) -> Unit,
-    addContactByIndex: (Int, Contact) -> Unit,
+    addContact: (Contact) -> Unit,
     changeContactSelectedState: (Contact) -> Unit,
     navigateToDetail: (Contact) -> Unit,
     modifier: Modifier = Modifier,
@@ -303,7 +304,7 @@ private fun ContactsColumn(
                             )
                         when (result) {
                             SnackbarResult.ActionPerformed -> {
-                                addContactByIndex(index, contact)
+                                addContact(contact)
                             }
 
                             SnackbarResult.Dismissed -> {
@@ -454,14 +455,14 @@ private fun ItemContact(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = contact.name,
+                text = contact.name.orEmpty(),
                 color = GrayText,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.W600,
                 fontFamily = OPENS_SANS
             )
             Text(
-                text = contact.profession,
+                text = contact.career.orEmpty(),
                 color = Gray828282,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.W400,
@@ -597,7 +598,7 @@ private fun DialogAddContact(
                         onClick = {
                             val contact = Contact(
                                 name = nameState.value,
-                                profession = careerState.value,
+                                career = careerState.value,
                                 address = addressState.value
                             )
                             onConfirmation(contact)
@@ -655,12 +656,11 @@ private fun MyContactsScreenPreview() {
         padding = PaddingValues(0.dp),
         coroutineScope = rememberCoroutineScope(),
         snackbarHostState = SnackbarHostState(),
-        myContactsState = MyContactsState(contacts = ContactsProvider().getContacts()),
+        myContactsState = MyContactsState(contacts = getContacts()),
         addContactState = mutableStateOf(false),
         deleteContact = {},
         deleteSelected = {},
         addContact = {},
-        addContactByIndex = { _, _ -> },
         changeContactSelectedState = {},
         onNavigationArrowClick = {},
         navigateToDetail = {}
