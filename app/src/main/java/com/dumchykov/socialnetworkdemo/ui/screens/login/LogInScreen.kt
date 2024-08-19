@@ -68,7 +68,7 @@ fun LogInScreen(
 
     LaunchedEffect(logInState.name) {
         if (logInState.name.isEmpty()) return@LaunchedEffect
-        navController.navigate(Pager(logInState.name)) {
+        navController.navigate(Pager) {
             popUpTo(LogIn) {
                 inclusive = true
             }
@@ -285,6 +285,7 @@ private fun Container2(
                 }
             },
             isError = logInState.passwordError,
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
             singleLine = true,
             colors = customTextFieldsColors()
         )
@@ -354,8 +355,13 @@ private fun navigateNext(
     viewModel.authorize()
 }
 
+@Preview(showBackground = true)
+@Preview(
+    showBackground = true,
+    device = "spec:width=411dp,height=891dp,dpi=420,orientation=landscape"
+)
 @Composable
-private fun LogInScreen() {
+fun LogInScreenPreview() {
     val context = LocalContext.current
     val dataStoreProvider = DataStoreProvider(context)
     val contactWebProvider = ContactWebProviderFakeImpl()
@@ -367,21 +373,4 @@ private fun LogInScreen() {
             contactWebProvider = contactWebProvider
         )
     )
-}
-
-@Preview(
-    showBackground = true,
-    device = "spec:width=411dp,height=891dp,dpi=420,orientation=landscape"
-)
-@Composable
-fun LogInScreenLandscapePreview() {
-//    LogInScreen(PaddingValues(0.dp), rememberNavController())
-    LogInScreen()
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LogInScreenPreview() {
-//    LogInScreen(PaddingValues(0.dp), rememberNavController())
-    LogInScreen()
 }

@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dumchykov.datastore.data.DataStoreProvider
@@ -65,7 +64,7 @@ fun MyProfileScreen(
     LaunchedEffect(myProfileState.credentialsIsCleared) {
         if (myProfileState.credentialsIsCleared) {
             navController.navigate(LogIn) {
-                popUpTo(Pager(myProfileState.argEmail)) {
+                popUpTo(Pager) {
                     inclusive = true
                 }
             }
@@ -330,14 +329,11 @@ private fun MyProfileScreenPreview() {
     val context = LocalContext.current
     val dataStoreProvider = DataStoreProvider(context)
 
-    val savedStateHandle = SavedStateHandle(mapOf("email" to "test.name@example.com"))
-
     MyProfileScreen(
         padding = PaddingValues(0.dp),
         navController = rememberNavController(),
         viewModel = MyProfileViewModel(
-            dataStoreProvider = dataStoreProvider,
-            savedStateHandle = savedStateHandle
+            dataStoreProvider = dataStoreProvider
         )
     )
 }

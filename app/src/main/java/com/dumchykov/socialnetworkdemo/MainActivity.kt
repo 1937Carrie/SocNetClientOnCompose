@@ -22,10 +22,12 @@ import com.dumchykov.socialnetworkdemo.ui.screens.Detail
 import com.dumchykov.socialnetworkdemo.ui.screens.LogIn
 import com.dumchykov.socialnetworkdemo.ui.screens.Pager
 import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
+import com.dumchykov.socialnetworkdemo.ui.screens.SignUpExtended
 import com.dumchykov.socialnetworkdemo.ui.screens.detail.DetailScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.login.LogInScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.pager.PagerScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.signup.SignUpScreen
+import com.dumchykov.socialnetworkdemo.ui.screens.signupextended.SignUpExtendedScreen
 import com.dumchykov.socialnetworkdemo.ui.theme.SocialNetworkClientTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.reflect.typeOf
@@ -53,6 +55,12 @@ class MainActivity : ComponentActivity() {
                             DetailScreen(innerPadding, navController)
                         }
                         composable<Pager> { PagerScreen(innerPadding, navController) }
+                        composable<SignUpExtended> {
+                            SignUpExtendedScreen(
+                                padding = innerPadding,
+                                navController = navController
+                            )
+                        }
                     }
                 }
             }

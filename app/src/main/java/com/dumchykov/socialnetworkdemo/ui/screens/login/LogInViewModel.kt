@@ -4,7 +4,6 @@ import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dumchykov.datastore.data.DataStoreProvider
-import com.dumchykov.socialnetworkdemo.webapi.data.ContactWebProvider
 import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -67,8 +66,9 @@ class LogInViewModel @Inject constructor(
             val email = logInState.value.email
             val password = logInState.value.password
             val response = contactWebProvider.authorize(email, password)
+            dataStoreProvider.saveContact(response.data.user)
             if (response.code == 200) {
-                updateState { copy(name = response.data.user.name ?: "null field") }
+                updateState { copy(name = response.data.user.name.orEmpty()) }
             }
         }
     }

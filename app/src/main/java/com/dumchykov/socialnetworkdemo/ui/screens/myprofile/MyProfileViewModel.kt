@@ -1,15 +1,13 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.myprofile
 
 import android.util.Log
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.dumchykov.datastore.data.DataStoreProvider
-import com.dumchykov.socialnetworkdemo.ui.screens.Pager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,16 +15,15 @@ import javax.inject.Inject
 @HiltViewModel
 class MyProfileViewModel @Inject constructor(
     private val dataStoreProvider: DataStoreProvider,
-    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val _myProfileState = MutableStateFlow(MyProfileState())
     val myProfileState get() = _myProfileState.asStateFlow()
 
     init {
-        val email = savedStateHandle.toRoute<Pager>().email
-        update { copy(argEmail = email) }
-        val parsedName = parseEmail(email)
-        update { copy(name = parsedName) }
+        viewModelScope.launch {
+            val name = dataStoreProvider.getContact().first().name
+            update { copy(name = name.orEmpty()) }
+        }
     }
 
     fun update(reducer: MyProfileState.() -> MyProfileState) {

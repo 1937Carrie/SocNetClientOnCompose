@@ -33,6 +33,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":webapi:domain"))
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

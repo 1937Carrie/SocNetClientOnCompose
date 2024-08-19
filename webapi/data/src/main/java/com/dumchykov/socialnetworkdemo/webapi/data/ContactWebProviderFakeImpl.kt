@@ -39,7 +39,7 @@ class ContactWebProviderFakeImpl : ContactRepository {
 
     override suspend fun refreshToken() {}
     override suspend fun getUser() {}
-    override suspend fun editUser() {}
+    override suspend fun editUser(user: Contact) {}
     override suspend fun getUsers() {}
     override suspend fun addContact() {}
     override suspend fun deleteContact() {}
