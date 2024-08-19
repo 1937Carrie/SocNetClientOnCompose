@@ -27,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -36,8 +35,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.dumchykov.datastore.data.DataStoreProvider
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.screens.LogIn
 import com.dumchykov.socialnetworkdemo.ui.screens.Pager
@@ -48,7 +45,6 @@ import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
 import com.dumchykov.socialnetworkdemo.ui.theme.Orange
 import com.dumchykov.socialnetworkdemo.ui.theme.White
 import com.dumchykov.socialnetworkdemo.ui.util.customTextFieldsColors
-import com.dumchykov.socialnetworkdemo.webapi.data.ContactWebProviderFakeImpl
 
 @Composable
 fun LogInScreen(
@@ -58,22 +54,52 @@ fun LogInScreen(
     viewModel: LogInViewModel = hiltViewModel(),
 ) {
     val logInState = viewModel.logInState.collectAsState().value
-    val onSignUpClick = { navController.navigate(SignUp) }
+    val updateState: (LogInState) -> Unit =
+        { updatedState -> viewModel.updateState { updatedState } }
+    val validateEmail: (String) -> Unit = { email -> viewModel.validateEmail(email) }
+    val validatePassword: (String) -> Unit = { password -> viewModel.validatePassword(password) }
+    val onLogInClick: () -> Unit = { viewModel.authorize() }
+    val onSignUpClick: () -> Unit = { navController.navigate(SignUp) }
+    val saveCredentials: () -> Unit = { viewModel.saveCredentials() }
 
     LaunchedEffect(logInState.autoLogin) {
         if (logInState.autoLogin) {
-            navigateNext(viewModel)
+            onLogInClick()
         }
     }
 
-    LaunchedEffect(logInState.name) {
-        if (logInState.name.isEmpty()) return@LaunchedEffect
+    LaunchedEffect(logInState.navigateToMyProfile) {
+        if (logInState.navigateToMyProfile.not()) return@LaunchedEffect
         navController.navigate(Pager) {
             popUpTo(LogIn) {
                 inclusive = true
             }
         }
     }
+
+    LogInScreen(
+        padding = padding,
+        logInState = logInState,
+        updateState = updateState,
+        validateEmail = validateEmail,
+        validatePassword = validatePassword,
+        onLogInClick = onLogInClick,
+        onSignUpClick = onSignUpClick,
+        saveCredentials = saveCredentials
+    )
+}
+
+@Composable
+private fun LogInScreen(
+    padding: PaddingValues,
+    logInState: LogInState,
+    updateState: (LogInState) -> Unit,
+    validateEmail: (String) -> Unit,
+    validatePassword: (String) -> Unit,
+    onLogInClick: () -> Unit,
+    onSignUpClick: () -> Unit,
+    saveCredentials: () -> Unit,
+) {
     BoxWithConstraints(
         modifier = Modifier
             .background(Blue)
@@ -92,18 +118,22 @@ fun LogInScreen(
                         .weight(1f)
                 )
                 Container2(
-                    logInState,
-                    viewModel,
-                    Modifier
+                    logInState = logInState,
+                    updateState = updateState,
+                    validateEmail = validateEmail,
+                    validatePassword = validatePassword,
+                    modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
                         .weight(1f)
                 )
                 Container3(
-                    logInState,
-                    viewModel,
+                    logInState = logInState,
+                    updateState = updateState,
+                    onLogInClick = onLogInClick,
                     onSignUpClick = onSignUpClick,
-                    Modifier
+                    saveCredentials = saveCredentials,
+                    modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .weight(1f)
                 )
@@ -124,27 +154,32 @@ fun LogInScreen(
                     )
                     Container2(
                         logInState = logInState,
-                        viewModel = viewModel,
+                        updateState = updateState,
+                        validateEmail = validateEmail,
+                        validatePassword = validatePassword,
                         modifier = Modifier.weight(2f)
                     )
                 }
                 Container3(
                     logInState = logInState,
-                    viewModel = viewModel,
+                    updateState = updateState,
+                    onLogInClick = onLogInClick,
                     onSignUpClick = onSignUpClick,
+                    saveCredentials = saveCredentials,
                     modifier = Modifier.weight(1f)
                 )
             }
         }
     }
-
 }
 
 @Composable
 private fun Container3(
     logInState: LogInState,
-    viewModel: LogInViewModel,
+    updateState: (LogInState) -> Unit,
+    onLogInClick: () -> Unit,
     onSignUpClick: () -> Unit,
+    saveCredentials: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -156,27 +191,27 @@ private fun Container3(
             onClick = {
                 if (logInState.email.isNotEmpty() && logInState.emailError.not() && logInState.password.isNotEmpty() && logInState.passwordError.not()) {
                     if (logInState.rememberMe) {
-                        viewModel.saveCredentials()
+                        saveCredentials()
                     }
-                    navigateNext(viewModel)
+                    onLogInClick()
                 } else {
                     if (logInState.email.isEmpty()) {
-                        viewModel.updateState {
+                        updateState(
                             if (logInState.emailIsFocused.not()) {
-                                copy(emailError = true, emailIsFocused = true)
+                                logInState.copy(emailError = true, emailIsFocused = true)
                             } else {
-                                copy(emailError = true)
+                                logInState.copy(emailError = true)
                             }
-                        }
+                        )
                     }
                     if (logInState.password.isEmpty()) {
-                        viewModel.updateState {
+                        updateState(
                             if (logInState.passwordIsFocused.not()) {
-                                copy(passwordError = true, passwordIsFocused = true)
+                                logInState.copy(passwordError = true, passwordIsFocused = true)
                             } else {
-                                copy(passwordError = true)
+                                logInState.copy(passwordError = true)
                             }
-                        }
+                        )
                     }
                 }
             },
@@ -228,7 +263,9 @@ private fun Container3(
 @Composable
 private fun Container2(
     logInState: LogInState,
-    viewModel: LogInViewModel,
+    updateState: (LogInState) -> Unit,
+    validateEmail: (String) -> Unit,
+    validatePassword: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -238,15 +275,16 @@ private fun Container2(
         TextField(
             value = logInState.email,
             onValueChange = {
-                viewModel.updateState { copy(email = it) }
-                viewModel.validateEmail(it)
+                updateState(logInState.copy(email = it))
+                validateEmail(it)
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusEvent {
                     if (it.isFocused) {
-                        if (logInState.emailIsFocused.not()) viewModel.updateState {
-                            copy(emailIsFocused = true)
+                        if (logInState.emailIsFocused.not()) {
+                            updateState(logInState.copy(emailIsFocused = true))
+
                         }
                     }
                 },
@@ -264,17 +302,15 @@ private fun Container2(
         TextField(
             value = logInState.password,
             onValueChange = {
-                viewModel.updateState { copy(password = it) }
-                viewModel.validatePassword(it)
+                updateState(logInState.copy(password = it))
+                validatePassword(it)
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusEvent {
                     if (it.isFocused) {
-                        if (logInState.passwordIsFocused.not()) viewModel.updateState {
-                            copy(
-                                passwordIsFocused = true
-                            )
+                        if (logInState.passwordIsFocused.not()) {
+                            updateState(logInState.copy(passwordIsFocused = true))
                         }
                     }
                 },
@@ -296,7 +332,7 @@ private fun Container2(
         ) {
             Row(
                 modifier = Modifier.clickable {
-                    viewModel.updateState { copy(rememberMe = rememberMe.not()) }
+                    updateState(logInState.copy(rememberMe = logInState.rememberMe.not()))
                 },
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -349,12 +385,6 @@ private fun Container1(modifier: Modifier = Modifier) {
     }
 }
 
-private fun navigateNext(
-    viewModel: LogInViewModel,
-) {
-    viewModel.authorize()
-}
-
 @Preview(showBackground = true)
 @Preview(
     showBackground = true,
@@ -362,15 +392,14 @@ private fun navigateNext(
 )
 @Composable
 fun LogInScreenPreview() {
-    val context = LocalContext.current
-    val dataStoreProvider = DataStoreProvider(context)
-    val contactWebProvider = ContactWebProviderFakeImpl()
     LogInScreen(
         padding = PaddingValues(0.dp),
-        navController = rememberNavController(),
-        viewModel = LogInViewModel(
-            dataStoreProvider = dataStoreProvider,
-            contactWebProvider = contactWebProvider
-        )
+        logInState = LogInState(),
+        updateState = {},
+        validateEmail = {},
+        validatePassword = {},
+        onLogInClick = {},
+        onSignUpClick = {},
+        saveCredentials = {}
     )
 }

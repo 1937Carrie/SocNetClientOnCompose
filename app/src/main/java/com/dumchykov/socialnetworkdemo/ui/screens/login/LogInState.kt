@@ -9,5 +9,5 @@ data class LogInState(
     val passwordIsFocused: Boolean = false,
     val rememberMe: Boolean = true,
     val autoLogin: Boolean = false,
-    val name: String = "",
+    val navigateToMyProfile: Boolean = false,
 )
