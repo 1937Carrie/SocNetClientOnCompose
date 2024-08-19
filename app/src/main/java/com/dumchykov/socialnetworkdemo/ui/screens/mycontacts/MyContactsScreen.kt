@@ -83,9 +83,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.dumchykov.contactsprovider.data.ContactsProvider
 import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.R
@@ -103,7 +101,6 @@ import com.dumchykov.socialnetworkdemo.ui.util.customTextFieldsColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyContactsScreen(
     padding: PaddingValues,
@@ -113,12 +110,54 @@ fun MyContactsScreen(
     onNavigationArrowClick: () -> Unit = {},
 ) {
     val context = LocalContext.current
-    (context as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+    (context as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
     val myContactsState = viewModel.myContactsState.collectAsState().value
-    val scope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val addContactState = remember { mutableStateOf(false) }
+    val deleteContact: (Contact) -> Unit = { contact -> viewModel.deleteContact(contact) }
+    val deleteSelected: () -> Unit = { viewModel.deleteSelected() }
+    val addContact: (Contact) -> Unit = { contact -> viewModel.addContact(contact) }
+    val addContactByIndex: (Int, Contact) -> Unit =
+        { index, contact -> viewModel.addContact(index, contact) }
+    val changeContactSelectedState: (Contact) -> Unit =
+        { contact -> viewModel.changeContactSelectedState(contact) }
+    val navigateToDetail: (Contact) -> Unit = { contact -> navController.navigate(Detail(contact)) }
+
+    MyContactsScreen(
+        padding = padding,
+        coroutineScope = coroutineScope,
+        snackbarHostState = snackbarHostState,
+        myContactsState = myContactsState,
+        addContactState = addContactState,
+        deleteContact = deleteContact,
+        deleteSelected = deleteSelected,
+        addContact = addContact,
+        addContactByIndex = addContactByIndex,
+        changeContactSelectedState = changeContactSelectedState,
+        onNavigationArrowClick = onNavigationArrowClick,
+        navigateToDetail = navigateToDetail
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MyContactsScreen(
+    padding: PaddingValues,
+    coroutineScope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
+    myContactsState: MyContactsState,
+    addContactState: MutableState<Boolean>,
+    deleteContact: (Contact) -> Unit,
+    deleteSelected: () -> Unit,
+    addContact: (Contact) -> Unit,
+    addContactByIndex: (Int, Contact) -> Unit,
+    changeContactSelectedState: (Contact) -> Unit,
+    onNavigationArrowClick: () -> Unit,
+    navigateToDetail: (Contact) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Scaffold(
         modifier = modifier
             .fillMaxSize()
@@ -168,7 +207,7 @@ fun MyContactsScreen(
         floatingActionButton = {
             if (myContactsState.isMultiselect) {
                 IconButton(
-                    onClick = { viewModel.deleteSelected() },
+                    onClick = deleteSelected,
                     modifier = Modifier
                         .clip(CircleShape)
                         .background(Orange)
@@ -209,11 +248,13 @@ fun MyContactsScreen(
                 )
             }
             ContactsColumn(
-                myContactsState,
-                viewModel,
-                scope,
-                snackbarHostState,
-                navController,
+                myContactsState = myContactsState,
+                coroutineScope = coroutineScope,
+                snackbarHostState = snackbarHostState,
+                deleteContact = deleteContact,
+                addContactByIndex = addContactByIndex,
+                changeContactSelectedState = changeContactSelectedState,
+                navigateToDetail = navigateToDetail
             )
         }
     }
@@ -222,7 +263,7 @@ fun MyContactsScreen(
             onDismissRequest = { addContactState.value = false },
             onConfirmation = { contact ->
                 addContactState.value = false
-                viewModel.addContact(contact)
+                addContact(contact)
             }
         )
     }
@@ -231,10 +272,12 @@ fun MyContactsScreen(
 @Composable
 private fun ContactsColumn(
     myContactsState: MyContactsState,
-    viewModel: MyContactsViewModel,
-    scope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
-    navController: NavController,
+    deleteContact: (Contact) -> Unit,
+    addContactByIndex: (Int, Contact) -> Unit,
+    changeContactSelectedState: (Contact) -> Unit,
+    navigateToDetail: (Contact) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -246,10 +289,9 @@ private fun ContactsColumn(
             SwipeableContainer(
                 contact = contact,
                 myContactsState = myContactsState,
-                viewModel = viewModel,
                 onDelete = {
-                    viewModel.deleteContact(it)
-                    scope.launch {
+                    deleteContact(it)
+                    coroutineScope.launch {
                         // Check if a snackbar is currently being displayed
                         snackbarHostState.currentSnackbarData?.dismiss()
 
@@ -261,7 +303,7 @@ private fun ContactsColumn(
                             )
                         when (result) {
                             SnackbarResult.ActionPerformed -> {
-                                viewModel.addContact(index, contact)
+                                addContactByIndex(index, contact)
                             }
 
                             SnackbarResult.Dismissed -> {
@@ -270,7 +312,8 @@ private fun ContactsColumn(
                         }
                     }
                 },
-                navController
+                changeContactSelectedState = changeContactSelectedState,
+                navigateToDetail = navigateToDetail,
             )
         }
     }
@@ -281,13 +324,13 @@ private fun ContactsColumn(
 private fun SwipeableContainer(
     contact: Contact,
     myContactsState: MyContactsState,
-    viewModel: MyContactsViewModel,
     onDelete: (Contact) -> Unit,
-    navController: NavController,
+    changeContactSelectedState: (Contact) -> Unit,
+    navigateToDetail: (Contact) -> Unit,
     animationDuration: Int = 500,
 ) {
     var isRemoved by remember { mutableStateOf(false) }
-    val state = rememberSwipeToDismissBoxState(
+    val swipeToDismissBoxState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
             if (value == SwipeToDismissBoxValue.EndToStart) {
                 isRemoved = true
@@ -302,7 +345,10 @@ private fun SwipeableContainer(
         if (isRemoved) {
 //            delay(animationDuration.toLong())
             onDelete(contact)
-            Log.d("AAA", "onDelete ItemContact ${contact.name}: ${state.currentValue.name}")
+            Log.d(
+                "AAA",
+                "onDelete ItemContact ${contact.name}: ${swipeToDismissBoxState.currentValue.name}"
+            )
         }
     }
 
@@ -314,12 +360,19 @@ private fun SwipeableContainer(
         ) + fadeOut()
     ) {
         SwipeToDismissBox(
-            state = state,
+            state = swipeToDismissBoxState,
             backgroundContent = {
 //                DeleteBackground(swipeDismissState = state)
             },
             content = {
-                ItemContact(state, myContactsState, viewModel, contact, onDelete, navController)
+                ItemContact(
+                    swipeToDismissBoxState = swipeToDismissBoxState,
+                    myContactsState = myContactsState,
+                    contact = contact,
+                    onDelete = onDelete,
+                    changeContactSelectedState = changeContactSelectedState,
+                    navigateToDetail = navigateToDetail
+                )
             },
             enableDismissFromStartToEnd = false,
             enableDismissFromEndToStart = myContactsState.isMultiselect.not()
@@ -327,7 +380,7 @@ private fun SwipeableContainer(
     }
     LaunchedEffect(isRemoved) {
         if (isRemoved.not()) {
-            state.reset()
+            swipeToDismissBoxState.reset()
             isRemoved = false
         }
     }
@@ -336,12 +389,12 @@ private fun SwipeableContainer(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 private fun ItemContact(
-    state: SwipeToDismissBoxState,
+    swipeToDismissBoxState: SwipeToDismissBoxState,
     myContactsState: MyContactsState,
-    viewModel: MyContactsViewModel,
     contact: Contact,
     onDelete: (Contact) -> Unit,
-    navController: NavController,
+    changeContactSelectedState: (Contact) -> Unit,
+    navigateToDetail: (Contact) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -352,17 +405,17 @@ private fun ItemContact(
             .combinedClickable(
                 onLongClick = {
                     if (myContactsState.isMultiselect.not()) {
-                        viewModel.changeContactSelectedState(contact)
+                        changeContactSelectedState(contact)
                     }
                 },
                 onClick = {
                     when (myContactsState.isMultiselect) {
                         true -> {
-                            viewModel.changeContactSelectedState(contact)
+                            changeContactSelectedState(contact)
                         }
 
                         false -> {
-                            navController.navigate(Detail(contact))
+                            navigateToDetail(contact)
                         }
                     }
                 }
@@ -379,14 +432,13 @@ private fun ItemContact(
                 modifier = Modifier
                     .padding(8.dp)
                     .clip(CircleShape)
-                    .clickable {
-                        viewModel.changeContactSelectedState(contact)
-                    }
+                    .clickable(onClick = { changeContactSelectedState(contact) })
             )
         }
-        val image = if (state.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
-            R.drawable.black_guy_disappointed
-        } else R.drawable.black_guy_happy
+        val image =
+            if (swipeToDismissBoxState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+                R.drawable.black_guy_disappointed
+            } else R.drawable.black_guy_happy
         Image(
             painter = painterResource(image),
             modifier = Modifier
@@ -599,11 +651,19 @@ private fun DialogTextField(state: MutableState<String>, label: String) {
 @Preview(showBackground = true)
 @Composable
 private fun MyContactsScreenPreview() {
-    val contactsProvider = ContactsProvider()
     MyContactsScreen(
         padding = PaddingValues(0.dp),
-        navController = rememberNavController(),
-        viewModel = MyContactsViewModel(contactsProvider)
+        coroutineScope = rememberCoroutineScope(),
+        snackbarHostState = SnackbarHostState(),
+        myContactsState = MyContactsState(contacts = ContactsProvider().getContacts()),
+        addContactState = mutableStateOf(false),
+        deleteContact = {},
+        deleteSelected = {},
+        addContact = {},
+        addContactByIndex = { _, _ -> },
+        changeContactSelectedState = {},
+        onNavigationArrowClick = {},
+        navigateToDetail = {}
     )
 }
 
