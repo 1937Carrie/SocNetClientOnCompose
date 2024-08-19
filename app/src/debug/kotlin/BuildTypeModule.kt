@@ -1,5 +1,6 @@
 package com.dumchykov.socialnetworkdemo
 
+import com.dumchykov.socialnetworkdemo.webapi.data.interceptors.BearerTokenInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,6 +15,7 @@ class BuildTypeModule {
     @Provides
     fun provideOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
+            .addInterceptor(BearerTokenInterceptor())
             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
             .build()
     }
