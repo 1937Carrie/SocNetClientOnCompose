@@ -1,5 +1,6 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.signup
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -41,8 +42,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dumchykov.datastore.data.DataStoreProvider
 import com.dumchykov.socialnetworkdemo.R
-import com.dumchykov.socialnetworkdemo.ui.screens.Pager
-import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
+import com.dumchykov.socialnetworkdemo.ui.screens.SignUpExtended
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
 import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
@@ -58,12 +58,46 @@ fun SignUpScreen(
     viewModel: SignUpViewModel = hiltViewModel(),
 ) {
     val signUpState = viewModel.signUpState.collectAsState().value
+    val updateState: (SignUpState) -> Unit = { viewModel.updateState { it } }
+    val validateEmail: (String) -> Unit = { email -> viewModel.validateEmail(email) }
+    val validatePassword: (String) -> Unit = { password -> viewModel.validatePassword(password) }
+    val saveCredentials = { viewModel.saveCredentials() }
+    val navigateToSignUpExtended: () -> Unit = { navController.navigate(SignUpExtended) }
+    val navigateUp: () -> Unit = { navController.navigateUp() }
+
+    SignUpScreen(
+        padding = padding,
+        signUpState = signUpState,
+        updateState = updateState,
+        validateEmail = validateEmail,
+        validatePassword = validatePassword,
+        saveCredentials = saveCredentials,
+        navigateToSignUpExtended = navigateToSignUpExtended,
+        navigateUp = navigateUp
+    )
+}
+
+@Composable
+private fun SignUpScreen(
+    padding: PaddingValues,
+    signUpState: SignUpState,
+    updateState: (SignUpState) -> Unit,
+    validateEmail: (String) -> Unit,
+    validatePassword: (String) -> Unit,
+    saveCredentials: () -> Unit,
+    navigateToSignUpExtended: () -> Unit,
+    navigateUp: () -> Unit,
+) {
+    BackHandler {
+        navigateUp()
+    }
 
     LaunchedEffect(signUpState.autoLogin) {
         if (signUpState.autoLogin) {
-            navigateNext(navController, signUpState)
+            navigateToSignUpExtended()
         }
     }
+
     BoxWithConstraints(
         modifier = Modifier
             .background(Blue)
@@ -82,18 +116,22 @@ fun SignUpScreen(
                         .weight(1f)
                 )
                 Container2(
-                    signUpState,
-                    viewModel,
-                    Modifier
+                    signUpState = signUpState,
+                    updateState = updateState,
+                    validateEmail = validateEmail,
+                    validatePassword = validatePassword,
+                    modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
                         .weight(1f)
                 )
                 Container3(
-                    signUpState,
-                    viewModel,
-                    navController,
-                    Modifier
+                    signUpState = signUpState,
+                    onSignInClick = navigateUp,
+                    updateState = updateState,
+                    saveCredentials = saveCredentials,
+                    navigateToSignUpExtended = navigateToSignUpExtended,
+                    modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .weight(1f)
                 )
@@ -114,27 +152,32 @@ fun SignUpScreen(
                     )
                     Container2(
                         signUpState = signUpState,
-                        signUpViewModel = viewModel,
+                        updateState = updateState,
+                        validateEmail = validateEmail,
+                        validatePassword = validatePassword,
                         modifier = Modifier.weight(2f)
                     )
                 }
                 Container3(
                     signUpState = signUpState,
-                    signUpViewModel = viewModel,
-                    navController = navController,
+                    onSignInClick = navigateUp,
+                    updateState = updateState,
+                    saveCredentials = saveCredentials,
+                    navigateToSignUpExtended = navigateToSignUpExtended,
                     modifier = Modifier.weight(1f)
                 )
             }
         }
     }
-
 }
 
 @Composable
 private fun Container3(
     signUpState: SignUpState,
-    signUpViewModel: SignUpViewModel,
-    navController: NavHostController,
+    onSignInClick: () -> Unit,
+    updateState: (SignUpState) -> Unit,
+    saveCredentials: () -> Unit,
+    navigateToSignUpExtended: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -179,26 +222,27 @@ private fun Container3(
             onClick = {
                 if (signUpState.email.isNotEmpty() && signUpState.emailError.not() && signUpState.password.isNotEmpty() && signUpState.passwordError.not()) {
                     if (signUpState.rememberMe) {
-                        signUpViewModel.saveCredentials()
+                        saveCredentials()
                     }
-                    navigateNext(navController, signUpState)
+                    navigateToSignUpExtended()
                 } else {
                     if (signUpState.email.isEmpty()) {
-                        signUpViewModel.updateState {
-                            if (signUpState.emailIsFocused.not()) {
-                                copy(emailError = true, emailIsFocused = true)
-                            } else {
-                                copy(emailError = true)
-                            }
+                        if (signUpState.emailIsFocused.not()) {
+                            updateState(signUpState.copy(emailError = true, emailIsFocused = true))
+                        } else {
+                            updateState(signUpState.copy(emailError = true))
                         }
                     }
                     if (signUpState.password.isEmpty()) {
-                        signUpViewModel.updateState {
-                            if (signUpState.passwordIsFocused.not()) {
-                                copy(passwordError = true, passwordIsFocused = true)
-                            } else {
-                                copy(passwordError = true)
-                            }
+                        if (signUpState.passwordIsFocused.not()) {
+                            updateState(
+                                signUpState.copy(
+                                    passwordError = true,
+                                    passwordIsFocused = true
+                                )
+                            )
+                        } else {
+                            updateState(signUpState.copy(passwordError = true))
                         }
                     }
                 }
@@ -246,6 +290,8 @@ private fun Container3(
             )
             Text(
                 text = "Sign in",
+                modifier = Modifier
+                    .clickable(onClick = onSignInClick),
                 color = White,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.W600,
@@ -258,7 +304,9 @@ private fun Container3(
 @Composable
 private fun Container2(
     signUpState: SignUpState,
-    signUpViewModel: SignUpViewModel,
+    updateState: (SignUpState) -> Unit,
+    validateEmail: (String) -> Unit,
+    validatePassword: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -268,15 +316,15 @@ private fun Container2(
         TextField(
             value = signUpState.email,
             onValueChange = {
-                signUpViewModel.updateState { copy(email = it) }
-                signUpViewModel.validateEmail(it)
+                updateState(signUpState.copy(email = it))
+                validateEmail(it)
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusEvent {
                     if (it.isFocused) {
-                        if (signUpState.emailIsFocused.not()) signUpViewModel.updateState {
-                            copy(emailIsFocused = true)
+                        if (signUpState.emailIsFocused.not()) {
+                            updateState(signUpState.copy(emailIsFocused = true))
                         }
                     }
                 },
@@ -294,17 +342,15 @@ private fun Container2(
         TextField(
             value = signUpState.password,
             onValueChange = {
-                signUpViewModel.updateState { copy(password = it) }
-                signUpViewModel.validatePassword(it)
+                updateState(signUpState.copy(password = it))
+                validatePassword(it)
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusEvent {
                     if (it.isFocused) {
-                        if (signUpState.passwordIsFocused.not()) signUpViewModel.updateState {
-                            copy(
-                                passwordIsFocused = true
-                            )
+                        if (signUpState.passwordIsFocused.not()) {
+                            updateState(signUpState.copy(passwordIsFocused = true))
                         }
                     }
                 },
@@ -326,7 +372,7 @@ private fun Container2(
                 painter = painterResource(if (signUpState.rememberMe) R.drawable.ic_checkbox_checked else R.drawable.ic_checkbox),
                 contentDescription = "checkbox remember me",
                 modifier = Modifier.clickable {
-                    signUpViewModel.updateState { copy(rememberMe = rememberMe.not()) }
+                    updateState(signUpState.copy(rememberMe = signUpState.rememberMe.not()))
                 },
                 tint = White
             )
@@ -362,17 +408,6 @@ private fun Container1(modifier: Modifier = Modifier) {
             fontWeight = FontWeight.W400,
             fontFamily = OPENS_SANS,
         )
-    }
-}
-
-private fun navigateNext(
-    navController: NavHostController,
-    signUpState: SignUpState,
-) {
-    navController.navigate(Pager(signUpState.email)) {
-        popUpTo(SignUp) {
-            inclusive = true
-        }
     }
 }
 

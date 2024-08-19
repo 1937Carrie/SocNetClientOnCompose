@@ -41,6 +41,7 @@ import com.dumchykov.datastore.data.DataStoreProvider
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.screens.LogIn
 import com.dumchykov.socialnetworkdemo.ui.screens.Pager
+import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
 import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
@@ -57,6 +58,7 @@ fun LogInScreen(
     viewModel: LogInViewModel = hiltViewModel(),
 ) {
     val logInState = viewModel.logInState.collectAsState().value
+    val onSignUpClick = { navController.navigate(SignUp) }
 
     LaunchedEffect(logInState.autoLogin) {
         if (logInState.autoLogin) {
@@ -100,7 +102,7 @@ fun LogInScreen(
                 Container3(
                     logInState,
                     viewModel,
-                    navController,
+                    onSignUpClick = onSignUpClick,
                     Modifier
                         .padding(horizontal = 16.dp)
                         .weight(1f)
@@ -129,7 +131,7 @@ fun LogInScreen(
                 Container3(
                     logInState = logInState,
                     viewModel = viewModel,
-                    navController = navController,
+                    onSignUpClick = onSignUpClick,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -142,7 +144,7 @@ fun LogInScreen(
 private fun Container3(
     logInState: LogInState,
     viewModel: LogInViewModel,
-    navController: NavHostController,
+    onSignUpClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -213,7 +215,7 @@ private fun Container3(
             Text(
                 text = "Sign up",
                 modifier = Modifier
-                    .clickable { },
+                    .clickable(onClick = onSignUpClick),
                 color = White,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.W600,
