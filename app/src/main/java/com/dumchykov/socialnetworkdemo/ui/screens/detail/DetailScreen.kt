@@ -44,7 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.R
@@ -58,7 +58,7 @@ import com.dumchykov.socialnetworkdemo.ui.theme.White
 @Composable
 fun DetailScreen(
     parentPadding: PaddingValues,
-    navController: NavController,
+    navController: NavHostController,
     viewModel: DetailViewModel = hiltViewModel(),
 ) {
     val detailState = viewModel.detailState.collectAsState().value

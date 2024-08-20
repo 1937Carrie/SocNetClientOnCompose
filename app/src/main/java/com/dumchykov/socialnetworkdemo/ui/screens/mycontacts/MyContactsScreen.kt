@@ -88,6 +88,7 @@ import androidx.navigation.NavHostController
 import com.dumchykov.contactsprovider.data.getContacts
 import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.R
+import com.dumchykov.socialnetworkdemo.ui.screens.AddContacts
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
@@ -126,6 +127,7 @@ fun MyContactsScreen(
     val addContact: (Contact) -> Unit = { contact -> viewModel.addContact(contact) }
     val changeContactSelectedState: (Contact) -> Unit =
         { contact -> viewModel.changeContactSelectedState(contact) }
+    val navigateToAddContacts: () -> Unit = { navController.navigate(AddContacts) }
     val navigateToDetail: (Contact) -> Unit = { contact -> navController.navigate(Detail(contact)) }
 
     MyContactsScreen(
@@ -138,6 +140,7 @@ fun MyContactsScreen(
         deleteSelected = deleteSelected,
         addContact = addContact,
         changeContactSelectedState = changeContactSelectedState,
+        navigateToAddContacts = navigateToAddContacts,
         onNavigationArrowClick = onNavigationArrowClick,
         navigateToDetail = navigateToDetail
     )
@@ -156,6 +159,7 @@ private fun MyContactsScreen(
     addContact: (Contact) -> Unit,
     changeContactSelectedState: (Contact) -> Unit,
     onNavigationArrowClick: () -> Unit,
+    navigateToAddContacts: () -> Unit,
     navigateToDetail: (Contact) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -241,7 +245,7 @@ private fun MyContactsScreen(
                     text = "Add contacts",
                     modifier = Modifier
                         .padding(16.dp)
-                        .clickable { addContactState.value = true },
+                        .clickable { navigateToAddContacts() },
                     color = White,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.W600,
@@ -286,7 +290,10 @@ private fun ContactsColumn(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        itemsIndexed(myContactsState.contacts, { _, item -> item }) { index, contact ->
+        itemsIndexed(
+            items = myContactsState.contacts,
+            key = { _, item -> item }
+        ) { index, contact ->
             SwipeableContainer(
                 contact = contact,
                 myContactsState = myContactsState,
@@ -663,6 +670,7 @@ private fun MyContactsScreenPreview() {
         addContact = {},
         changeContactSelectedState = {},
         onNavigationArrowClick = {},
+        navigateToAddContacts = {},
         navigateToDetail = {}
     )
 }

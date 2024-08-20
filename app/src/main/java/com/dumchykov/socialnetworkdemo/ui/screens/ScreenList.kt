@@ -23,3 +23,6 @@ data object LogIn
 
 @Serializable
 data object SignUpExtended
+
+@Serializable
+data object AddContacts

@@ -50,9 +50,9 @@ class ContactRepositoryImpl(
 
     override suspend fun getUsers(): List<Contact> {
         val getUsersResponse =
-            contactApiService.getUserContacts(userId = getUserId(), bearerToken = getAccessToken())
+            contactApiService.getUsers(bearerToken = getAccessToken())
         return if (getUsersResponse.code == 200) {
-            getUsersResponse.data.contacts
+            getUsersResponse.data.users
         } else emptyList()
     }
 

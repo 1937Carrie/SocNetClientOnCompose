@@ -18,11 +18,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.navigation.parcelableType
+import com.dumchykov.socialnetworkdemo.ui.screens.AddContacts
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
 import com.dumchykov.socialnetworkdemo.ui.screens.LogIn
 import com.dumchykov.socialnetworkdemo.ui.screens.Pager
 import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
 import com.dumchykov.socialnetworkdemo.ui.screens.SignUpExtended
+import com.dumchykov.socialnetworkdemo.ui.screens.addcontacts.AddContactsScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.detail.DetailScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.login.LogInScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.pager.PagerScreen
@@ -57,6 +59,12 @@ class MainActivity : ComponentActivity() {
                         composable<Pager> { PagerScreen(innerPadding, navController) }
                         composable<SignUpExtended> {
                             SignUpExtendedScreen(
+                                padding = innerPadding,
+                                navController = navController
+                            )
+                        }
+                        composable<AddContacts> {
+                            AddContactsScreen(
                                 padding = innerPadding,
                                 navController = navController
                             )
