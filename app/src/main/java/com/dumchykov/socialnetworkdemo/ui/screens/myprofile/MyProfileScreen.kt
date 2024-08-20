@@ -43,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.R
+import com.dumchykov.socialnetworkdemo.ui.screens.EditProfile
 import com.dumchykov.socialnetworkdemo.ui.screens.LogIn
 import com.dumchykov.socialnetworkdemo.ui.screens.Pager
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
@@ -63,6 +64,7 @@ fun MyProfileScreen(
     val context = LocalContext.current
     val myProfileState = viewModel.myProfileState.collectAsState().value
     val clearCredentials = { viewModel.clearCredentials() }
+    val onEditProfileClick = { navController.navigate(EditProfile) }
 
     LaunchedEffect(myProfileState.credentialsIsCleared) {
         if (myProfileState.credentialsIsCleared) {
@@ -93,6 +95,7 @@ fun MyProfileScreen(
             intent.setData(Uri.parse(myProfileState.user.instagram))
             context.startActivity(intent)
         },
+        onEditProfileClick = onEditProfileClick,
         onViewMyContactsClick = onViewMyContactsClick,
     )
 }
@@ -105,6 +108,7 @@ private fun MyProfileScreen(
     onIconFacebookClick: () -> Unit,
     onIconLinkedinClick: () -> Unit,
     onIconInstagramClick: () -> Unit,
+    onEditProfileClick: () -> Unit,
     onViewMyContactsClick: () -> Unit,
 ) {
     BoxWithConstraints {
@@ -128,6 +132,7 @@ private fun MyProfileScreen(
                     onIconFacebookClick = onIconFacebookClick,
                     onIconLinkedinClick = onIconLinkedinClick,
                     onIconInstagramClick = onIconInstagramClick,
+                    onEditProfileClick = onEditProfileClick,
                     onViewMyContactsClick = onViewMyContactsClick,
                     modifier = Modifier
                         .background(White)
@@ -163,6 +168,7 @@ private fun MyProfileScreen(
                     onIconFacebookClick = onIconFacebookClick,
                     onIconLinkedinClick = onIconLinkedinClick,
                     onIconInstagramClick = onIconInstagramClick,
+                    onEditProfileClick = onEditProfileClick,
                     onViewMyContactsClick = onViewMyContactsClick,
                     modifier = Modifier
                         .background(White)
@@ -187,6 +193,7 @@ private fun ContainerBottom(
     onIconFacebookClick: () -> Unit,
     onIconLinkedinClick: () -> Unit,
     onIconInstagramClick: () -> Unit,
+    onEditProfileClick: () -> Unit,
     onViewMyContactsClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -227,7 +234,7 @@ private fun ContainerBottom(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Button(
-                onClick = {},
+                onClick = onEditProfileClick,
                 modifier = Modifier
                     .height(40.dp)
                     .fillMaxWidth(),
@@ -376,6 +383,7 @@ private fun MyProfileScreenPreview() {
         onIconFacebookClick = {},
         onIconLinkedinClick = {},
         onIconInstagramClick = {},
+        onEditProfileClick = {},
         onViewMyContactsClick = {}
     )
 }

@@ -26,3 +26,6 @@ data object SignUpExtended
 
 @Serializable
 data object AddContacts
+
+@Serializable
+data object EditProfile

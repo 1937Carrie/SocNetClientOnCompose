@@ -8,7 +8,7 @@ import kotlinx.serialization.json.Json
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import java.time.Instant
+import java.util.Calendar
 
 object ContactSerializer : Serializer<Contact> {
     override val defaultValue: Contact
@@ -25,8 +25,8 @@ object ContactSerializer : Serializer<Contact> {
             twitter = null,
             linkedin = null,
             image = null,
-            created_at = Instant.now(),
-            updated_at = Instant.now()
+            created_at = Calendar.getInstance(),
+            updated_at = Calendar.getInstance()
         )
 
     override suspend fun readFrom(input: InputStream): Contact {

@@ -2,11 +2,11 @@ package com.dumchykov.socialnetworkdemo.ui.screens.addcontacts
 
 import android.os.Parcelable
 import com.dumchykov.contactsprovider.domain.BaseContact
-import com.dumchykov.socialnetworkdemo.webapi.domain.models.InstantSerializer
+import com.dumchykov.socialnetworkdemo.webapi.domain.models.CalendarSerializer
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.time.Instant
+import java.util.Calendar
 
 data class AddContactsState(
     val allContacts: List<Contact> = emptyList(),
@@ -21,16 +21,16 @@ data class Contact(
     @SerialName("phone") override val phone: String? = "",
     @SerialName("career") override val career: String? = "",
     @SerialName("address") override val address: String? = "",
-    @SerialName("birthday") override @Serializable(InstantSerializer::class) val birthday: Instant? = Instant.MIN,
+    @SerialName("birthday") override @Serializable(CalendarSerializer::class) val birthday: Calendar? = Calendar.getInstance(),
     @SerialName("facebook") override val facebook: String? = "",
     @SerialName("instagram") override val instagram: String? = "",
     @SerialName("twitter") override val twitter: String? = "",
     @SerialName("linkedin") override val linkedin: String? = "",
     @SerialName("image") override val image: String? = "",
-    @SerialName("created_at") override @Serializable(InstantSerializer::class) val created_at: Instant = Instant.MIN,
-    @SerialName("updated_at") override @Serializable(InstantSerializer::class) val updated_at: Instant = Instant.MIN,
+    @SerialName("created_at") override @Serializable(CalendarSerializer::class) val created_at: Calendar = Calendar.getInstance(),
+    @SerialName("updated_at") override @Serializable(CalendarSerializer::class) val updated_at: Calendar = Calendar.getInstance(),
     @SerialName("isAdded") val isAdded: Boolean = false,
-    @SerialName("updateUiState") val updateUiState:Boolean = false,
+    @SerialName("updateUiState") val updateUiState: Boolean = false,
 ) : BaseContact, Parcelable {
     companion object {
         val sampleList: List<Contact> = mutableListOf<Contact>().apply {

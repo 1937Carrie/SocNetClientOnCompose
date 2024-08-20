@@ -20,12 +20,14 @@ import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.navigation.parcelableType
 import com.dumchykov.socialnetworkdemo.ui.screens.AddContacts
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
+import com.dumchykov.socialnetworkdemo.ui.screens.EditProfile
 import com.dumchykov.socialnetworkdemo.ui.screens.LogIn
 import com.dumchykov.socialnetworkdemo.ui.screens.Pager
 import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
 import com.dumchykov.socialnetworkdemo.ui.screens.SignUpExtended
 import com.dumchykov.socialnetworkdemo.ui.screens.addcontacts.AddContactsScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.detail.DetailScreen
+import com.dumchykov.socialnetworkdemo.ui.screens.editprofile.EditProfileScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.login.LogInScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.pager.PagerScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.signup.SignUpScreen
@@ -65,6 +67,12 @@ class MainActivity : ComponentActivity() {
                         }
                         composable<AddContacts> {
                             AddContactsScreen(
+                                padding = innerPadding,
+                                navController = navController
+                            )
+                        }
+                        composable<EditProfile> {
+                            EditProfileScreen(
                                 padding = innerPadding,
                                 navController = navController
                             )

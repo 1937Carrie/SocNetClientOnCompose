@@ -3,7 +3,7 @@ package com.dumchykov.contactsprovider.data
 import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
 import jakarta.inject.Inject
-import java.time.Instant
+import java.util.Calendar
 
 class ContactsProvider @Inject constructor(
     val contactRepository: ContactRepository,
@@ -53,7 +53,7 @@ fun com.dumchykov.socialnetworkdemo.webapi.domain.models.Contact.toContact(): Co
         phone = this.phone.orEmpty(),
         career = this.career.orEmpty(),
         address = this.address.orEmpty(),
-        birthday = this.birthday ?: Instant.MIN,
+        birthday = this.birthday ?: Calendar.getInstance(),
         facebook = this.facebook.orEmpty(),
         instagram = this.instagram.orEmpty(),
         twitter = this.twitter.orEmpty(),

@@ -3,6 +3,7 @@ package com.dumchykov.socialnetworkdemo.webapi.domain
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.Contact
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.ContactId
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.ContactResponse
+import com.dumchykov.socialnetworkdemo.webapi.domain.models.EditUserResponse
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.EmailPassword
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.MultipleContactResponse
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.MultipleUserResponse
@@ -47,7 +48,7 @@ interface ContactApiService {
         @Path("userId") userId: Int,
         @Header("Authorization") bearerToken: String,
         @Body user: Contact,
-    ): ContactResponse<SingleUserResponse>
+    ): ContactResponse<EditUserResponse>
 
     @GET("users")
     suspend fun getUsers(@Header("Authorization") bearerToken: String): ContactResponse<MultipleUserResponse>
