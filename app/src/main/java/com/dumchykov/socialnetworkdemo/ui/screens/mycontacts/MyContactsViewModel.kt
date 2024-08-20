@@ -6,7 +6,9 @@ import com.dumchykov.contactsprovider.data.ContactsProvider
 import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -19,6 +21,9 @@ class MyContactsViewModel @Inject constructor(
 ) : ViewModel() {
     private val _myContactsState = MutableStateFlow(MyContactsState())
     val myContactsState get() = _myContactsState.asStateFlow()
+
+    private val _deleteContactState = MutableSharedFlow<Contact>()
+    val deleteContactState get() = _deleteContactState.asSharedFlow()
 
     init {
         viewModelScope.launch {
@@ -49,13 +54,35 @@ class MyContactsViewModel @Inject constructor(
         }
     }
 
-    fun deleteContact(contactId: Int) {
+    fun deleteContact(contactId: Int, singleDelete: Boolean = true) {
         viewModelScope.launch {
+            updateProgress(contactId)
             val onDeleteResult = contactRepository.deleteContact(contactId)
             if (onDeleteResult) {
+                val contact = getContactById(contactId)
                 updateContactsAppearance()
+                if (singleDelete) {
+                    _deleteContactState.emit(contact)
+                } else {
+                    updateState { copy(isMultiselect = updateMultiselectState()) }
+                }
+            } else {
+                updateProgress(contactId, false)
             }
         }
+    }
+
+    private fun updateProgress(contactId: Int, startProgress: Boolean = true) {
+        val contacts = myContactsState.value.contacts.toMutableList()
+        val index = contacts.indexOf(contacts.first { it.id == contactId })
+        contacts[index] = contacts[index].copy(updateUiState = startProgress)
+        updateState { copy(contacts = contacts) }
+    }
+
+    private fun getContactById(contactId: Int): Contact {
+        val contacts = myContactsState.value.contacts.toMutableList()
+        val index = contacts.indexOf(contacts.first { it.id == contactId })
+        return contacts[index]
     }
 
     fun changeContactSelectedState(contact: Contact) {
@@ -73,10 +100,7 @@ class MyContactsViewModel @Inject constructor(
 
     fun deleteSelected() {
         val contacts = myContactsState.value.contacts.toMutableList()
-        contacts.filter { it.isChecked }.forEach { deleteContact(it.id) }
-        contacts.removeIf { it.isChecked }
-        updateState { copy(contacts = contacts) }
-        updateState { copy(isMultiselect = updateMultiselectState()) }
+        contacts.filter { it.isChecked }.forEach { deleteContact(it.id, false) }
     }
 
     fun updateListOnEnter() {

@@ -42,6 +42,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
@@ -148,6 +149,33 @@ fun MyContactsScreen(
         onNavigationArrowClick = onNavigationArrowClick,
         navigateToDetail = navigateToDetail
     )
+
+    val deleteContactState = viewModel.deleteContactState.collectAsState(initial = null).value
+    LaunchedEffect(deleteContactState) {
+        if (deleteContactState != null) {
+            coroutineScope.launch {
+                // Check if a snackbar is currently being displayed
+                snackbarHostState.currentSnackbarData?.dismiss()
+
+                val result = snackbarHostState
+                    .showSnackbar(
+                        message = "${deleteContactState.name} has been deleted",
+                        actionLabel = "Undo",
+                        duration = SnackbarDuration.Long
+                    )
+                when (result) {
+                    SnackbarResult.ActionPerformed -> {
+                        addContact(deleteContactState)
+                    }
+
+                    SnackbarResult.Dismissed -> {
+                        /* Handle snackbar dismissed */
+                    }
+                }
+            }
+        }
+
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -303,26 +331,26 @@ private fun ContactsColumn(
                 myContactsState = myContactsState,
                 onDelete = {
                     deleteContact(it.id)
-                    coroutineScope.launch {
-                        // Check if a snackbar is currently being displayed
-                        snackbarHostState.currentSnackbarData?.dismiss()
-
-                        val result = snackbarHostState
-                            .showSnackbar(
-                                message = "${contact.name} has been deleted",
-                                actionLabel = "Undo",
-                                duration = SnackbarDuration.Long
-                            )
-                        when (result) {
-                            SnackbarResult.ActionPerformed -> {
-                                addContact(contact)
-                            }
-
-                            SnackbarResult.Dismissed -> {
-                                /* Handle snackbar dismissed */
-                            }
-                        }
-                    }
+//                    coroutineScope.launch {
+//                        // Check if a snackbar is currently being displayed
+//                        snackbarHostState.currentSnackbarData?.dismiss()
+//
+//                        val result = snackbarHostState
+//                            .showSnackbar(
+//                                message = "${contact.name} has been deleted",
+//                                actionLabel = "Undo",
+//                                duration = SnackbarDuration.Long
+//                            )
+//                        when (result) {
+//                            SnackbarResult.ActionPerformed -> {
+//                                addContact(contact)
+//                            }
+//
+//                            SnackbarResult.Dismissed -> {
+//                                /* Handle snackbar dismissed */
+//                            }
+//                        }
+//                    }
                 },
                 changeContactSelectedState = changeContactSelectedState,
                 navigateToDetail = navigateToDetail,
@@ -480,14 +508,24 @@ private fun ItemContact(
                 fontFamily = OPENS_SANS
             )
         }
-        if (myContactsState.isMultiselect.not())
-            IconButton(onClick = { onDelete(contact) }) {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = "Localized description",
-                    tint = Orange
-                )
+        if (myContactsState.isMultiselect.not()) {
+            when (contact.updateUiState) {
+                true -> {
+                    CircularProgressIndicator()
+                }
+
+                false -> {
+                    IconButton(onClick = { onDelete(contact) }) {
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            contentDescription = "Localized description",
+                            tint = Orange
+                        )
+                    }
+                }
             }
+
+        }
     }
 }
 

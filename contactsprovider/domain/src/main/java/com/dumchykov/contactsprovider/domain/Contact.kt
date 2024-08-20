@@ -25,6 +25,7 @@ data class Contact(
     @SerialName("created_at") override @Serializable(InstantSerializer::class) val created_at: Instant = Instant.MIN,
     @SerialName("updated_at") override @Serializable(InstantSerializer::class) val updated_at: Instant = Instant.MIN,
     @SerialName("isChecked") val isChecked: Boolean = false,
+    @SerialName("updateUiState") val updateUiState:Boolean = false,
 ) : Parcelable, BaseContact {
     companion object {
         val previewContact = Contact(
