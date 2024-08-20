@@ -1,5 +1,7 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.myprofile
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.screens.LogIn
 import com.dumchykov.socialnetworkdemo.ui.screens.Pager
@@ -56,6 +60,7 @@ fun MyProfileScreen(
     viewModel: MyProfileViewModel = hiltViewModel(),
     onViewMyContactsClick: () -> Unit = {},
 ) {
+    val context = LocalContext.current
     val myProfileState = viewModel.myProfileState.collectAsState().value
     val clearCredentials = { viewModel.clearCredentials() }
 
@@ -73,7 +78,22 @@ fun MyProfileScreen(
         padding = padding,
         myProfileState = myProfileState,
         clearCredentials = clearCredentials,
-        onViewMyContactsClick = onViewMyContactsClick
+        onIconFacebookClick = {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setData(Uri.parse(myProfileState.user.facebook))
+            context.startActivity(intent)
+        },
+        onIconLinkedinClick = {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setData(Uri.parse(myProfileState.user.linkedin))
+            context.startActivity(intent)
+        },
+        onIconInstagramClick = {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setData(Uri.parse(myProfileState.user.instagram))
+            context.startActivity(intent)
+        },
+        onViewMyContactsClick = onViewMyContactsClick,
     )
 }
 
@@ -82,6 +102,9 @@ private fun MyProfileScreen(
     padding: PaddingValues,
     myProfileState: MyProfileState,
     clearCredentials: () -> Unit,
+    onIconFacebookClick: () -> Unit,
+    onIconLinkedinClick: () -> Unit,
+    onIconInstagramClick: () -> Unit,
     onViewMyContactsClick: () -> Unit,
 ) {
     BoxWithConstraints {
@@ -102,6 +125,9 @@ private fun MyProfileScreen(
                         )
                 )
                 ContainerBottom(
+                    onIconFacebookClick = onIconFacebookClick,
+                    onIconLinkedinClick = onIconLinkedinClick,
+                    onIconInstagramClick = onIconInstagramClick,
                     onViewMyContactsClick = onViewMyContactsClick,
                     modifier = Modifier
                         .background(White)
@@ -134,6 +160,9 @@ private fun MyProfileScreen(
                         )
                 )
                 ContainerBottom(
+                    onIconFacebookClick = onIconFacebookClick,
+                    onIconLinkedinClick = onIconLinkedinClick,
+                    onIconInstagramClick = onIconInstagramClick,
                     onViewMyContactsClick = onViewMyContactsClick,
                     modifier = Modifier
                         .background(White)
@@ -146,7 +175,7 @@ private fun MyProfileScreen(
                                 start = padding.calculateStartPadding(LayoutDirection.Ltr),
                                 end = padding.calculateEndPadding(LayoutDirection.Ltr)
                             )
-                        )
+                        ),
                 )
             }
         }
@@ -155,6 +184,9 @@ private fun MyProfileScreen(
 
 @Composable
 private fun ContainerBottom(
+    onIconFacebookClick: () -> Unit,
+    onIconLinkedinClick: () -> Unit,
+    onIconInstagramClick: () -> Unit,
     onViewMyContactsClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -173,21 +205,21 @@ private fun ContainerBottom(
                 contentDescription = "icon facebook",
                 modifier = Modifier
                     .clip(CircleShape)
-                    .clickable { }
+                    .clickable(onClick = onIconFacebookClick)
             )
             Image(
                 painter = painterResource(R.drawable.ic_linkedin),
                 contentDescription = "icon linkedin",
                 modifier = Modifier
                     .clip(CircleShape)
-                    .clickable { }
+                    .clickable(onClick = onIconLinkedinClick)
             )
             Image(
                 painter = painterResource(R.drawable.ic_instagram),
                 contentDescription = "icon instagram",
                 modifier = Modifier
                     .clip(CircleShape)
-                    .clickable { }
+                    .clickable(onClick = onIconInstagramClick)
             )
         }
         Column(
@@ -302,14 +334,14 @@ private fun ContainerTop(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = myProfileState.name,
+                        text = myProfileState.user.name,
                         color = White,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.W600,
                         fontFamily = OPENS_SANS,
                     )
                     Text(
-                        text = "Graphic designer",
+                        text = myProfileState.user.career,
                         color = Gray,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.W600,
@@ -317,7 +349,7 @@ private fun ContainerTop(
                     )
                 }
                 Text(
-                    text = "5295 Gaylord Walks Apk. 110",
+                    text = myProfileState.user.address,
                     color = Gray,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.W600,
@@ -339,8 +371,11 @@ private fun ContainerTop(
 private fun MyProfileScreenPreview() {
     MyProfileScreen(
         padding = PaddingValues(0.dp),
-        myProfileState = MyProfileState(),
+        myProfileState = MyProfileState(user = Contact.previewContact),
         clearCredentials = { },
+        onIconFacebookClick = {},
+        onIconLinkedinClick = {},
+        onIconInstagramClick = {},
         onViewMyContactsClick = {}
     )
 }

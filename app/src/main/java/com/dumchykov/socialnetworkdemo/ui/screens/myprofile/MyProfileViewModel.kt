@@ -1,8 +1,8 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.myprofile
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dumchykov.contactsprovider.data.toContact
 import com.dumchykov.datastore.data.DataStoreProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,8 +21,8 @@ class MyProfileViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val name = dataStoreProvider.getContact().first().name
-            update { copy(name = name.orEmpty()) }
+            val user = dataStoreProvider.getContact().first().toContact()
+            update { copy(user = user) }
         }
     }
 
@@ -44,10 +44,5 @@ class MyProfileViewModel @Inject constructor(
             dataStoreProvider.clearCredentials()
             _myProfileState.update { _myProfileState.value.copy(credentialsIsCleared = true) }
         }
-    }
-
-    override fun onCleared() {
-        Log.d("AAA", "onCleared: ${this.javaClass.simpleName}")
-        super.onCleared()
     }
 }
