@@ -37,14 +37,23 @@ class AddContactsViewModel @Inject constructor(
         updateState { copy(allContacts = mappedAllUsers) }
     }
 
+    private fun updateProgress(contactId: Int, startProgress: Boolean = true) {
+        val contacts = addContactsState.value.allContacts.toMutableList()
+        val index = contacts.indexOf(contacts.first { it.id == contactId })
+        contacts[index] = contacts[index].copy(updateUiState = startProgress)
+        updateState { copy(allContacts = contacts) }
+    }
+
     fun updateState(reducer: AddContactsState.() -> AddContactsState) {
         _addContactsState.update(reducer)
     }
 
     fun addToContactList(contactId: Int) {
         viewModelScope.launch {
+            updateProgress(contactId)
             contactRepository.addContact(contactId)
             updateAddedContactsAppearance()
+            updateProgress(contactId, false)
         }
     }
 }

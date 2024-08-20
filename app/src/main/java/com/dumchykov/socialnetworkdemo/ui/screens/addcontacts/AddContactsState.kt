@@ -30,6 +30,7 @@ data class Contact(
     @SerialName("created_at") override @Serializable(InstantSerializer::class) val created_at: Instant = Instant.MIN,
     @SerialName("updated_at") override @Serializable(InstantSerializer::class) val updated_at: Instant = Instant.MIN,
     @SerialName("isAdded") val isAdded: Boolean = false,
+    @SerialName("updateUiState") val updateUiState:Boolean = false,
 ) : BaseContact, Parcelable {
     companion object {
         val sampleList: List<Contact> = mutableListOf<Contact>().apply {

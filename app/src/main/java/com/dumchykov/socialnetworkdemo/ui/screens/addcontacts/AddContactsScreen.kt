@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
@@ -288,38 +289,41 @@ private fun ItemContact(
                 fontFamily = OPENS_SANS
             )
         }
-
-        when (contact.isAdded) {
-            true -> {
-                Icon(
-                    imageVector = Icons.Filled.CheckCircle,
-                    contentDescription = "",
-                    modifier = Modifier.size(23.dp),
-                    tint = Blue
-                )
-            }
-
-            false -> {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Add",
-                        color = Orange,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.W600,
-                        fontFamily = OPENS_SANS
-                    )
+        when (contact.updateUiState) {
+            true -> CircularProgressIndicator()
+            false -> when (contact.isAdded) {
+                true -> {
                     Icon(
-                        imageVector = Icons.Outlined.AddCircle,
-                        contentDescription = "Localized description",
+                        imageVector = Icons.Filled.CheckCircle,
+                        contentDescription = "",
                         modifier = Modifier.size(23.dp),
-                        tint = Orange
+                        tint = Blue
                     )
+                }
+
+                false -> {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Add",
+                            color = Orange,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.W600,
+                            fontFamily = OPENS_SANS
+                        )
+                        Icon(
+                            imageVector = Icons.Outlined.AddCircle,
+                            contentDescription = "Localized description",
+                            modifier = Modifier.size(23.dp),
+                            tint = Orange
+                        )
+                    }
                 }
             }
         }
+
     }
 }
 
