@@ -115,6 +115,10 @@ fun MyContactsScreen(
         onNavigationArrowClick()
     }
 
+    LaunchedEffect(true) {
+        viewModel.updateListOnEnter()
+    }
+
     val context = LocalContext.current
     (context as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
@@ -122,7 +126,7 @@ fun MyContactsScreen(
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val addContactState = remember { mutableStateOf(false) }
-    val deleteContact: (Contact) -> Unit = { contact -> viewModel.deleteContact(contact) }
+    val deleteContact: (Int) -> Unit = { contact -> viewModel.deleteContact(contact) }
     val deleteSelected: () -> Unit = { viewModel.deleteSelected() }
     val addContact: (Contact) -> Unit = { contact -> viewModel.addContact(contact) }
     val changeContactSelectedState: (Contact) -> Unit =
@@ -154,7 +158,7 @@ private fun MyContactsScreen(
     snackbarHostState: SnackbarHostState,
     myContactsState: MyContactsState,
     addContactState: MutableState<Boolean>,
-    deleteContact: (Contact) -> Unit,
+    deleteContact: (Int) -> Unit,
     deleteSelected: () -> Unit,
     addContact: (Contact) -> Unit,
     changeContactSelectedState: (Contact) -> Unit,
@@ -279,7 +283,7 @@ private fun ContactsColumn(
     myContactsState: MyContactsState,
     coroutineScope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
-    deleteContact: (Contact) -> Unit,
+    deleteContact: (Int) -> Unit,
     addContact: (Contact) -> Unit,
     changeContactSelectedState: (Contact) -> Unit,
     navigateToDetail: (Contact) -> Unit,
@@ -298,7 +302,7 @@ private fun ContactsColumn(
                 contact = contact,
                 myContactsState = myContactsState,
                 onDelete = {
-                    deleteContact(it)
+                    deleteContact(it.id)
                     coroutineScope.launch {
                         // Check if a snackbar is currently being displayed
                         snackbarHostState.currentSnackbarData?.dismiss()

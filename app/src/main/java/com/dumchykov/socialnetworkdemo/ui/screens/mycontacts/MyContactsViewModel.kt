@@ -22,9 +22,17 @@ class MyContactsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val userContacts = contactsProvider.getUserContacts()
-            updateState { copy(contacts = userContacts) }
+            updateContactsAppearance()
         }
+    }
+
+    private fun updateMultiselectState(): Boolean {
+        return myContactsState.value.contacts.count { it.isChecked } != 0
+    }
+
+    private suspend fun updateContactsAppearance() {
+        val userContacts = contactsProvider.getUserContacts()
+        updateState { copy(contacts = userContacts) }
     }
 
     fun updateState(reducer: MyContactsState.() -> MyContactsState) {
@@ -41,12 +49,11 @@ class MyContactsViewModel @Inject constructor(
         }
     }
 
-    fun deleteContact(contact: Contact) {
+    fun deleteContact(contactId: Int) {
         viewModelScope.launch {
-            val onDeleteResult = contactRepository.deleteContact(contact.id)
+            val onDeleteResult = contactRepository.deleteContact(contactId)
             if (onDeleteResult) {
-                val userContacts = contactsProvider.getUserContacts()
-                updateState { copy(contacts = userContacts) }
+                updateContactsAppearance()
             }
         }
     }
@@ -64,14 +71,17 @@ class MyContactsViewModel @Inject constructor(
         updateState { copy(isMultiselect = updateMultiselectState()) }
     }
 
-    private fun updateMultiselectState(): Boolean {
-        return myContactsState.value.contacts.count { it.isChecked } != 0
-    }
-
     fun deleteSelected() {
         val contacts = myContactsState.value.contacts.toMutableList()
+        contacts.filter { it.isChecked }.forEach { deleteContact(it.id) }
         contacts.removeIf { it.isChecked }
         updateState { copy(contacts = contacts) }
         updateState { copy(isMultiselect = updateMultiselectState()) }
+    }
+
+    fun updateListOnEnter() {
+        viewModelScope.launch {
+            updateContactsAppearance()
+        }
     }
 }
