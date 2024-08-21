@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.dumchykov.socialnetworkdemo.R
+import com.dumchykov.socialnetworkdemo.ui.screens.Detail
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray828282
@@ -92,6 +93,7 @@ fun AddContactsScreen(
     val showFab =
         remember { derivedStateOf { lazyColumnState.firstVisibleItemIndex > 0 } }
     val onAdd: (Int) -> Unit = { contactId -> viewModel.addToContactList(contactId) }
+    val navigateToDetail: (Contact) -> Unit = { contact -> navController.navigate(Detail(contact.toContact())) }
     val onNavigationArrowClick: () -> Unit = { navController.navigateUp() }
 
     AddContactsScreen(
@@ -102,6 +104,7 @@ fun AddContactsScreen(
         showFab = showFab,
         addContactState = addContactsState,
         onAdd = onAdd,
+        navigateToDetail = navigateToDetail,
         onNavigationArrowClick = onNavigationArrowClick,
     )
 }
@@ -117,6 +120,7 @@ private fun AddContactsScreen(
     addContactState: AddContactsState,
     onNavigationArrowClick: () -> Unit,
     onAdd: (Int) -> Unit,
+    navigateToDetail: (Contact) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -280,7 +284,8 @@ private fun AddContactsScreen(
             ContactsColumn(
                 lazyColumnState = lazyColumnState,
                 addContactsState = addContactState,
-                onAdd = onAdd
+                onAdd = onAdd,
+                navigateToDetail = navigateToDetail
             )
         }
     }
@@ -291,6 +296,7 @@ private fun ContactsColumn(
     lazyColumnState: LazyListState,
     addContactsState: AddContactsState,
     onAdd: (Int) -> Unit,
+    navigateToDetail: (Contact) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -307,7 +313,8 @@ private fun ContactsColumn(
         ) { _, contact ->
             ItemContact(
                 contact = contact,
-                onAdd = onAdd
+                onAdd = onAdd,
+                navigateToDetail = navigateToDetail
             )
         }
     }
@@ -317,6 +324,7 @@ private fun ContactsColumn(
 private fun ItemContact(
     contact: Contact,
     onAdd: (Int) -> Unit,
+    navigateToDetail: (Contact) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -325,8 +333,7 @@ private fun ItemContact(
             .clip(RoundedCornerShape(6.dp))
             .background(White)
             .clickable(
-                enabled = contact.isAdded.not(),
-                onClick = { onAdd(contact.id) }
+                onClick = { navigateToDetail(contact) }
             )
             .padding(8.dp)
             .height(50.dp),
@@ -382,6 +389,9 @@ private fun ItemContact(
 
                 false -> {
                     Row(
+                        modifier = Modifier.clickable(
+                            onClick = { onAdd(contact.id) }
+                        ),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -417,5 +427,7 @@ fun AddContactsScreenPreview() {
         showFab = remember { mutableStateOf(false) },
         addContactState = AddContactsState(allContacts = Contact.sampleList, searchState = true),
         onNavigationArrowClick = {},
-        onAdd = {})
+        onAdd = {},
+        navigateToDetail = {}
+    )
 }

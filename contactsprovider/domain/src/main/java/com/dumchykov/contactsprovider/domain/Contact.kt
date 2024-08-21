@@ -16,17 +16,17 @@ data class Contact(
     @SerialName("phone") override val phone: String = "",
     @SerialName("career") override val career: String = "",
     @SerialName("address") override val address: String = "",
-    @SerialName("birthday") override @Serializable(CalendarSerializer::class) val birthday: Calendar = Calendar.getInstance(),
+    @SerialName("birthday") @Serializable(CalendarSerializer::class) override val birthday: Calendar = Calendar.getInstance(),
     @SerialName("facebook") override val facebook: String = "",
     @SerialName("instagram") override val instagram: String = "",
     @SerialName("twitter") override val twitter: String = "",
     @SerialName("linkedin") override val linkedin: String = "",
     @SerialName("image") override val image: String = "",
-    @SerialName("created_at") override @Serializable(CalendarSerializer::class) val created_at: Calendar = Calendar.getInstance(),
-    @SerialName("updated_at") override @Serializable(CalendarSerializer::class) val updated_at: Calendar = Calendar.getInstance(),
+    @SerialName("created_at") @Serializable(CalendarSerializer::class) override val created_at: Calendar = Calendar.getInstance(),
+    @SerialName("updated_at") @Serializable(CalendarSerializer::class) override val updated_at: Calendar = Calendar.getInstance(),
     @SerialName("isChecked") val isChecked: Boolean = false,
     @SerialName("updateUiState") val updateUiState: Boolean = false,
-) : Parcelable, BaseContact {
+) : BaseContact, Parcelable {
     companion object {
         val previewContact = Contact(
             id = 2992,

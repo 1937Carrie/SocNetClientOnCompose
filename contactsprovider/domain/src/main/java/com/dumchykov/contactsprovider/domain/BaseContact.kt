@@ -10,38 +10,38 @@ interface BaseContact {
     val id: Int
 
     @SerialName("name")
-    val name: String?
+    val name: String
 
     @SerialName("email")
-    val email: String?
+    val email: String
 
     @SerialName("phone")
-    val phone: String?
+    val phone: String
 
     @SerialName("career")
-    val career: String?
+    val career: String
 
     @SerialName("address")
-    val address: String?
+    val address: String
 
     @SerialName("birthday")
     @Serializable(CalendarSerializer::class)
-    val birthday: Calendar?
+    val birthday: Calendar
 
     @SerialName("facebook")
-    val facebook: String?
+    val facebook: String
 
     @SerialName("instagram")
-    val instagram: String?
+    val instagram: String
 
     @SerialName("twitter")
-    val twitter: String?
+    val twitter: String
 
     @SerialName("linkedin")
-    val linkedin: String?
+    val linkedin: String
 
     @SerialName("image")
-    val image: String?
+    val image: String
 
     @SerialName("created_at")
     @Serializable(CalendarSerializer::class)

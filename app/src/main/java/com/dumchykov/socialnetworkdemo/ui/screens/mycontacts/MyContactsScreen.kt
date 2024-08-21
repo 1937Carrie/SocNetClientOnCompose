@@ -580,14 +580,14 @@ private fun ItemContact(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = contact.name.orEmpty(),
+                text = contact.name,
                 color = GrayText,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.W600,
                 fontFamily = OPENS_SANS
             )
             Text(
-                text = contact.career.orEmpty(),
+                text = contact.career,
                 color = Gray828282,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.W400,
