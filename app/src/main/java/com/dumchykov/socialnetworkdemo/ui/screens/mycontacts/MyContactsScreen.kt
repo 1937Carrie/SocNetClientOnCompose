@@ -354,17 +354,53 @@ private fun MyContactsScreen(
                     fontFamily = OPENS_SANS
                 )
             }
-            ContactsColumn(
-                contacts = myContactsState.contacts.filter { contact ->
-                    contact.name.lowercase().contains(
-                        myContactsState.searchQuery.lowercase()
+            when (myContactsState.contacts.count { contact ->
+                contact.name.lowercase().contains(myContactsState.searchQuery.lowercase())
+            } == 0) {
+                true -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(White)
+                            .padding(vertical = 32.dp, horizontal = 16.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "No results found",
+                                color = GrayText,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.W600,
+                                fontFamily = OPENS_SANS
+                            )
+                            Text(
+                                text = "You can see more contacts in the recommendation",
+                                color = GrayText,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.W400,
+                                fontFamily = OPENS_SANS
+                            )
+                        }
+                    }
+                }
+
+                false -> {
+                    ContactsColumn(
+                        contacts = myContactsState.contacts.filter { contact ->
+                            contact.name.lowercase().contains(
+                                myContactsState.searchQuery.lowercase()
+                            )
+                        },
+                        isMultiselect = myContactsState.isMultiselect,
+                        deleteContact = deleteContact,
+                        changeContactSelectedState = changeContactSelectedState,
+                        navigateToDetail = navigateToDetail
                     )
-                },
-                isMultiselect = myContactsState.isMultiselect,
-                deleteContact = deleteContact,
-                changeContactSelectedState = changeContactSelectedState,
-                navigateToDetail = navigateToDetail
-            )
+                }
+            }
         }
     }
     if (addContactState.value) {
