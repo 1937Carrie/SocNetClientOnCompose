@@ -10,6 +10,8 @@ import java.util.Calendar
 
 data class AddContactsState(
     val allContacts: List<Contact> = emptyList(),
+    val searchState: Boolean = false,
+    val searchQuery: String = "",
 )
 
 @Serializable

@@ -25,9 +25,11 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.AddCircle
@@ -44,14 +46,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -79,6 +86,7 @@ fun AddContactsScreen(
     viewModel: AddContactsViewModel = hiltViewModel(),
 ) {
     val addContactsState = viewModel.addContactsState.collectAsState().value
+    val updateState: (AddContactsState) -> Unit = { state -> viewModel.updateState { state } }
     val coroutineScope = rememberCoroutineScope()
     val lazyColumnState = rememberLazyListState()
     val showFab =
@@ -88,6 +96,7 @@ fun AddContactsScreen(
 
     AddContactsScreen(
         padding = padding,
+        updateState = updateState,
         coroutineScope = coroutineScope,
         lazyColumnState = lazyColumnState,
         showFab = showFab,
@@ -101,6 +110,7 @@ fun AddContactsScreen(
 @Composable
 private fun AddContactsScreen(
     padding: PaddingValues,
+    updateState: (AddContactsState) -> Unit,
     coroutineScope: CoroutineScope,
     lazyColumnState: LazyListState,
     showFab: State<Boolean>,
@@ -119,41 +129,108 @@ private fun AddContactsScreen(
                 end = padding.calculateEndPadding(LayoutDirection.Rtl),
             ),
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "Users",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.W600,
-                        fontFamily = OPENS_SANS,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+            when (addContactState.searchState) {
+                true -> {
+                    Row(
+                        modifier = Modifier
+                            .background(Blue)
+                            .padding(horizontal = 16.dp)
+                            .height(64.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        var isFocused by remember { mutableStateOf(false) }
+                        BasicTextField(
+                            value = addContactState.searchQuery,
+                            onValueChange = { updateState(addContactState.copy(searchQuery = it)) },
+                            modifier = Modifier
+                                .height(40.dp)
+                                .weight(1f)
+                                .background(
+                                    color = GrayText,
+                                    shape = RoundedCornerShape(6.dp)
+                                )
+                                .padding(horizontal = 8.dp, vertical = 8.dp)
+                                .onFocusChanged { focusState ->
+                                    isFocused = focusState.isFocused
+                                },
+                            textStyle = TextStyle(
+                                color = White,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.W600,
+                                fontFamily = OPENS_SANS
+                            ),
+                            cursorBrush = SolidColor(White),
+                            decorationBox = { innerTextField ->
+                                Row(
+                                    modifier = Modifier.fillMaxSize(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    if (addContactState.searchQuery.isEmpty() && !isFocused) {
+                                        Text(
+                                            text = "Search...",
+                                            color = White,
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.W600,
+                                            fontFamily = OPENS_SANS
+                                        )
+                                    }
+                                    Box(Modifier.weight(1f)) {
+                                        innerTextField()
+                                    }
+                                }
+                            }
+                        )
+                        IconButton(onClick = {
+                            updateState(addContactState.copy(searchState = false))
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "Localized description",
+                                tint = White
+                            )
+                        }
+                    }
+                }
+
+                false -> {
+                    CenterAlignedTopAppBar(
+                        title = {
+                            Text(
+                                text = "Users",
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.W600,
+                                fontFamily = OPENS_SANS,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = onNavigationArrowClick) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Localized description",
+                                    tint = White
+                                )
+                            }
+                        },
+                        actions = {
+                            IconButton(onClick = { updateState(addContactState.copy(searchState = true)) }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Search,
+                                    contentDescription = "Localized description",
+                                    tint = White
+                                )
+                            }
+                        },
+                        windowInsets = WindowInsets(0.dp),
+                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                            containerColor = Blue,
+                            titleContentColor = White,
+                        ),
                     )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigationArrowClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Localized description",
-                            tint = White
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { }) {
-                        Icon(
-                            imageVector = Icons.Filled.Search,
-                            contentDescription = "Localized description",
-                            tint = White
-                        )
-                    }
-                },
-                windowInsets = WindowInsets(0.dp),
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Blue,
-                    titleContentColor = White,
-                ),
-            )
+                }
+            }
         },
         floatingActionButton = {
             if (showFab.value) {
@@ -223,7 +300,9 @@ private fun ContactsColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         itemsIndexed(
-            items = addContactsState.allContacts,
+            items = addContactsState.allContacts.filter {
+                it.name?.lowercase()?.contains(addContactsState.searchQuery.lowercase()) == true
+            },
             key = { _, item -> item }
         ) { _, contact ->
             ItemContact(
@@ -332,10 +411,11 @@ private fun ItemContact(
 fun AddContactsScreenPreview() {
     AddContactsScreen(
         padding = PaddingValues(0.dp),
+        updateState = { _ -> },
         coroutineScope = rememberCoroutineScope(),
         lazyColumnState = rememberLazyListState(),
         showFab = remember { mutableStateOf(false) },
-        addContactState = AddContactsState(Contact.sampleList),
+        addContactState = AddContactsState(allContacts = Contact.sampleList, searchState = true),
         onNavigationArrowClick = {},
         onAdd = {})
 }
