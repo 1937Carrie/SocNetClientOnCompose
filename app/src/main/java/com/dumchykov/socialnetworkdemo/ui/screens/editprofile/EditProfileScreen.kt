@@ -34,6 +34,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -84,14 +85,16 @@ fun EditProfileScreen(
     val onSaveClick = { viewModel.editContact() }
 
     val showDatePicker = remember { mutableStateOf(false) }
-    Log.d("AAA", "EditProfileScreen: ${editProfileState.dateOfBirth.time}")
-    // TODO: value of editProfileState.dateOfBirth.timeInMillis is passed to initialSelectedDateMillis parameter to early and is not updating
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = editProfileState.dateOfBirth.timeInMillis
     )
     val selectedDate = datePickerState.selectedDateMillis?.let {
         convertMillisToDate(it)
     } ?: ""
+
+    LaunchedEffect(editProfileState.dateOfBirth) {
+        datePickerState.selectedDateMillis = editProfileState.dateOfBirth.timeInMillis
+    }
 
     EditProfileScreen(
         editProfileState = editProfileState,
