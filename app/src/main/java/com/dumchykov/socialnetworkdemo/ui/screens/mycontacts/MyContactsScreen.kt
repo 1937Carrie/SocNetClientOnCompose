@@ -356,8 +356,8 @@ private fun MyContactsScreen(
             }
             ContactsColumn(
                 contacts = myContactsState.contacts.filter { contact ->
-                    contact.name.contains(
-                        myContactsState.searchQuery
+                    contact.name.lowercase().contains(
+                        myContactsState.searchQuery.lowercase()
                     )
                 },
                 isMultiselect = myContactsState.isMultiselect,
