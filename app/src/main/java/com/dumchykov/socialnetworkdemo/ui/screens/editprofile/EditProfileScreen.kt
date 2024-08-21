@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,10 +24,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -42,7 +41,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -53,7 +51,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Popup
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.dumchykov.socialnetworkdemo.R
@@ -89,12 +86,12 @@ fun EditProfileScreen(
     val showDatePicker = remember { mutableStateOf(false) }
     Log.d("AAA", "EditProfileScreen: ${editProfileState.dateOfBirth.time}")
     // TODO: value of editProfileState.dateOfBirth.timeInMillis is passed to initialSelectedDateMillis parameter to early and is not updating
-    val datePickerState =
-        rememberDatePickerState(initialSelectedDateMillis = editProfileState.dateOfBirth.timeInMillis)
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = editProfileState.dateOfBirth.timeInMillis
+    )
     val selectedDate = datePickerState.selectedDateMillis?.let {
         convertMillisToDate(it)
     } ?: ""
-    viewModel.updateState { copy(dateOfBirth = viewModel.convertToCalendar(selectedDate)) }
 
     EditProfileScreen(
         editProfileState = editProfileState,
@@ -106,23 +103,23 @@ fun EditProfileScreen(
     )
 
     if (showDatePicker.value) {
-        Popup(
+        DatePickerDialog(
             onDismissRequest = { showDatePicker.value = false },
-            alignment = Alignment.TopStart
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .offset(y = 64.dp)
-                    .shadow(elevation = 4.dp)
-                    .background(MaterialTheme.colorScheme.surface)
-                    .padding(16.dp)
-            ) {
-                DatePicker(
-                    state = datePickerState,
-                    showModeToggle = false
-                )
+            confirmButton = {
+                Button(onClick = {
+                    viewModel.updateState {
+                        copy(dateOfBirth = viewModel.convertToCalendar(selectedDate))
+                    }
+                    showDatePicker.value = false
+                }) {
+                    Text(text = "OK")
+                }
             }
+        ) {
+            DatePicker(
+                state = datePickerState,
+                showModeToggle = true
+            )
         }
     }
 }
