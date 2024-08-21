@@ -33,10 +33,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -71,10 +73,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
@@ -101,7 +106,6 @@ import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
 import com.dumchykov.socialnetworkdemo.ui.theme.Orange
 import com.dumchykov.socialnetworkdemo.ui.theme.White
 import com.dumchykov.socialnetworkdemo.ui.util.customTextFieldsColors
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -124,6 +128,7 @@ fun MyContactsScreen(
     (context as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
     val myContactsState = viewModel.myContactsState.collectAsState().value
+    val updateState: (MyContactsState) -> Unit = { state -> viewModel.updateState { state } }
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val addContactState = remember { mutableStateOf(false) }
@@ -137,7 +142,7 @@ fun MyContactsScreen(
 
     MyContactsScreen(
         padding = padding,
-        coroutineScope = coroutineScope,
+        updateState = updateState,
         snackbarHostState = snackbarHostState,
         myContactsState = myContactsState,
         addContactState = addContactState,
@@ -174,7 +179,6 @@ fun MyContactsScreen(
                 }
             }
         }
-
     }
 }
 
@@ -182,7 +186,7 @@ fun MyContactsScreen(
 @Composable
 private fun MyContactsScreen(
     padding: PaddingValues,
-    coroutineScope: CoroutineScope,
+    updateState: (MyContactsState) -> Unit,
     snackbarHostState: SnackbarHostState,
     myContactsState: MyContactsState,
     addContactState: MutableState<Boolean>,
@@ -204,41 +208,107 @@ private fun MyContactsScreen(
                 end = padding.calculateEndPadding(LayoutDirection.Rtl)
             ),
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "Contacts",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.W600,
-                        fontFamily = OPENS_SANS,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+            when (myContactsState.searchState) {
+                true -> {
+                    Row(
+                        modifier = Modifier
+                            .background(Blue)
+                            .padding(horizontal = 16.dp)
+                            .height(64.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        var isFocused by remember { mutableStateOf(false) }
+                        BasicTextField(
+                            value = myContactsState.searchQuery,
+                            onValueChange = { updateState(myContactsState.copy(searchQuery = it)) },
+                            modifier = Modifier
+                                .height(40.dp)
+                                .weight(1f)
+                                .background(color = GrayText, shape = RoundedCornerShape(6.dp))
+                                .padding(horizontal = 8.dp, vertical = 8.dp)
+                                .onFocusChanged { focusState ->
+                                    isFocused = focusState.isFocused
+                                },
+                            textStyle = TextStyle(
+                                color = White,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.W600,
+                                fontFamily = OPENS_SANS
+                            ),
+                            cursorBrush = SolidColor(White),
+                            decorationBox = { innerTextField ->
+                                Row(
+                                    modifier = Modifier.fillMaxSize(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    if (myContactsState.searchQuery.isEmpty() && !isFocused) {
+                                        Text(
+                                            text = "Search...",
+                                            color = White,
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.W600,
+                                            fontFamily = OPENS_SANS
+                                        )
+                                    }
+                                    Box(Modifier.weight(1f)) {
+                                        innerTextField()
+                                    }
+                                }
+                            }
+                        )
+                        IconButton(onClick = {
+                            updateState(myContactsState.copy(searchState = false))
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "Localized description",
+                                tint = White
+                            )
+                        }
+                    }
+                }
+
+                false -> {
+                    CenterAlignedTopAppBar(
+                        title = {
+                            Text(
+                                text = "Contacts",
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.W600,
+                                fontFamily = OPENS_SANS,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = onNavigationArrowClick) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Localized description",
+                                    tint = White
+                                )
+                            }
+                        },
+                        actions = {
+                            IconButton(onClick = {
+                                updateState(myContactsState.copy(searchState = true))
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Search,
+                                    contentDescription = "Localized description",
+                                    tint = White
+                                )
+                            }
+                        },
+                        windowInsets = WindowInsets(0.dp),
+                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                            containerColor = Blue,
+                            titleContentColor = White,
+                        ),
                     )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigationArrowClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Localized description",
-                            tint = White
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { }) {
-                        Icon(
-                            imageVector = Icons.Filled.Search,
-                            contentDescription = "Localized description",
-                            tint = White
-                        )
-                    }
-                },
-                windowInsets = WindowInsets(0.dp),
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Blue,
-                    titleContentColor = White,
-                ),
-            )
+                }
+            }
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
@@ -285,11 +355,13 @@ private fun MyContactsScreen(
                 )
             }
             ContactsColumn(
-                myContactsState = myContactsState,
-                coroutineScope = coroutineScope,
-                snackbarHostState = snackbarHostState,
+                contacts = myContactsState.contacts.filter { contact ->
+                    contact.name.contains(
+                        myContactsState.searchQuery
+                    )
+                },
+                isMultiselect = myContactsState.isMultiselect,
                 deleteContact = deleteContact,
-                addContact = addContact,
                 changeContactSelectedState = changeContactSelectedState,
                 navigateToDetail = navigateToDetail
             )
@@ -308,11 +380,9 @@ private fun MyContactsScreen(
 
 @Composable
 private fun ContactsColumn(
-    myContactsState: MyContactsState,
-    coroutineScope: CoroutineScope,
-    snackbarHostState: SnackbarHostState,
+    contacts: List<Contact>,
+    isMultiselect: Boolean,
     deleteContact: (Int) -> Unit,
-    addContact: (Contact) -> Unit,
     changeContactSelectedState: (Contact) -> Unit,
     navigateToDetail: (Contact) -> Unit,
     modifier: Modifier = Modifier,
@@ -323,34 +393,14 @@ private fun ContactsColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         itemsIndexed(
-            items = myContactsState.contacts,
+            items = contacts,
             key = { _, item -> item }
         ) { index, contact ->
             SwipeableContainer(
                 contact = contact,
-                myContactsState = myContactsState,
+                isMultiselect = isMultiselect,
                 onDelete = {
                     deleteContact(it.id)
-//                    coroutineScope.launch {
-//                        // Check if a snackbar is currently being displayed
-//                        snackbarHostState.currentSnackbarData?.dismiss()
-//
-//                        val result = snackbarHostState
-//                            .showSnackbar(
-//                                message = "${contact.name} has been deleted",
-//                                actionLabel = "Undo",
-//                                duration = SnackbarDuration.Long
-//                            )
-//                        when (result) {
-//                            SnackbarResult.ActionPerformed -> {
-//                                addContact(contact)
-//                            }
-//
-//                            SnackbarResult.Dismissed -> {
-//                                /* Handle snackbar dismissed */
-//                            }
-//                        }
-//                    }
                 },
                 changeContactSelectedState = changeContactSelectedState,
                 navigateToDetail = navigateToDetail,
@@ -363,7 +413,7 @@ private fun ContactsColumn(
 @Composable
 private fun SwipeableContainer(
     contact: Contact,
-    myContactsState: MyContactsState,
+    isMultiselect: Boolean,
     onDelete: (Contact) -> Unit,
     changeContactSelectedState: (Contact) -> Unit,
     navigateToDetail: (Contact) -> Unit,
@@ -407,15 +457,15 @@ private fun SwipeableContainer(
             content = {
                 ItemContact(
                     swipeToDismissBoxState = swipeToDismissBoxState,
-                    myContactsState = myContactsState,
                     contact = contact,
+                    isMultiselect = isMultiselect,
                     onDelete = onDelete,
                     changeContactSelectedState = changeContactSelectedState,
                     navigateToDetail = navigateToDetail
                 )
             },
             enableDismissFromStartToEnd = false,
-            enableDismissFromEndToStart = myContactsState.isMultiselect.not()
+            enableDismissFromEndToStart = isMultiselect.not()
         )
     }
     LaunchedEffect(isRemoved) {
@@ -430,8 +480,8 @@ private fun SwipeableContainer(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 private fun ItemContact(
     swipeToDismissBoxState: SwipeToDismissBoxState,
-    myContactsState: MyContactsState,
     contact: Contact,
+    isMultiselect: Boolean,
     onDelete: (Contact) -> Unit,
     changeContactSelectedState: (Contact) -> Unit,
     navigateToDetail: (Contact) -> Unit,
@@ -441,15 +491,15 @@ private fun ItemContact(
             .fillMaxWidth()
             .border(1.dp, Gray, RoundedCornerShape(6.dp))
             .clip(RoundedCornerShape(6.dp))
-            .background(if (myContactsState.isMultiselect) GrayE7E7E7 else White)
+            .background(if (isMultiselect) GrayE7E7E7 else White)
             .combinedClickable(
                 onLongClick = {
-                    if (myContactsState.isMultiselect.not()) {
+                    if (isMultiselect.not()) {
                         changeContactSelectedState(contact)
                     }
                 },
                 onClick = {
-                    when (myContactsState.isMultiselect) {
+                    when (isMultiselect) {
                         true -> {
                             changeContactSelectedState(contact)
                         }
@@ -465,7 +515,7 @@ private fun ItemContact(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (myContactsState.isMultiselect) {
+        if (isMultiselect) {
             Image(
                 painter = painterResource(if (contact.isChecked) R.drawable.circle_checked else R.drawable.circle_gray),
                 contentDescription = "multiselect state",
@@ -508,7 +558,7 @@ private fun ItemContact(
                 fontFamily = OPENS_SANS
             )
         }
-        if (myContactsState.isMultiselect.not()) {
+        if (isMultiselect.not()) {
             when (contact.updateUiState) {
                 true -> {
                     CircularProgressIndicator()
@@ -703,9 +753,9 @@ private fun DialogTextField(state: MutableState<String>, label: String) {
 private fun MyContactsScreenPreview() {
     MyContactsScreen(
         padding = PaddingValues(0.dp),
-        coroutineScope = rememberCoroutineScope(),
+        updateState = { _ -> },
         snackbarHostState = SnackbarHostState(),
-        myContactsState = MyContactsState(contacts = getContacts()),
+        myContactsState = MyContactsState(contacts = getContacts(), searchState = true),
         addContactState = mutableStateOf(false),
         deleteContact = {},
         deleteSelected = {},
