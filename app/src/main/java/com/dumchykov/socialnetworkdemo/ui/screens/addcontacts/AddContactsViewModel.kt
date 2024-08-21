@@ -26,9 +26,9 @@ class AddContactsViewModel @Inject constructor(
     private suspend fun updateAddedContactsAppearance() {
         val allUsers = contactRepository.getUsers().map { it.toContact() }
         val userContacts = contactRepository.getUserContacts().map { it.toContact() }
-        val intersect = userContacts.intersect(allUsers.toSet())
+        val intersect = userContacts.map { it.id }.intersect(allUsers.map { it.id }.toSet())
         val mappedAllUsers = allUsers.map {
-            if (intersect.contains(it)) {
+            if (intersect.contains(it.id)) {
                 it.copy(isAdded = true)
             } else {
                 it
@@ -46,6 +46,10 @@ class AddContactsViewModel @Inject constructor(
 
     fun updateState(reducer: AddContactsState.() -> AddContactsState) {
         _addContactsState.update(reducer)
+    }
+
+    fun updateContactsStateOnUi() {
+        viewModelScope.launch { updateAddedContactsAppearance() }
     }
 
     fun addToContactList(contactId: Int) {

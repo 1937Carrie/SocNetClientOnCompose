@@ -43,6 +43,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -66,6 +67,9 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
@@ -93,8 +97,23 @@ fun AddContactsScreen(
     val showFab =
         remember { derivedStateOf { lazyColumnState.firstVisibleItemIndex > 0 } }
     val onAdd: (Int) -> Unit = { contactId -> viewModel.addToContactList(contactId) }
-    val navigateToDetail: (Contact) -> Unit = { contact -> navController.navigate(Detail(contact.toContact())) }
+    val navigateToDetail: (Contact) -> Unit =
+        { contact -> navController.navigate(Detail(contact.toContact())) }
     val onNavigationArrowClick: () -> Unit = { navController.navigateUp() }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.updateContactsStateOnUi()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     AddContactsScreen(
         padding = padding,
@@ -361,14 +380,14 @@ private fun ItemContact(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = contact.name.orEmpty(),
+                text = contact.name,
                 color = GrayText,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.W600,
                 fontFamily = OPENS_SANS
             )
             Text(
-                text = contact.career.orEmpty(),
+                text = contact.career,
                 color = Gray828282,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.W400,
