@@ -1,5 +1,6 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.detail
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -42,25 +43,42 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
+import com.dumchykov.socialnetworkdemo.ui.theme.GrayText
 import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
 import com.dumchykov.socialnetworkdemo.ui.theme.Orange
 import com.dumchykov.socialnetworkdemo.ui.theme.White
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(
-    parentPadding: PaddingValues,
-    navController: NavController,
+    padding: PaddingValues,
+    navController: NavHostController,
+    modifier: Modifier = Modifier,
+    viewModel: DetailViewModel = hiltViewModel(),
 ) {
-    val viewModel: DetailViewModel = viewModel()
     val detailState = viewModel.detailState.collectAsState().value
+    val onNavigationArrowClick: () -> Unit = { navController.navigateUp() }
+    val onAddToMyContactsClick: () -> Unit = { viewModel.addToContacts() }
+    DetailScreen(
+        padding = padding,
+        detailState = detailState,
+        onNavigationArrowClick = onNavigationArrowClick,
+        onAddToMyContactsClick = onAddToMyContactsClick
+    )
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DetailScreen(
+    padding: PaddingValues,
+    detailState: DetailState,
+    onNavigationArrowClick: () -> Unit,
+    onAddToMyContactsClick: () -> Unit,
+) {
     Column {
         Column(
             modifier = Modifier
@@ -69,9 +87,9 @@ fun DetailScreen(
                 .fillMaxSize()
                 .then(
                     Modifier.padding(
-                        top = parentPadding.calculateTopPadding(),
-                        start = parentPadding.calculateStartPadding(LayoutDirection.Ltr),
-                        end = parentPadding.calculateEndPadding(LayoutDirection.Ltr)
+                        top = padding.calculateTopPadding(),
+                        start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                        end = padding.calculateEndPadding(LayoutDirection.Ltr)
                     )
                 ),
             verticalArrangement = Arrangement.SpaceBetween
@@ -88,7 +106,7 @@ fun DetailScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
+                    IconButton(onClick = onNavigationArrowClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Localized description",
@@ -133,7 +151,7 @@ fun DetailScreen(
                             fontFamily = OPENS_SANS,
                         )
                         Text(
-                            text = detailState.contact.profession,
+                            text = detailState.contact.career,
                             color = Gray,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.W600,
@@ -158,9 +176,9 @@ fun DetailScreen(
                 .padding(16.dp)
                 .then(
                     Modifier.padding(
-                        bottom = parentPadding.calculateBottomPadding(),
-                        start = parentPadding.calculateStartPadding(LayoutDirection.Ltr),
-                        end = parentPadding.calculateEndPadding(LayoutDirection.Ltr)
+                        bottom = padding.calculateBottomPadding(),
+                        start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                        end = padding.calculateEndPadding(LayoutDirection.Ltr)
                     )
                 ),
             verticalArrangement = Arrangement.SpaceBetween,
@@ -193,37 +211,95 @@ fun DetailScreen(
                         .clickable { }
                 )
             }
-            Button(
-                onClick = {},
-                modifier = Modifier
-                    .height(55.dp)
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(6.dp),
-                colors = ButtonColors(
-                    Orange,
-                    Blue,
-                    Orange,
-                    Blue
-                ),
-            ) {
-                Text(
-                    text = "Message".uppercase(),
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.W600,
-                    fontFamily = OPENS_SANS,
-                    letterSpacing = 1.5.sp,
-                )
+            when (detailState.inFriendList) {
+                true -> {
+                    Button(
+                        onClick = {},
+                        modifier = Modifier
+                            .height(55.dp)
+                            .fillMaxWidth(),
+                        shape = RoundedCornerShape(6.dp),
+                        colors = ButtonColors(
+                            Orange,
+                            Blue,
+                            Orange,
+                            Blue
+                        ),
+                    ) {
+                        Text(
+                            text = "Message".uppercase(),
+                            color = Color.White,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.W600,
+                            fontFamily = OPENS_SANS,
+                            letterSpacing = 1.5.sp,
+                        )
+                    }
+                }
+
+                false -> {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Button(
+                            onClick = { /*TODO*/ },
+                            modifier = Modifier
+                                .height(40.dp)
+                                .fillMaxWidth(),
+                            shape = RoundedCornerShape(6.dp),
+                            colors = ButtonColors(
+                                Color.Transparent,
+                                GrayText,
+                                Color.Transparent,
+                                GrayText
+                            ),
+                            border = BorderStroke(2.dp, Blue)
+                        ) {
+                            Text(
+                                text = "Message",
+                                color = GrayText,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.W600,
+                                fontFamily = OPENS_SANS
+                            )
+                        }
+                        Button(
+                            onClick = onAddToMyContactsClick,
+                            modifier = Modifier
+                                .height(55.dp)
+                                .fillMaxWidth(),
+                            shape = RoundedCornerShape(6.dp),
+                            colors = ButtonColors(
+                                Orange,
+                                White,
+                                Orange,
+                                White
+                            ),
+                        ) {
+                            Text(
+                                text = "Add to my contacts".uppercase(),
+                                color = White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.W600,
+                                fontFamily = OPENS_SANS
+                            )
+                        }
+                    }
+                }
             }
+
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun DetailScreenPreview() {
+private fun DetailScreenPreview() {
     DetailScreen(
-        parentPadding = PaddingValues(0.dp),
-        navController = rememberNavController()
+        padding = PaddingValues(0.dp),
+        detailState = DetailState(),
+        onNavigationArrowClick = {},
+        onAddToMyContactsClick = {}
     )
 }

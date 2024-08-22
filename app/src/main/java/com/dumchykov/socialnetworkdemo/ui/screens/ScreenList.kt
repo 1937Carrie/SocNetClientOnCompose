@@ -16,4 +16,16 @@ data object MyContacts
 data class Detail(val contact: Contact)
 
 @Serializable
-data class Pager(val email: String)
+data object Pager
+
+@Serializable
+data object LogIn
+
+@Serializable
+data object SignUpExtended
+
+@Serializable
+data object AddContacts
+
+@Serializable
+data object EditProfile

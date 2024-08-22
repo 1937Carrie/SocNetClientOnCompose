@@ -18,15 +18,25 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.navigation.parcelableType
+import com.dumchykov.socialnetworkdemo.ui.screens.AddContacts
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
+import com.dumchykov.socialnetworkdemo.ui.screens.EditProfile
+import com.dumchykov.socialnetworkdemo.ui.screens.LogIn
 import com.dumchykov.socialnetworkdemo.ui.screens.Pager
 import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
+import com.dumchykov.socialnetworkdemo.ui.screens.SignUpExtended
+import com.dumchykov.socialnetworkdemo.ui.screens.addcontacts.AddContactsScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.detail.DetailScreen
+import com.dumchykov.socialnetworkdemo.ui.screens.editprofile.EditProfileScreen
+import com.dumchykov.socialnetworkdemo.ui.screens.login.LogInScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.pager.PagerScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.signup.SignUpScreen
+import com.dumchykov.socialnetworkdemo.ui.screens.signupextended.SignUpExtendedScreen
 import com.dumchykov.socialnetworkdemo.ui.theme.SocialNetworkClientTheme
+import dagger.hilt.android.AndroidEntryPoint
 import kotlin.reflect.typeOf
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +50,8 @@ class MainActivity : ComponentActivity() {
                     contentWindowInsets = WindowInsets.displayCutout.union(ScaffoldDefaults.contentWindowInsets),
                 ) { innerPadding ->
                     val navController = rememberNavController()
-                    NavHost(navController = navController, startDestination = SignUp) {
+                    NavHost(navController = navController, startDestination = LogIn) {
+                        composable<LogIn> { LogInScreen(innerPadding, navController) }
                         composable<SignUp> { SignUpScreen(innerPadding, navController) }
                         composable<Detail>(
                             typeMap = mapOf(typeOf<Contact>() to parcelableType<Contact>())
@@ -48,6 +59,24 @@ class MainActivity : ComponentActivity() {
                             DetailScreen(innerPadding, navController)
                         }
                         composable<Pager> { PagerScreen(innerPadding, navController) }
+                        composable<SignUpExtended> {
+                            SignUpExtendedScreen(
+                                padding = innerPadding,
+                                navController = navController
+                            )
+                        }
+                        composable<AddContacts> {
+                            AddContactsScreen(
+                                padding = innerPadding,
+                                navController = navController
+                            )
+                        }
+                        composable<EditProfile> {
+                            EditProfileScreen(
+                                padding = innerPadding,
+                                navController = navController
+                            )
+                        }
                     }
                 }
             }

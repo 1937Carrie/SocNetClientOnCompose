@@ -3,6 +3,9 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.dagger.hilt.android)
+    alias(libs.plugins.kapt)
+    id("kotlin-parcelize")
 }
 
 android {
@@ -19,6 +22,8 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        buildConfigField("String", "BASE_URL", "\"http://178.63.9.114:7777/api/\"")
     }
 
     buildTypes {
@@ -52,6 +57,8 @@ dependencies {
     implementation(project(":datastore:data"))
     implementation(project(":contactsprovider:data"))
     implementation(project(":contactsprovider:domain"))
+    implementation(project(":webapi:data"))
+    implementation(project(":webapi:domain"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -73,4 +80,8 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     // Kotlin serialization
     implementation(libs.kotlinx.serialization.json)
+    //Hilt
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
 }

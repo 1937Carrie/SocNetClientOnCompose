@@ -1,5 +1,7 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.myprofile
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,8 +19,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -27,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,50 +39,85 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.dumchykov.datastore.data.DataStoreProvider
+import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.R
+import com.dumchykov.socialnetworkdemo.ui.screens.EditProfile
+import com.dumchykov.socialnetworkdemo.ui.screens.LogIn
 import com.dumchykov.socialnetworkdemo.ui.screens.Pager
-import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
 import com.dumchykov.socialnetworkdemo.ui.theme.GrayText
 import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
 import com.dumchykov.socialnetworkdemo.ui.theme.Orange
 import com.dumchykov.socialnetworkdemo.ui.theme.White
-import kotlinx.coroutines.launch
 
 @Composable
 fun MyProfileScreen(
     padding: PaddingValues,
     navController: NavHostController,
-    pagerState: PagerState,
     modifier: Modifier = Modifier,
+    viewModel: MyProfileViewModel = hiltViewModel(),
+    onViewMyContactsClick: () -> Unit = {},
 ) {
     val context = LocalContext.current
-    val dataStoreProvider = DataStoreProvider(context)
-    val viewModel: MyProfileViewModel =
-        viewModel(factory = MyProfileViewModel.factory(dataStoreProvider))
     val myProfileState = viewModel.myProfileState.collectAsState().value
+    val clearCredentials = { viewModel.clearCredentials() }
+    val onEditProfileClick = { navController.navigate(EditProfile) }
 
     LaunchedEffect(myProfileState.credentialsIsCleared) {
         if (myProfileState.credentialsIsCleared) {
-            navController.navigate(SignUp) {
-                popUpTo(Pager(myProfileState.argEmail)) {
+            navController.navigate(LogIn) {
+                popUpTo(Pager) {
                     inclusive = true
                 }
             }
         }
     }
+
+    MyProfileScreen(
+        padding = padding,
+        myProfileState = myProfileState,
+        clearCredentials = clearCredentials,
+        onIconFacebookClick = {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setData(Uri.parse(myProfileState.user.facebook))
+            context.startActivity(intent)
+        },
+        onIconLinkedinClick = {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setData(Uri.parse(myProfileState.user.linkedin))
+            context.startActivity(intent)
+        },
+        onIconInstagramClick = {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setData(Uri.parse(myProfileState.user.instagram))
+            context.startActivity(intent)
+        },
+        onEditProfileClick = onEditProfileClick,
+        onViewMyContactsClick = onViewMyContactsClick,
+    )
+}
+
+@Composable
+private fun MyProfileScreen(
+    padding: PaddingValues,
+    myProfileState: MyProfileState,
+    clearCredentials: () -> Unit,
+    onIconFacebookClick: () -> Unit,
+    onIconLinkedinClick: () -> Unit,
+    onIconInstagramClick: () -> Unit,
+    onEditProfileClick: () -> Unit,
+    onViewMyContactsClick: () -> Unit,
+) {
     BoxWithConstraints {
         if (maxWidth < 500.dp) {
             Column {
                 ContainerTop(
-                    viewModel,
-                    myProfileState,
-                    Modifier
+                    myProfileState = myProfileState,
+                    clearCredentials = clearCredentials,
+                    modifier = Modifier
                         .background(Blue)
                         .weight(1f)
                         .fillMaxSize()
@@ -95,7 +129,11 @@ fun MyProfileScreen(
                         )
                 )
                 ContainerBottom(
-                    pagerState = pagerState,
+                    onIconFacebookClick = onIconFacebookClick,
+                    onIconLinkedinClick = onIconLinkedinClick,
+                    onIconInstagramClick = onIconInstagramClick,
+                    onEditProfileClick = onEditProfileClick,
+                    onViewMyContactsClick = onViewMyContactsClick,
                     modifier = Modifier
                         .background(White)
                         .weight(1f)
@@ -113,9 +151,9 @@ fun MyProfileScreen(
         } else {
             Row {
                 ContainerTop(
-                    viewModel,
-                    myProfileState,
-                    Modifier
+                    myProfileState = myProfileState,
+                    clearCredentials = clearCredentials,
+                    modifier = Modifier
                         .background(Blue)
                         .weight(1f)
                         .fillMaxSize()
@@ -127,7 +165,11 @@ fun MyProfileScreen(
                         )
                 )
                 ContainerBottom(
-                    pagerState = pagerState,
+                    onIconFacebookClick = onIconFacebookClick,
+                    onIconLinkedinClick = onIconLinkedinClick,
+                    onIconInstagramClick = onIconInstagramClick,
+                    onEditProfileClick = onEditProfileClick,
+                    onViewMyContactsClick = onViewMyContactsClick,
                     modifier = Modifier
                         .background(White)
                         .weight(1f)
@@ -139,17 +181,20 @@ fun MyProfileScreen(
                                 start = padding.calculateStartPadding(LayoutDirection.Ltr),
                                 end = padding.calculateEndPadding(LayoutDirection.Ltr)
                             )
-                        )
+                        ),
                 )
             }
         }
     }
-
 }
 
 @Composable
 private fun ContainerBottom(
-    pagerState: PagerState,
+    onIconFacebookClick: () -> Unit,
+    onIconLinkedinClick: () -> Unit,
+    onIconInstagramClick: () -> Unit,
+    onEditProfileClick: () -> Unit,
+    onViewMyContactsClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -167,21 +212,21 @@ private fun ContainerBottom(
                 contentDescription = "icon facebook",
                 modifier = Modifier
                     .clip(CircleShape)
-                    .clickable { }
+                    .clickable(onClick = onIconFacebookClick)
             )
             Image(
                 painter = painterResource(R.drawable.ic_linkedin),
                 contentDescription = "icon linkedin",
                 modifier = Modifier
                     .clip(CircleShape)
-                    .clickable { }
+                    .clickable(onClick = onIconLinkedinClick)
             )
             Image(
                 painter = painterResource(R.drawable.ic_instagram),
                 contentDescription = "icon instagram",
                 modifier = Modifier
                     .clip(CircleShape)
-                    .clickable { }
+                    .clickable(onClick = onIconInstagramClick)
             )
         }
         Column(
@@ -189,7 +234,7 @@ private fun ContainerBottom(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Button(
-                onClick = {},
+                onClick = onEditProfileClick,
                 modifier = Modifier
                     .height(40.dp)
                     .fillMaxWidth(),
@@ -210,13 +255,8 @@ private fun ContainerBottom(
                     fontFamily = OPENS_SANS,
                 )
             }
-            val coroutineScope = rememberCoroutineScope()
             Button(
-                onClick = {
-                    coroutineScope.launch {
-                        pagerState.scrollToPage(1)
-                    }
-                },
+                onClick = onViewMyContactsClick,
                 modifier = Modifier
                     .height(55.dp)
                     .fillMaxWidth(),
@@ -243,8 +283,8 @@ private fun ContainerBottom(
 
 @Composable
 private fun ContainerTop(
-    viewModel: MyProfileViewModel,
     myProfileState: MyProfileState,
+    clearCredentials: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -269,9 +309,7 @@ private fun ContainerTop(
                 text = "Log out",
                 modifier = Modifier
                     .border(2.dp, Gray, RoundedCornerShape(6.dp))
-                    .clickable {
-                        viewModel.clearCredentials()
-                    }
+                    .clickable(onClick = clearCredentials)
                     .padding(vertical = 10.dp, horizontal = 34.dp),
                 color = Gray,
                 fontSize = 14.sp,
@@ -303,14 +341,14 @@ private fun ContainerTop(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = myProfileState.name,
+                        text = myProfileState.user.name,
                         color = White,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.W600,
                         fontFamily = OPENS_SANS,
                     )
                     Text(
-                        text = "Graphic designer",
+                        text = myProfileState.user.career,
                         color = Gray,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.W600,
@@ -318,7 +356,7 @@ private fun ContainerTop(
                     )
                 }
                 Text(
-                    text = "5295 Gaylord Walks Apk. 110",
+                    text = myProfileState.user.address,
                     color = Gray,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.W600,
@@ -331,23 +369,21 @@ private fun ContainerTop(
 
 @Preview(
     showBackground = true,
+)
+@Preview(
+    showBackground = true,
     device = "spec:width=411dp,height=891dp,dpi=420,orientation=landscape"
 )
 @Composable
-private fun MyProfileScreenLandscapePreview() {
-    MyProfileScreen(
-        PaddingValues(0.dp),
-        rememberNavController(),
-        rememberPagerState { 2 }
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
 private fun MyProfileScreenPreview() {
     MyProfileScreen(
-        PaddingValues(0.dp),
-        rememberNavController(),
-        rememberPagerState { 2 }
+        padding = PaddingValues(0.dp),
+        myProfileState = MyProfileState(user = Contact.previewContact),
+        clearCredentials = { },
+        onIconFacebookClick = {},
+        onIconLinkedinClick = {},
+        onIconInstagramClick = {},
+        onEditProfileClick = {},
+        onViewMyContactsClick = {}
     )
 }

@@ -35,6 +35,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":webapi:domain"))
+
     implementation(libs.androidx.core.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
