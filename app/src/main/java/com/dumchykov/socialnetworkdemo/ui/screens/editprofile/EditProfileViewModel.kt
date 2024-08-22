@@ -38,7 +38,8 @@ class EditProfileViewModel @Inject constructor(
                     email = contact.email.orEmpty(),
                     phone = contact.phone.orEmpty(),
                     address = contact.address.orEmpty(),
-                    dateOfBirth = contact.birthday ?: Calendar.getInstance()
+                    dateOfBirth = contact.birthday ?: Calendar.getInstance(),
+                    dataHasActualState = true
                 )
             }
         }
@@ -67,7 +68,6 @@ class EditProfileViewModel @Inject constructor(
 
     fun updateState(reducer: EditProfileState.() -> EditProfileState) {
         _editProfileState.update(reducer)
-//        Log.d("AAA", "updated: ${editProfileState.value.dateOfBirth.time}")
     }
 
     fun editContact() {

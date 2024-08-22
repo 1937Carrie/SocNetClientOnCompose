@@ -9,4 +9,5 @@ data class EditProfileState(
     val phone: String = "",
     val address: String = "",
     val dateOfBirth: Calendar = Calendar.getInstance(),
+    val dataHasActualState: Boolean = false,
 )
