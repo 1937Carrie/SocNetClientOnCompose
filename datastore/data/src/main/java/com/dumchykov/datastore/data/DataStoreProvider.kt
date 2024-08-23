@@ -11,9 +11,9 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.dumchykov.datastore.data.DataStoreProvider.Companion.COMMON
 import com.dumchykov.datastore.data.serializers.ContactSerializer
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.Contact
-import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = COMMON)
 val Context.contactDataStore: DataStore<Contact> by dataStore(

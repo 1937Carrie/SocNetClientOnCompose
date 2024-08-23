@@ -2,8 +2,8 @@ package com.dumchykov.contactsprovider.data
 
 import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
-import jakarta.inject.Inject
 import java.util.Calendar
+import javax.inject.Inject
 
 class ContactsProvider @Inject constructor(
     val contactRepository: ContactRepository,
