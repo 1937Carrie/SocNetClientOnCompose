@@ -21,8 +21,9 @@ dependencyResolutionManagement {
 
 rootProject.name = "SocialNetworkClient"
 include(":app")
-include(":datastore:data")
 include(":contactsprovider:data")
 include(":contactsprovider:domain")
+include(":database")
+include(":datastore:data")
 include(":webapi:data")
 include(":webapi:domain")
