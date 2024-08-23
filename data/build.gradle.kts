@@ -1,18 +1,21 @@
+//import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.kotlin.serialization)
-    id("kotlin-parcelize")
 }
 
+//kotlin {
+//    explicitApi = ExplicitApiMode.Strict
+//}
+
 android {
-    namespace = "com.dumchykov.contactsprovider.domain"
+    namespace = "com.dumchykov.data"
     compileSdk = 34
 
     defaultConfig {
         minSdk = 24
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -35,13 +38,8 @@ android {
 }
 
 dependencies {
-    implementation(projects.webapi.domain)
-
     implementation(libs.androidx.core.ktx)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 
-    // Kotlin serialization
-    implementation(libs.kotlinx.serialization.json)
+    implementation(projects.database)
+    implementation(projects.webapi.domain)
 }

@@ -33,13 +33,15 @@ android {
 }
 
 dependencies {
-    implementation(project(":datastore:data"))
-    implementation(project(":webapi:domain"))
+    implementation(projects.data)
+    implementation(projects.database)
+    implementation(projects.datastore.data)
+    implementation(projects.webapi.domain)
 
     implementation(libs.androidx.core.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    implementation(libs.jakarta.inject)
+    implementation(libs.javax.inject)
 }

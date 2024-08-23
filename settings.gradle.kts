@@ -1,3 +1,5 @@
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 pluginManagement {
     repositories {
         google {
@@ -23,6 +25,7 @@ rootProject.name = "SocialNetworkClient"
 include(":app")
 include(":contactsprovider:data")
 include(":contactsprovider:domain")
+include(":data")
 include(":database")
 include(":datastore:data")
 include(":webapi:data")

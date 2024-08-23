@@ -33,13 +33,13 @@ android {
 }
 
 dependencies {
-    implementation(project(":contactsprovider:domain"))
-    implementation(project(":webapi:domain"))
+    implementation(projects.contactsprovider.domain)
+    implementation(projects.webapi.domain)
 
     implementation(libs.androidx.core.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    implementation(libs.jakarta.inject)
+    implementation(libs.javax.inject)
 }

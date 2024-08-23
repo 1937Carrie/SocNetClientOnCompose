@@ -33,7 +33,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":webapi:domain"))
+    implementation(projects.webapi.domain)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -41,5 +41,5 @@ dependencies {
 //    DataStore
     implementation(libs.androidx.datastore.preferences)
 
-    implementation(libs.jakarta.inject)
+    implementation(libs.javax.inject)
 }
