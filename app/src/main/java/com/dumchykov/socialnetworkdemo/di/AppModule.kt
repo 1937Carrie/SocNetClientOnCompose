@@ -1,6 +1,7 @@
 package com.dumchykov.socialnetworkdemo.di
 
 import android.content.Context
+import com.dumchykov.database.ContactsDatabase
 import com.dumchykov.datastore.data.DataStoreProvider
 import com.dumchykov.socialnetworkdemo.BuildConfig
 import com.dumchykov.socialnetworkdemo.webapi.data.ContactRepositoryImpl
@@ -45,5 +46,15 @@ object AppModule {
         dataStoreProvider: DataStoreProvider,
     ): ContactRepository {
         return ContactRepositoryImpl(contactApiService, dataStoreProvider)
+        return ContactRepositoryImpl(
+            contactApiService = contactApiService,
+            dataStoreProvider = dataStoreProvider,
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideContactsDatabase(@ApplicationContext context: Context): ContactsDatabase {
+        return ContactsDatabase(context)
     }
 }

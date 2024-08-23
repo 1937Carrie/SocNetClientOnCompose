@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.androidx.room)
 }
 
 android {
@@ -32,10 +33,14 @@ android {
     }
 }
 
+room {
+    schemaDirectory("${rootProject.projectDir}/schemas")
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     // To use Kotlin Symbol Processing (KSP)
     ksp(libs.androidx.room.compiler)
     // Kotlin Extensions and Coroutines support for Room
-    implementation(libs.androidx.room.ktx)
+    api(libs.androidx.room.ktx)
 }
