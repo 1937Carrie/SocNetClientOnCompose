@@ -10,4 +10,5 @@ data class LogInState(
     val rememberMe: Boolean = true,
     val autoLogin: Boolean = false,
     val navigateToMyProfile: Boolean = false,
+    val updateUiState: Boolean = false,
 )

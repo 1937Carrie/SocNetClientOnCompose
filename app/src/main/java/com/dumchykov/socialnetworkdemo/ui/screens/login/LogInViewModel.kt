@@ -17,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LogInViewModel @Inject constructor(
     private val dataStoreProvider: DataStoreProvider,
-    private val contactWebProvider: ContactRepository,
+    private val contactRepository: ContactRepository,
 ) : ViewModel() {
     private val _logInState = MutableStateFlow(LogInState())
     val logInState get() = _logInState.asStateFlow()
@@ -62,15 +62,21 @@ class LogInViewModel @Inject constructor(
         }
     }
 
+    private fun updateProgress(startProgress: Boolean = true) {
+        updateState { copy(updateUiState = startProgress.not()) }
+    }
+
     fun authorize() {
         viewModelScope.launch {
+            updateProgress()
             val email = logInState.value.email
             val password = logInState.value.password
-            val authStatus = async { contactWebProvider.authorize(email, password) }.await()
+            val authStatus = async { contactRepository.authorize(email, password) }.await()
 
             if (authStatus) {
                 updateState { copy(navigateToMyProfile = true) }
             }
+            updateProgress(false)
         }
     }
 }

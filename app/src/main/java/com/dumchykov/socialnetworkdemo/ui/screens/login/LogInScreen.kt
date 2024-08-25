@@ -31,7 +31,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -220,6 +219,7 @@ private fun Container3(
             modifier = Modifier
                 .height(55.dp)
                 .fillMaxWidth(),
+            enabled = logInState.updateUiState,
             shape = RoundedCornerShape(6.dp),
             colors = ButtonColors(
                 Color.Transparent,
@@ -252,7 +252,10 @@ private fun Container3(
             Text(
                 text = "Sign up",
                 modifier = Modifier
-                    .clickable(onClick = onSignUpClick),
+                    .clickable(
+                        enabled = logInState.updateUiState,
+                        onClick = onSignUpClick
+                    ),
                 color = White,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.W600,
@@ -290,6 +293,7 @@ private fun Container2(
                         }
                     }
                 },
+            enabled = logInState.updateUiState,
             placeholder = { Text("Email") },
             supportingText = {
                 if (logInState.emailIsFocused && logInState.emailError) {
@@ -316,6 +320,7 @@ private fun Container2(
                         }
                     }
                 },
+            enabled = logInState.updateUiState,
             placeholder = { Text("Password") },
             supportingText = {
                 if (logInState.passwordIsFocused && logInState.passwordError) {
@@ -334,9 +339,11 @@ private fun Container2(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
-                modifier = Modifier.clickable {
-                    updateState(logInState.copy(rememberMe = logInState.rememberMe.not()))
-                },
+                modifier = Modifier.clickable(
+                    enabled = logInState.updateUiState,
+                    onClick = {
+                        updateState(logInState.copy(rememberMe = logInState.rememberMe.not()))
+                    }),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
