@@ -2,18 +2,19 @@ package com.dumchykov.socialnetworkdemo.ui.screens.myprofile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dumchykov.contactsprovider.data.toContact
 import com.dumchykov.datastore.data.DataStoreProvider
+import com.dumchykov.socialnetworkdemo.ui.screens.myprofile.models.toMyProfileContact
+import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MyProfileViewModel @Inject constructor(
+    private val contactRepository: ContactRepository,
     private val dataStoreProvider: DataStoreProvider,
 ) : ViewModel() {
     private val _myProfileState = MutableStateFlow(MyProfileState())
@@ -21,7 +22,7 @@ class MyProfileViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val user = dataStoreProvider.getContact().first().toContact()
+            val user = contactRepository.getUser().toMyProfileContact()
             update { copy(user = user) }
         }
     }

@@ -8,6 +8,6 @@ data class EditProfileState(
     val email: String = "",
     val phone: String = "",
     val address: String = "",
-    val dateOfBirth: Calendar = Calendar.getInstance(),
+    val dateOfBirth: Calendar? = null,
     val dataHasActualState: Boolean = false,
 )

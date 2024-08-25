@@ -44,11 +44,12 @@ object AppModule {
     fun provideContactRepository(
         contactApiService: ContactApiService,
         dataStoreProvider: DataStoreProvider,
+        database: ContactsDatabase,
     ): ContactRepository {
-        return ContactRepositoryImpl(contactApiService, dataStoreProvider)
         return ContactRepositoryImpl(
             contactApiService = contactApiService,
             dataStoreProvider = dataStoreProvider,
+            dataBase = database
         )
     }
 

@@ -80,6 +80,7 @@ import com.dumchykov.socialnetworkdemo.ui.theme.GrayText
 import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
 import com.dumchykov.socialnetworkdemo.ui.theme.Orange
 import com.dumchykov.socialnetworkdemo.ui.theme.White
+import com.dumchykov.socialnetworkdemo.util.BaseContact
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -97,8 +98,8 @@ fun AddContactsScreen(
     val showFab =
         remember { derivedStateOf { lazyColumnState.firstVisibleItemIndex > 0 } }
     val onAdd: (Int) -> Unit = { contactId -> viewModel.addToContactList(contactId) }
-    val navigateToDetail: (Contact) -> Unit =
-        { contact -> navController.navigate(Detail(contact.toContact())) }
+    val navigateToDetail: (BaseContact) -> Unit =
+        { contact -> navController.navigate(Detail(contact)) }
     val onNavigationArrowClick: () -> Unit = { navController.navigateUp() }
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -139,7 +140,7 @@ private fun AddContactsScreen(
     addContactState: AddContactsState,
     onNavigationArrowClick: () -> Unit,
     onAdd: (Int) -> Unit,
-    navigateToDetail: (Contact) -> Unit,
+    navigateToDetail: (BaseContact) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -315,7 +316,7 @@ private fun ContactsColumn(
     lazyColumnState: LazyListState,
     addContactsState: AddContactsState,
     onAdd: (Int) -> Unit,
-    navigateToDetail: (Contact) -> Unit,
+    navigateToDetail: (BaseContact) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -326,7 +327,7 @@ private fun ContactsColumn(
     ) {
         itemsIndexed(
             items = addContactsState.allContacts.filter {
-                it.name?.lowercase()?.contains(addContactsState.searchQuery.lowercase()) == true
+                it.name.lowercase().contains(addContactsState.searchQuery.lowercase())
             },
             key = { _, item -> item }
         ) { _, contact ->
@@ -343,7 +344,7 @@ private fun ContactsColumn(
 private fun ItemContact(
     contact: Contact,
     onAdd: (Int) -> Unit,
-    navigateToDetail: (Contact) -> Unit,
+    navigateToDetail: (BaseContact) -> Unit,
 ) {
     Row(
         modifier = Modifier

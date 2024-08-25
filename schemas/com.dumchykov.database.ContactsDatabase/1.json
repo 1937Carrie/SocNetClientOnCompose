@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "abb57d9ca4004a9dc2286606c8c469ba",
+    "identityHash": "1f78d55b2968dcd67503132beb6cda28",
     "entities": [
       {
         "tableName": "contacts",
@@ -101,12 +101,44 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "current_user",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `currentUserId` INTEGER NOT NULL, `contactsIds` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "currentUserId",
+            "columnName": "currentUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contactsIds",
+            "columnName": "contactsIds",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'abb57d9ca4004a9dc2286606c8c469ba')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1f78d55b2968dcd67503132beb6cda28')"
     ]
   }
 }

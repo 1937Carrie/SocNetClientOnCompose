@@ -4,10 +4,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.dumchykov.contactsprovider.domain.BaseContact
-import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.navigation.parcelableType
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
+import com.dumchykov.socialnetworkdemo.util.BaseContact
 import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +26,7 @@ class DetailViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val typeMap = mapOf(typeOf<Contact>() to parcelableType<Contact>())
+            val typeMap = mapOf(typeOf<BaseContact>() to parcelableType<BaseContact>())
             val contact = savedStateHandle.toRoute<Detail>(typeMap).contact
             val inFriendList = contactInFriendList(contact)
             updateState {

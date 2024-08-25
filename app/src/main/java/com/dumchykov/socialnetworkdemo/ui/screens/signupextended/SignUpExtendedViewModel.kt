@@ -7,7 +7,6 @@ import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,7 +25,7 @@ class SignUpExtendedViewModel @Inject constructor(
 
     fun editUser() {
         viewModelScope.launch {
-            val contact = dataStoreProvider.getContact().first()
+            val contact = contactRepository.getUser()
             val editedContact = contact.copy(
                 name = signUpExtendedState.value.userName,
                 phone = signUpExtendedState.value.mobilePhone

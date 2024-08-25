@@ -1,14 +1,14 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.addcontacts
 
-import android.os.Parcelable
-import com.dumchykov.contactsprovider.domain.BaseContact
-import com.dumchykov.socialnetworkdemo.webapi.domain.models.CalendarSerializer
+import com.dumchykov.database.models.ContactDBO
+import com.dumchykov.socialnetworkdemo.util.BaseContact
+import com.dumchykov.socialnetworkdemo.webapi.domain.models.serializers.CalendarSerializer
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.util.Calendar
 
-data class AddContactsState(
+internal data class AddContactsState(
     val allContacts: List<Contact> = emptyList(),
     val searchState: Boolean = false,
     val searchQuery: String = "",
@@ -16,14 +16,14 @@ data class AddContactsState(
 
 @Serializable
 @Parcelize
-data class Contact(
+internal data class Contact(
     @SerialName("id") override val id: Int = 0,
     @SerialName("name") override val name: String = "",
     @SerialName("email") override val email: String = "",
     @SerialName("phone") override val phone: String = "",
     @SerialName("career") override val career: String = "",
     @SerialName("address") override val address: String = "",
-    @SerialName("birthday") @Serializable(CalendarSerializer::class) override val birthday: Calendar = Calendar.getInstance(),
+    @SerialName("birthday") @Serializable(CalendarSerializer::class) override val birthday: Calendar? = null,
     @SerialName("facebook") override val facebook: String = "",
     @SerialName("instagram") override val instagram: String = "",
     @SerialName("twitter") override val twitter: String = "",
@@ -33,26 +33,7 @@ data class Contact(
     @SerialName("updated_at") @Serializable(CalendarSerializer::class) override val updated_at: Calendar = Calendar.getInstance(),
     @SerialName("isAdded") val isAdded: Boolean = false,
     @SerialName("updateUiState") val updateUiState: Boolean = false,
-) : BaseContact, Parcelable {
-    fun toContact(): com.dumchykov.contactsprovider.domain.Contact {
-        return com.dumchykov.contactsprovider.domain.Contact(
-            id = id,
-            name = name.orEmpty(),
-            email = email.orEmpty(),
-            phone = phone.orEmpty(),
-            career = career.orEmpty(),
-            address = address.orEmpty(),
-            birthday = birthday ?: Calendar.getInstance(),
-            facebook = facebook.orEmpty(),
-            instagram = instagram.orEmpty(),
-            twitter = twitter.orEmpty(),
-            linkedin = linkedin.orEmpty(),
-            image = image.orEmpty(),
-            created_at = created_at,
-            updated_at = updated_at,
-        )
-    }
-
+) : BaseContact {
     companion object {
         val sampleList: List<Contact> = mutableListOf<Contact>().apply {
             repeat(20) {
@@ -70,7 +51,7 @@ data class Contact(
     }
 }
 
-fun com.dumchykov.socialnetworkdemo.webapi.domain.models.Contact.toContact(): Contact {
+internal fun com.dumchykov.socialnetworkdemo.webapi.domain.models.Contact.toContact(): Contact {
     return Contact(
         id = id,
         name = name.orEmpty(),
@@ -78,12 +59,31 @@ fun com.dumchykov.socialnetworkdemo.webapi.domain.models.Contact.toContact(): Co
         phone = phone.orEmpty(),
         career = career.orEmpty(),
         address = address.orEmpty(),
-        birthday = birthday ?: Calendar.getInstance(),
+        birthday = birthday,
         facebook = facebook.orEmpty(),
         instagram = instagram.orEmpty(),
         twitter = twitter.orEmpty(),
         linkedin = linkedin.orEmpty(),
         image = image.orEmpty(),
+        created_at = created_at,
+        updated_at = updated_at,
+    )
+}
+
+internal fun ContactDBO.toContact(): Contact {
+    return Contact(
+        id = id,
+        name = name,
+        email = email,
+        phone = phone,
+        career = career,
+        address = address,
+        birthday = birthday,
+        facebook = facebook,
+        instagram = instagram,
+        twitter = twitter,
+        linkedin = linkedin,
+        image = image,
         created_at = created_at,
         updated_at = updated_at,
     )

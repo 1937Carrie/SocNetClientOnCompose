@@ -41,11 +41,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.screens.EditProfile
 import com.dumchykov.socialnetworkdemo.ui.screens.LogIn
 import com.dumchykov.socialnetworkdemo.ui.screens.Pager
+import com.dumchykov.socialnetworkdemo.ui.screens.myprofile.models.MyProfileContact
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
 import com.dumchykov.socialnetworkdemo.ui.theme.GrayText
@@ -378,7 +378,7 @@ private fun ContainerTop(
 private fun MyProfileScreenPreview() {
     MyProfileScreen(
         padding = PaddingValues(0.dp),
-        myProfileState = MyProfileState(user = Contact.previewContact),
+        myProfileState = MyProfileState(user = MyProfileContact.previewContact),
         clearCredentials = { },
         onIconFacebookClick = {},
         onIconLinkedinClick = {},

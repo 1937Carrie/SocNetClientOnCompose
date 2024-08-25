@@ -1,8 +1,8 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.myprofile
 
-import com.dumchykov.contactsprovider.domain.Contact
+import com.dumchykov.socialnetworkdemo.ui.screens.myprofile.models.MyProfileContact
 
 data class MyProfileState(
-    val user: Contact = Contact(),
+    val user: MyProfileContact = MyProfileContact(),
     val credentialsIsCleared: Boolean = false,
 )

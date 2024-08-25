@@ -97,7 +97,7 @@ fun EditProfileScreen(
         }
     }
 
-    val initDateValue = editProfileState.dateOfBirth.timeInMillis
+    val initDateValue = editProfileState.dateOfBirth?.timeInMillis
 
     LaunchedEffect(editProfileState.dataHasActualState) {
         if (editProfileState.dataHasActualState.not()) return@LaunchedEffect
@@ -281,7 +281,7 @@ private fun EditProfileScreen(
 @Composable
 fun DatePickerModal(
     initСapability: Boolean,
-    initDateValue: Long,
+    initDateValue: Long?,
     onDateSelected: (Long?) -> Unit,
     onDismiss: () -> Unit,
 ) {

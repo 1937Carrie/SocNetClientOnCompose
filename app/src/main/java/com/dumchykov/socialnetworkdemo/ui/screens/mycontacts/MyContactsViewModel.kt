@@ -2,8 +2,8 @@ package com.dumchykov.socialnetworkdemo.ui.screens.mycontacts
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dumchykov.contactsprovider.data.ContactsProvider
-import com.dumchykov.contactsprovider.domain.Contact
+import com.dumchykov.socialnetworkdemo.ui.screens.mycontacts.models.MyContactsContact
+import com.dumchykov.socialnetworkdemo.ui.screens.mycontacts.models.toMyContactsContact
 import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -16,13 +16,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MyContactsViewModel @Inject constructor(
-    private val contactsProvider: ContactsProvider,
     private val contactRepository: ContactRepository,
 ) : ViewModel() {
     private val _myContactsState = MutableStateFlow(MyContactsState())
     val myContactsState get() = _myContactsState.asStateFlow()
 
-    private val _deleteContactState = MutableSharedFlow<Contact>()
+    private val _deleteContactState = MutableSharedFlow<MyContactsContact>()
     val deleteContactState get() = _deleteContactState.asSharedFlow()
 
     init {
@@ -36,7 +35,7 @@ class MyContactsViewModel @Inject constructor(
     }
 
     private suspend fun updateContactsAppearance() {
-        val userContacts = contactsProvider.getUserContacts()
+        val userContacts = contactRepository.getUserContacts().map { it.toMyContactsContact() }
         updateState { copy(contacts = userContacts) }
     }
 
@@ -44,11 +43,12 @@ class MyContactsViewModel @Inject constructor(
         _myContactsState.update(reducer)
     }
 
-    fun addContact(contact: Contact) {
+    fun addContact(contact: MyContactsContact) {
         viewModelScope.launch {
             val onAddContactResult = contactRepository.addContact(contact.id)
             if (onAddContactResult) {
-                val userContacts = contactsProvider.getUserContacts()
+                val userContacts =
+                    contactRepository.getUserContacts().map { it.toMyContactsContact() }
                 updateState { copy(contacts = userContacts) }
             }
         }
@@ -79,13 +79,13 @@ class MyContactsViewModel @Inject constructor(
         updateState { copy(contacts = contacts) }
     }
 
-    private fun getContactById(contactId: Int): Contact {
+    private fun getContactById(contactId: Int): MyContactsContact {
         val contacts = myContactsState.value.contacts.toMutableList()
         val index = contacts.indexOf(contacts.first { it.id == contactId })
         return contacts[index]
     }
 
-    fun changeContactSelectedState(contact: Contact) {
+    fun changeContactSelectedState(contact: MyContactsContact) {
         val searchedContact = myContactsState.value.contacts.first { it == contact }
         val searchedIndex = myContactsState.value.contacts.indexOf(searchedContact)
         val updatedContacts = myContactsState

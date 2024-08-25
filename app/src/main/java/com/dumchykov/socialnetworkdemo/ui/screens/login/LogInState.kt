@@ -1,10 +1,10 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.login
 
 data class LogInState(
-    val email: String = "",
+    val email: String = "uzumymw@email.com",
     val emailError: Boolean = false,
     val emailIsFocused: Boolean = false,
-    val password: String = "",
+    val password: String = "kjkszpj",
     val passwordError: Boolean = false,
     val passwordIsFocused: Boolean = false,
     val rememberMe: Boolean = true,

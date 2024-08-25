@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.dumchykov.contactsprovider.domain.Contact
 import com.dumchykov.socialnetworkdemo.navigation.parcelableType
 import com.dumchykov.socialnetworkdemo.ui.screens.AddContacts
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
@@ -33,6 +32,7 @@ import com.dumchykov.socialnetworkdemo.ui.screens.pager.PagerScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.signup.SignUpScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.signupextended.SignUpExtendedScreen
 import com.dumchykov.socialnetworkdemo.ui.theme.SocialNetworkClientTheme
+import com.dumchykov.socialnetworkdemo.util.BaseContact
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.reflect.typeOf
 
@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
                         composable<LogIn> { LogInScreen(innerPadding, navController) }
                         composable<SignUp> { SignUpScreen(innerPadding, navController) }
                         composable<Detail>(
-                            typeMap = mapOf(typeOf<Contact>() to parcelableType<Contact>())
+                            typeMap = mapOf(typeOf<BaseContact>() to parcelableType<BaseContact>())
                         ) {
                             DetailScreen(innerPadding, navController)
                         }

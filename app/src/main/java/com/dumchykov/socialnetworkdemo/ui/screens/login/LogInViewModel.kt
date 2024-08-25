@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.dumchykov.datastore.data.DataStoreProvider
 import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
@@ -65,11 +66,9 @@ class LogInViewModel @Inject constructor(
         viewModelScope.launch {
             val email = logInState.value.email
             val password = logInState.value.password
-            val response = contactWebProvider.authorize(email, password)
-            dataStoreProvider.saveContact(response.data.user)
-            dataStoreProvider.saveAccessToken(response.data.accessToken)
-            dataStoreProvider.saveRefreshToken(response.data.refreshToken)
-            if (response.code == 200) {
+            val authStatus = async { contactWebProvider.authorize(email, password) }.await()
+
+            if (authStatus) {
                 updateState { copy(navigateToMyProfile = true) }
             }
         }

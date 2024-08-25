@@ -91,11 +91,12 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.dumchykov.contactsprovider.data.getContacts
-import com.dumchykov.contactsprovider.domain.Contact
+import com.dumchykov.contactsprovider.data.ContactsProvider
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.screens.AddContacts
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
+import com.dumchykov.socialnetworkdemo.ui.screens.mycontacts.models.MyContactsContact
+import com.dumchykov.socialnetworkdemo.ui.screens.mycontacts.models.toMyContactsContact
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray828282
@@ -134,11 +135,12 @@ fun MyContactsScreen(
     val addContactState = remember { mutableStateOf(false) }
     val deleteContact: (Int) -> Unit = { contact -> viewModel.deleteContact(contact) }
     val deleteSelected: () -> Unit = { viewModel.deleteSelected() }
-    val addContact: (Contact) -> Unit = { contact -> viewModel.addContact(contact) }
-    val changeContactSelectedState: (Contact) -> Unit =
+    val addContact: (MyContactsContact) -> Unit = { contact -> viewModel.addContact(contact) }
+    val changeContactSelectedState: (MyContactsContact) -> Unit =
         { contact -> viewModel.changeContactSelectedState(contact) }
     val navigateToAddContacts: () -> Unit = { navController.navigate(AddContacts) }
-    val navigateToDetail: (Contact) -> Unit = { contact -> navController.navigate(Detail(contact)) }
+    val navigateToDetail: (MyContactsContact) -> Unit =
+        { contact -> navController.navigate(Detail(contact)) }
 
     MyContactsScreen(
         padding = padding,
@@ -192,11 +194,11 @@ private fun MyContactsScreen(
     addContactState: MutableState<Boolean>,
     deleteContact: (Int) -> Unit,
     deleteSelected: () -> Unit,
-    addContact: (Contact) -> Unit,
-    changeContactSelectedState: (Contact) -> Unit,
+    addContact: (MyContactsContact) -> Unit,
+    changeContactSelectedState: (MyContactsContact) -> Unit,
     onNavigationArrowClick: () -> Unit,
     navigateToAddContacts: () -> Unit,
-    navigateToDetail: (Contact) -> Unit,
+    navigateToDetail: (MyContactsContact) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -416,11 +418,11 @@ private fun MyContactsScreen(
 
 @Composable
 private fun ContactsColumn(
-    contacts: List<Contact>,
+    contacts: List<MyContactsContact>,
     isMultiselect: Boolean,
     deleteContact: (Int) -> Unit,
-    changeContactSelectedState: (Contact) -> Unit,
-    navigateToDetail: (Contact) -> Unit,
+    changeContactSelectedState: (MyContactsContact) -> Unit,
+    navigateToDetail: (MyContactsContact) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -448,11 +450,11 @@ private fun ContactsColumn(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SwipeableContainer(
-    contact: Contact,
+    contact: MyContactsContact,
     isMultiselect: Boolean,
-    onDelete: (Contact) -> Unit,
-    changeContactSelectedState: (Contact) -> Unit,
-    navigateToDetail: (Contact) -> Unit,
+    onDelete: (MyContactsContact) -> Unit,
+    changeContactSelectedState: (MyContactsContact) -> Unit,
+    navigateToDetail: (MyContactsContact) -> Unit,
     animationDuration: Int = 500,
 ) {
     var isRemoved by remember { mutableStateOf(false) }
@@ -516,11 +518,11 @@ private fun SwipeableContainer(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 private fun ItemContact(
     swipeToDismissBoxState: SwipeToDismissBoxState,
-    contact: Contact,
+    contact: MyContactsContact,
     isMultiselect: Boolean,
-    onDelete: (Contact) -> Unit,
-    changeContactSelectedState: (Contact) -> Unit,
-    navigateToDetail: (Contact) -> Unit,
+    onDelete: (MyContactsContact) -> Unit,
+    changeContactSelectedState: (MyContactsContact) -> Unit,
+    navigateToDetail: (MyContactsContact) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -643,7 +645,7 @@ fun DeleteBackground(
 @Composable
 private fun DialogAddContact(
     onDismissRequest: () -> Unit = {},
-    onConfirmation: (Contact) -> Unit = {},
+    onConfirmation: (MyContactsContact) -> Unit = {},
 ) {
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -731,7 +733,7 @@ private fun DialogAddContact(
                 ) {
                     Button(
                         onClick = {
-                            val contact = Contact(
+                            val contact = MyContactsContact(
                                 name = nameState.value,
                                 career = careerState.value,
                                 address = addressState.value
@@ -787,11 +789,15 @@ private fun DialogTextField(state: MutableState<String>, label: String) {
 @Preview(showBackground = true)
 @Composable
 private fun MyContactsScreenPreview() {
+    val contactsProvider = ContactsProvider()
     MyContactsScreen(
         padding = PaddingValues(0.dp),
         updateState = { _ -> },
         snackbarHostState = SnackbarHostState(),
-        myContactsState = MyContactsState(contacts = getContacts(), searchState = true),
+        myContactsState = MyContactsState(
+            contacts = contactsProvider.getContacts().map { it.toMyContactsContact() },
+            searchState = true
+        ),
         addContactState = mutableStateOf(false),
         deleteContact = {},
         deleteSelected = {},
