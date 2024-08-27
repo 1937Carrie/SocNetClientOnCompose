@@ -15,7 +15,12 @@ import com.dumchykov.socialnetworkdemo.R
 private const val CHANNEL_ID = "Miscellaneous"
 const val ON_ADD_CONTACT_NOTIFICATION_ID = 1000
 
-fun createNotification(context: Context, contactId: Int): NotificationCompat.Builder {
+fun createNotification(
+    context: Context,
+    contactId: Int,
+    name: String,
+    takenAction: String,
+): NotificationCompat.Builder {
     val deepLinkIntent = Intent(
         Intent.ACTION_VIEW,
         "https://www.example.com/detail/$contactId".toUri(),
@@ -29,8 +34,8 @@ fun createNotification(context: Context, contactId: Int): NotificationCompat.Bui
 
     val builder = NotificationCompat.Builder(context, CHANNEL_ID)
         .setSmallIcon(R.drawable.ic_launcher_foreground)
-        .setContentTitle("Title")
-        .setContentText("Content")
+        .setContentTitle("#$contactId $name")
+        .setContentText(takenAction)
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         .setContentIntent(deepLinkPendingIntent)
     return builder

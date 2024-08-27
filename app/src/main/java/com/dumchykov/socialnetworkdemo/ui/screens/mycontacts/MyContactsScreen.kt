@@ -1,9 +1,15 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.mycontacts
 
+import android.Manifest
 import android.app.Activity
+import android.app.NotificationManager
+import android.content.Context
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
@@ -93,6 +99,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.dumchykov.contactsprovider.data.ContactsProvider
 import com.dumchykov.socialnetworkdemo.R
+import com.dumchykov.socialnetworkdemo.notification.ON_ADD_CONTACT_NOTIFICATION_ID
+import com.dumchykov.socialnetworkdemo.notification.createNotification
+import com.dumchykov.socialnetworkdemo.notification.createNotificationChannel
 import com.dumchykov.socialnetworkdemo.ui.screens.AddContacts
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
 import com.dumchykov.socialnetworkdemo.ui.screens.mycontacts.models.MyContactsContact
@@ -107,6 +116,7 @@ import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
 import com.dumchykov.socialnetworkdemo.ui.theme.Orange
 import com.dumchykov.socialnetworkdemo.ui.theme.White
 import com.dumchykov.socialnetworkdemo.ui.util.customTextFieldsColors
+import com.dumchykov.socialnetworkdemo.util.BaseContact
 import kotlinx.coroutines.launch
 
 @Composable
@@ -128,12 +138,38 @@ fun MyContactsScreen(
     val context = LocalContext.current
     (context as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
+
+    val notificationManager =
+        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    val requestPermissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { permission ->
+//            if (permission) {
+//                val notification = createNotification(context)
+//                notificationManager.notify(ON_ADD_CONTACT_NOTIFICATION_ID, notification.build())
+//            }
+        }
+
     val myContactsState = viewModel.myContactsState.collectAsState().value
     val updateState: (MyContactsState) -> Unit = { state -> viewModel.updateState { state } }
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val addContactState = remember { mutableStateOf(false) }
     val deleteContact: (Int) -> Unit = { contact -> viewModel.deleteContact(contact) }
+    val showOnAddNotification: (BaseContact) -> Unit = { contact ->
+        createNotificationChannel(context)
+
+        if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            val notification = createNotification(
+                context = context,
+                contactId = contact.id,
+                name = contact.name,
+                takenAction = "Have been removed"
+            )
+            notificationManager.notify(ON_ADD_CONTACT_NOTIFICATION_ID, notification.build())
+        }
+    }
     val deleteSelected: () -> Unit = { viewModel.deleteSelected() }
     val addContact: (MyContactsContact) -> Unit = { contact -> viewModel.addContact(contact) }
     val changeContactSelectedState: (MyContactsContact) -> Unit =
@@ -148,7 +184,8 @@ fun MyContactsScreen(
         snackbarHostState = snackbarHostState,
         myContactsState = myContactsState,
         addContactState = addContactState,
-        deleteContact = deleteContact,
+        onDelete = deleteContact,
+        showOnAddNotification = showOnAddNotification,
         deleteSelected = deleteSelected,
         addContact = addContact,
         changeContactSelectedState = changeContactSelectedState,
@@ -192,7 +229,8 @@ private fun MyContactsScreen(
     snackbarHostState: SnackbarHostState,
     myContactsState: MyContactsState,
     addContactState: MutableState<Boolean>,
-    deleteContact: (Int) -> Unit,
+    onDelete: (Int) -> Unit,
+    showOnAddNotification: (BaseContact) -> Unit,
     deleteSelected: () -> Unit,
     addContact: (MyContactsContact) -> Unit,
     changeContactSelectedState: (MyContactsContact) -> Unit,
@@ -397,7 +435,8 @@ private fun MyContactsScreen(
                             )
                         },
                         isMultiselect = myContactsState.isMultiselect,
-                        deleteContact = deleteContact,
+                        onDelete = onDelete,
+                        showOnAddNotification = showOnAddNotification,
                         changeContactSelectedState = changeContactSelectedState,
                         navigateToDetail = navigateToDetail
                     )
@@ -420,7 +459,8 @@ private fun MyContactsScreen(
 private fun ContactsColumn(
     contacts: List<MyContactsContact>,
     isMultiselect: Boolean,
-    deleteContact: (Int) -> Unit,
+    onDelete: (Int) -> Unit,
+    showOnAddNotification: (BaseContact) -> Unit,
     changeContactSelectedState: (MyContactsContact) -> Unit,
     navigateToDetail: (Int) -> Unit,
     modifier: Modifier = Modifier,
@@ -437,7 +477,8 @@ private fun ContactsColumn(
             SwipeableContainer(
                 contact = contact,
                 isMultiselect = isMultiselect,
-                onDelete = deleteContact,
+                onDelete = onDelete,
+                showOnAddNotification = showOnAddNotification,
                 changeContactSelectedState = changeContactSelectedState,
                 navigateToDetail = navigateToDetail,
             )
@@ -451,6 +492,7 @@ private fun SwipeableContainer(
     contact: MyContactsContact,
     isMultiselect: Boolean,
     onDelete: (Int) -> Unit,
+    showOnAddNotification: (BaseContact) -> Unit,
     changeContactSelectedState: (MyContactsContact) -> Unit,
     navigateToDetail: (Int) -> Unit,
     animationDuration: Int = 500,
@@ -496,6 +538,7 @@ private fun SwipeableContainer(
                     contact = contact,
                     isMultiselect = isMultiselect,
                     onDelete = onDelete,
+                    showOnAddNotification = showOnAddNotification,
                     changeContactSelectedState = changeContactSelectedState,
                     navigateToDetail = navigateToDetail
                 )
@@ -519,6 +562,7 @@ private fun ItemContact(
     contact: MyContactsContact,
     isMultiselect: Boolean,
     onDelete: (Int) -> Unit,
+    showOnAddNotification: (BaseContact) -> Unit,
     changeContactSelectedState: (MyContactsContact) -> Unit,
     navigateToDetail: (Int) -> Unit,
 ) {
@@ -601,7 +645,10 @@ private fun ItemContact(
                 }
 
                 false -> {
-                    IconButton(onClick = { onDelete(contact.id) }) {
+                    IconButton(onClick = {
+                        onDelete(contact.id)
+                        showOnAddNotification(contact)
+                    }) {
                         Icon(
                             imageVector = Icons.Filled.Delete,
                             contentDescription = "Localized description",
@@ -797,7 +844,8 @@ private fun MyContactsScreenPreview() {
             searchState = true
         ),
         addContactState = remember { mutableStateOf(false) },
-        deleteContact = {},
+        onDelete = {},
+        showOnAddNotification = {},
         deleteSelected = {},
         addContact = {},
         changeContactSelectedState = {},

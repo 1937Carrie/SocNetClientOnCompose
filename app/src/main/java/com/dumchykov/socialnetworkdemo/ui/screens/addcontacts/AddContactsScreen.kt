@@ -118,13 +118,19 @@ fun AddContactsScreen(
     val showFab =
         remember { derivedStateOf { lazyColumnState.firstVisibleItemIndex > 0 } }
     val onAdd: (Int) -> Unit = { contactId -> viewModel.addToContactList(contactId) }
-    val showOnAddNotification: (Int) -> Unit = { contactId ->
+    val showOnAddNotification: (Contact) -> Unit = { contact ->
         createNotificationChannel(context)
 
         if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         } else {
-            val notification = createNotification(context, contactId)
+            val notification =
+                createNotification(
+                    context = context,
+                    contactId = contact.id,
+                    name = contact.name,
+                    takenAction = "Have been added"
+                )
             notificationManager.notify(ON_ADD_CONTACT_NOTIFICATION_ID, notification.build())
         }
     }
@@ -171,7 +177,7 @@ private fun AddContactsScreen(
     addContactState: AddContactsState,
     onNavigationArrowClick: () -> Unit,
     onAdd: (Int) -> Unit,
-    showOnAddNotification: (Int) -> Unit,
+    showOnAddNotification: (Contact) -> Unit,
     navigateToDetail: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -349,7 +355,7 @@ private fun ContactsColumn(
     lazyColumnState: LazyListState,
     addContactsState: AddContactsState,
     onAdd: (Int) -> Unit,
-    showOnAddNotification: (Int) -> Unit,
+    showOnAddNotification: (Contact) -> Unit,
     navigateToDetail: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -379,7 +385,7 @@ private fun ContactsColumn(
 private fun ItemContact(
     contact: Contact,
     onAdd: (Int) -> Unit,
-    showOnAddNotification: (Int) -> Unit,
+    showOnAddNotification: (Contact) -> Unit,
     navigateToDetail: (Int) -> Unit,
 ) {
     Row(
@@ -448,7 +454,7 @@ private fun ItemContact(
                         modifier = Modifier.clickable(
                             onClick = {
                                 onAdd(contact.id)
-                                showOnAddNotification(contact.id)
+                                showOnAddNotification(contact)
                             }
                         ),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
