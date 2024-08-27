@@ -14,8 +14,8 @@ interface CurrentUserDAO {
     @Query("SELECT currentUserId FROM current_user")
     suspend fun getCurrentUserId():Int
 
-    @Query("SELECT * FROM current_user")
-    suspend fun getAllContacts(): CurrentUserDBO
+    @Query("SELECT contactsIds FROM current_user WHERE currentUserId = :currentUserId")
+    suspend fun getContactsIds(currentUserId: Int): String?
 
     @Query("UPDATE current_user SET contactsIds = :updatedContactsIds")
     suspend fun updateUserContacts(updatedContactsIds: List<Int>)

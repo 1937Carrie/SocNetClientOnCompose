@@ -104,6 +104,7 @@ class ContactRepositoryImpl(
     override suspend fun addContact(contactId: Int): Boolean {
         val addContactResponse =
             contactApiService.addContact(getAccessToken(), getUserId(), ContactId(contactId))
+        updateUserContacts()
         return addContactResponse.code == 200
     }
 
@@ -113,6 +114,7 @@ class ContactRepositoryImpl(
     override suspend fun deleteContact(contactId: Int): Boolean {
         val deleteContactResponse =
             contactApiService.deleteContact(getUserId(), contactId, getAccessToken())
+        updateUserContacts()
         return deleteContactResponse.code == 200
     }
 
@@ -127,7 +129,7 @@ class ContactRepositoryImpl(
 
     override suspend fun getUserContacts(): List<Contact> {
         val currentUserId = getUserId()
-        val contactsIdsString = dataBase.contactsDao().getContactsIds(currentUserId)
+        val contactsIdsString = dataBase.currentUserDAO().getContactsIds(currentUserId)
         val contactsIdsList = contactsIdsString?.split(",")?.map { it.toInt() } ?: emptyList()
         val s = dataBase.contactsDao().getContactsByIds(contactsIdsList).map { it.toContact() }
         return s

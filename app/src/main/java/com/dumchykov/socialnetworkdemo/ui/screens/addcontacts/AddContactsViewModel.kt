@@ -15,8 +15,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddContactsViewModel @Inject constructor(
-    val contactRepository: ContactRepository,
-    val database: ContactsDatabase,
+    private val contactRepository: ContactRepository,
+    private val database: ContactsDatabase,
 ) : ViewModel() {
     private val _addContactsState = MutableStateFlow(AddContactsState())
     internal val addContactsState get() = _addContactsState.asStateFlow()
@@ -27,7 +27,6 @@ class AddContactsViewModel @Inject constructor(
 
     private fun updateAddedContactsAppearance() {
         viewModelScope.launch {
-            contactRepository.getUsers()
             val allUsers = async(Dispatchers.IO) {
                 database.contactsDao().getAllContacts()
             }.await().map { it.toContact() }

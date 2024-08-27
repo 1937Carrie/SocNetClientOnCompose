@@ -139,8 +139,8 @@ fun MyContactsScreen(
     val changeContactSelectedState: (MyContactsContact) -> Unit =
         { contact -> viewModel.changeContactSelectedState(contact) }
     val navigateToAddContacts: () -> Unit = { navController.navigate(AddContacts) }
-    val navigateToDetail: (MyContactsContact) -> Unit =
-        { contact -> navController.navigate(Detail(contact)) }
+    val navigateToDetail: (Int) -> Unit =
+        { contactId -> navController.navigate(Detail(contactId)) }
 
     MyContactsScreen(
         padding = padding,
@@ -198,7 +198,7 @@ private fun MyContactsScreen(
     changeContactSelectedState: (MyContactsContact) -> Unit,
     onNavigationArrowClick: () -> Unit,
     navigateToAddContacts: () -> Unit,
-    navigateToDetail: (MyContactsContact) -> Unit,
+    navigateToDetail: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -422,7 +422,7 @@ private fun ContactsColumn(
     isMultiselect: Boolean,
     deleteContact: (Int) -> Unit,
     changeContactSelectedState: (MyContactsContact) -> Unit,
-    navigateToDetail: (MyContactsContact) -> Unit,
+    navigateToDetail: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -437,9 +437,7 @@ private fun ContactsColumn(
             SwipeableContainer(
                 contact = contact,
                 isMultiselect = isMultiselect,
-                onDelete = {
-                    deleteContact(it.id)
-                },
+                onDelete = deleteContact,
                 changeContactSelectedState = changeContactSelectedState,
                 navigateToDetail = navigateToDetail,
             )
@@ -452,9 +450,9 @@ private fun ContactsColumn(
 private fun SwipeableContainer(
     contact: MyContactsContact,
     isMultiselect: Boolean,
-    onDelete: (MyContactsContact) -> Unit,
+    onDelete: (Int) -> Unit,
     changeContactSelectedState: (MyContactsContact) -> Unit,
-    navigateToDetail: (MyContactsContact) -> Unit,
+    navigateToDetail: (Int) -> Unit,
     animationDuration: Int = 500,
 ) {
     var isRemoved by remember { mutableStateOf(false) }
@@ -472,7 +470,7 @@ private fun SwipeableContainer(
     LaunchedEffect(isRemoved) {
         if (isRemoved) {
 //            delay(animationDuration.toLong())
-            onDelete(contact)
+            onDelete(contact.id)
             Log.d(
                 "AAA",
                 "onDelete ItemContact ${contact.name}: ${swipeToDismissBoxState.currentValue.name}"
@@ -520,9 +518,9 @@ private fun ItemContact(
     swipeToDismissBoxState: SwipeToDismissBoxState,
     contact: MyContactsContact,
     isMultiselect: Boolean,
-    onDelete: (MyContactsContact) -> Unit,
+    onDelete: (Int) -> Unit,
     changeContactSelectedState: (MyContactsContact) -> Unit,
-    navigateToDetail: (MyContactsContact) -> Unit,
+    navigateToDetail: (Int) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -543,7 +541,7 @@ private fun ItemContact(
                         }
 
                         false -> {
-                            navigateToDetail(contact)
+                            navigateToDetail(contact.id)
                         }
                     }
                 }
@@ -603,7 +601,7 @@ private fun ItemContact(
                 }
 
                 false -> {
-                    IconButton(onClick = { onDelete(contact) }) {
+                    IconButton(onClick = { onDelete(contact.id) }) {
                         Icon(
                             imageVector = Icons.Filled.Delete,
                             contentDescription = "Localized description",
@@ -798,7 +796,7 @@ private fun MyContactsScreenPreview() {
             contacts = contactsProvider.getContacts().map { it.toMyContactsContact() },
             searchState = true
         ),
-        addContactState = mutableStateOf(false),
+        addContactState = remember { mutableStateOf(false) },
         deleteContact = {},
         deleteSelected = {},
         addContact = {},

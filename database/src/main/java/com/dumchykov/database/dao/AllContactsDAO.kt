@@ -18,9 +18,6 @@ interface AllContactsDAO {
     @Query("SELECT * FROM contacts WHERE id = :userId")
     suspend fun getUser(userId: Int): ContactDBO?
 
-    @Query("SELECT contactsIds FROM current_user WHERE currentUserId = :currentUserId")
-    suspend fun getContactsIds(currentUserId: Int): String?
-
     @Query("SELECT * FROM contacts WHERE id IN (:contactIds)")
     suspend fun getContactsByIds(contactIds: List<Int>): List<ContactDBO>
 
