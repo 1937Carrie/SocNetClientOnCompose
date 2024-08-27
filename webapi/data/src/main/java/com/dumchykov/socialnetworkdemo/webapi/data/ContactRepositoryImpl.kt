@@ -1,6 +1,5 @@
 package com.dumchykov.socialnetworkdemo.webapi.data
 
-import android.util.Log
 import com.dumchykov.data.toContactDBO
 import com.dumchykov.database.ContactsDatabase
 import com.dumchykov.database.models.CurrentUserDBO
@@ -15,7 +14,6 @@ import com.dumchykov.socialnetworkdemo.webapi.domain.models.EmailPassword
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.SingleUserResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 
@@ -84,7 +82,7 @@ class ContactRepositoryImpl(
             user = user
         )
         if (editedUserResponse.code == 200) {
-            getUsers()
+            editUserInDatabase(editedUserResponse.data.user)
         }
     }
 
@@ -132,8 +130,6 @@ class ContactRepositoryImpl(
         val contactsIdsString = dataBase.contactsDao().getContactsIds(currentUserId)
         val contactsIdsList = contactsIdsString?.split(",")?.map { it.toInt() } ?: emptyList()
         val s = dataBase.contactsDao().getContactsByIds(contactsIdsList).map { it.toContact() }
-        Log.d("AAA", "getUserContacts: ${s.size}")
-        delay(5000L)
         return s
     }
 
@@ -143,5 +139,9 @@ class ContactRepositoryImpl(
 
     private suspend fun getAccessToken(): String {
         return dataStoreProvider.readAccessToken().first()
+    }
+
+    private suspend fun editUserInDatabase(user: Contact) {
+        dataBase.contactsDao().editUser(user.toContactDBO())
     }
 }

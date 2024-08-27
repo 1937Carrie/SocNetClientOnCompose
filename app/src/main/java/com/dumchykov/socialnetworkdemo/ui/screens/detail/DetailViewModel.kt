@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.dumchykov.socialnetworkdemo.navigation.parcelableType
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
 import com.dumchykov.socialnetworkdemo.util.BaseContact
 import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
@@ -14,7 +13,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.reflect.typeOf
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
@@ -26,18 +24,19 @@ class DetailViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val typeMap = mapOf(typeOf<BaseContact>() to parcelableType<BaseContact>())
-            val contact = savedStateHandle.toRoute<Detail>(typeMap).contact
-            val inFriendList = contactInFriendList(contact)
+            val contactId = savedStateHandle.toRoute<Detail>().contactId
+            val inFriendList = contactInFriendList(contactId)
+            val newContact: BaseContact =
+                contactRepository.getUserById(contactId).toBaseContact()
             updateState {
-                copy(contact = contact, inFriendList = inFriendList)
+                copy(contact = newContact, inFriendList = inFriendList)
             }
         }
     }
 
-    private suspend fun contactInFriendList(contact: BaseContact): Boolean {
+    private suspend fun contactInFriendList(contactId: Int): Boolean {
         val userContacts = contactRepository.getUserContacts()
-        val result = userContacts.count { it.id == contact.id } != 0
+        val result = userContacts.count { it.id == contactId } != 0
         return result
     }
 
@@ -49,7 +48,7 @@ class DetailViewModel @Inject constructor(
         viewModelScope.launch {
             val contact = detailState.value.contact
             contactRepository.addContact(contact.id)
-            val inFriendList = contactInFriendList(contact)
+            val inFriendList = contactInFriendList(contact.id)
             updateState { copy(inFriendList = inFriendList) }
         }
     }
