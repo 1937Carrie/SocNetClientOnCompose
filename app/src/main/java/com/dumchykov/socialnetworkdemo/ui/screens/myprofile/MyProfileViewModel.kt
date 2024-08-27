@@ -22,7 +22,7 @@ class MyProfileViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val user = contactRepository.getUser().toMyProfileContact()
+            val user = contactRepository.getCurrentUser().toMyProfileContact()
             update { copy(user = user) }
         }
     }

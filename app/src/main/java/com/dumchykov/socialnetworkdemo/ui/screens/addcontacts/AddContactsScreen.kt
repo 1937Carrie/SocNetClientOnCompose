@@ -349,8 +349,8 @@ private fun ContactsColumn(
     lazyColumnState: LazyListState,
     addContactsState: AddContactsState,
     onAdd: (Int) -> Unit,
-    navigateToDetail: (BaseContact) -> Unit,
     showOnAddNotification: (Int) -> Unit,
+    navigateToDetail: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -379,8 +379,8 @@ private fun ContactsColumn(
 private fun ItemContact(
     contact: Contact,
     onAdd: (Int) -> Unit,
-    navigateToDetail: (BaseContact) -> Unit,
     showOnAddNotification: (Int) -> Unit,
+    navigateToDetail: (Int) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -389,7 +389,7 @@ private fun ItemContact(
             .clip(RoundedCornerShape(6.dp))
             .background(White)
             .clickable(
-                onClick = { navigateToDetail(contact) }
+                onClick = { navigateToDetail(contact.id) }
             )
             .padding(8.dp)
             .height(50.dp),

@@ -64,10 +64,13 @@ class ContactRepositoryImpl(
 
     override suspend fun refreshToken() {}
 
-    override suspend fun getUser(): Contact {
+    override suspend fun getCurrentUser(): Contact {
         val currentUserId = dataBase.currentUserDAO().getCurrentUserId()
+        return getUserById(currentUserId)
+    }
 
-        val user = dataBase.contactsDao().getUser(currentUserId)
+    override suspend fun getUserById(userId: Int): Contact {
+        val user = dataBase.contactsDao().getUser(userId)
 
         return user?.toContact() ?: throw IllegalStateException()
     }

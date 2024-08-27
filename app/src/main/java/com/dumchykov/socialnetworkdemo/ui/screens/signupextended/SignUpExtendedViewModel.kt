@@ -25,7 +25,7 @@ class SignUpExtendedViewModel @Inject constructor(
 
     fun editUser() {
         viewModelScope.launch {
-            val contact = contactRepository.getUser()
+            val contact = contactRepository.getCurrentUser()
             val editedContact = contact.copy(
                 name = signUpExtendedState.value.userName,
                 phone = signUpExtendedState.value.mobilePhone
