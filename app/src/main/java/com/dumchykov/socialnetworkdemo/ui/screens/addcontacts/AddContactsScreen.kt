@@ -1,5 +1,11 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.addcontacts
 
+import android.Manifest
+import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -58,6 +64,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -72,6 +79,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import com.dumchykov.socialnetworkdemo.R
+import com.dumchykov.socialnetworkdemo.notification.ON_ADD_CONTACT_NOTIFICATION_ID
+import com.dumchykov.socialnetworkdemo.notification.createNotification
+import com.dumchykov.socialnetworkdemo.notification.createNotificationChannel
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
@@ -80,7 +90,6 @@ import com.dumchykov.socialnetworkdemo.ui.theme.GrayText
 import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
 import com.dumchykov.socialnetworkdemo.ui.theme.Orange
 import com.dumchykov.socialnetworkdemo.ui.theme.White
-import com.dumchykov.socialnetworkdemo.util.BaseContact
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -91,6 +100,17 @@ fun AddContactsScreen(
     modifier: Modifier = Modifier,
     viewModel: AddContactsViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
+    val notificationManager =
+        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    val requestPermissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { permission ->
+//            if (permission) {
+//                val notification = createNotification(context)
+//                notificationManager.notify(ON_ADD_CONTACT_NOTIFICATION_ID, notification.build())
+//            }
+        }
+
     val addContactsState = viewModel.addContactsState.collectAsState().value
     val updateState: (AddContactsState) -> Unit = { state -> viewModel.updateState { state } }
     val coroutineScope = rememberCoroutineScope()
@@ -98,7 +118,17 @@ fun AddContactsScreen(
     val showFab =
         remember { derivedStateOf { lazyColumnState.firstVisibleItemIndex > 0 } }
     val onAdd: (Int) -> Unit = { contactId -> viewModel.addToContactList(contactId) }
-    val navigateToDetail: (BaseContact) -> Unit =
+    val showOnAddNotification: (Int) -> Unit = { contactId ->
+        createNotificationChannel(context)
+
+        if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            val notification = createNotification(context, contactId)
+            notificationManager.notify(ON_ADD_CONTACT_NOTIFICATION_ID, notification.build())
+        }
+    }
+    val navigateToDetail: (Int) -> Unit =
         { contact -> navController.navigate(Detail(contact)) }
     val onNavigationArrowClick: () -> Unit = { navController.navigateUp() }
 
@@ -124,6 +154,7 @@ fun AddContactsScreen(
         showFab = showFab,
         addContactState = addContactsState,
         onAdd = onAdd,
+        showOnAddNotification = showOnAddNotification,
         navigateToDetail = navigateToDetail,
         onNavigationArrowClick = onNavigationArrowClick,
     )
@@ -140,7 +171,8 @@ private fun AddContactsScreen(
     addContactState: AddContactsState,
     onNavigationArrowClick: () -> Unit,
     onAdd: (Int) -> Unit,
-    navigateToDetail: (BaseContact) -> Unit,
+    showOnAddNotification: (Int) -> Unit,
+    navigateToDetail: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -305,6 +337,7 @@ private fun AddContactsScreen(
                 lazyColumnState = lazyColumnState,
                 addContactsState = addContactState,
                 onAdd = onAdd,
+                showOnAddNotification = showOnAddNotification,
                 navigateToDetail = navigateToDetail
             )
         }
@@ -317,6 +350,7 @@ private fun ContactsColumn(
     addContactsState: AddContactsState,
     onAdd: (Int) -> Unit,
     navigateToDetail: (BaseContact) -> Unit,
+    showOnAddNotification: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -334,6 +368,7 @@ private fun ContactsColumn(
             ItemContact(
                 contact = contact,
                 onAdd = onAdd,
+                showOnAddNotification = showOnAddNotification,
                 navigateToDetail = navigateToDetail
             )
         }
@@ -345,6 +380,7 @@ private fun ItemContact(
     contact: Contact,
     onAdd: (Int) -> Unit,
     navigateToDetail: (BaseContact) -> Unit,
+    showOnAddNotification: (Int) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -410,7 +446,10 @@ private fun ItemContact(
                 false -> {
                     Row(
                         modifier = Modifier.clickable(
-                            onClick = { onAdd(contact.id) }
+                            onClick = {
+                                onAdd(contact.id)
+                                showOnAddNotification(contact.id)
+                            }
                         ),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -448,6 +487,7 @@ fun AddContactsScreenPreview() {
         addContactState = AddContactsState(allContacts = Contact.sampleList, searchState = true),
         onNavigationArrowClick = {},
         onAdd = {},
+        showOnAddNotification = {},
         navigateToDetail = {}
     )
 }
