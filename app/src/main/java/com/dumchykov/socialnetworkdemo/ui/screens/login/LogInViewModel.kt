@@ -7,9 +7,11 @@ import com.dumchykov.datastore.data.DataStoreProvider
 import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -48,17 +50,22 @@ class LogInViewModel @Inject constructor(
 
     private fun readCredentials() {
         viewModelScope.launch {
-            val email = dataStoreProvider.readEmail().first()
-            val password = dataStoreProvider.readPassword().first()
-            if (email.isNotEmpty() && password.isNotEmpty()) {
-                updateState {
-                    copy(
-                        email = email,
-                        password = password,
-                        autoLogin = true
-                    )
+            val email: Flow<String> = dataStoreProvider.readEmail()
+            val password: Flow<String> = dataStoreProvider.readPassword()
+
+            email
+                .combine(password) { email, password -> email to password }
+                .distinctUntilChanged()
+                .collect { (email, password) ->
+                    if (email.isEmpty() || password.isEmpty()) return@collect
+                    updateState {
+                        copy(
+                            email = email,
+                            password = password,
+                            autoLogin = true
+                        )
+                    }
                 }
-            }
         }
     }
 
