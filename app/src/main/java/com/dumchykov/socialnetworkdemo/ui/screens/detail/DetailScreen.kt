@@ -52,6 +52,7 @@ import com.dumchykov.socialnetworkdemo.ui.theme.GrayText
 import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
 import com.dumchykov.socialnetworkdemo.ui.theme.Orange
 import com.dumchykov.socialnetworkdemo.ui.theme.White
+import com.dumchykov.socialnetworkdemo.util.BaseContactImpl
 
 @Composable
 fun DetailScreen(
@@ -127,8 +128,14 @@ private fun DetailScreen(
                 verticalArrangement = Arrangement.spacedBy(24.dp, BiasAlignment.Vertical(-0.5f)),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                val image =
+                    if (detailState.inFriendList) {
+                        R.drawable.black_guy_happy
+                    } else {
+                        R.drawable.black_guy_disappointed
+                    }
                 Image(
-                    painter = painterResource(R.drawable.image_main),
+                    painter = painterResource(image),
                     contentDescription = "image main",
                     modifier = Modifier
                         .fillMaxWidth(0.33f)
@@ -298,7 +305,13 @@ private fun DetailScreen(
 private fun DetailScreenPreview() {
     DetailScreen(
         padding = PaddingValues(0.dp),
-        detailState = DetailState(),
+        detailState = DetailState(
+            BaseContactImpl(
+                name = "Jenny Walker",
+                career = "Make-up artist",
+                address = "775 Westminster Avenue APT D5 Brooklyn, NY, 11230"
+            )
+        ),
         onNavigationArrowClick = {},
         onAddToMyContactsClick = {}
     )
