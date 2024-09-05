@@ -219,7 +219,7 @@ private fun Container3(
             modifier = Modifier
                 .height(55.dp)
                 .fillMaxWidth(),
-            enabled = logInState.updateUiState,
+            enabled = logInState.updateUiState.not(),
             shape = RoundedCornerShape(6.dp),
             colors = ButtonColors(
                 Color.Transparent,
@@ -253,7 +253,7 @@ private fun Container3(
                 text = "Sign up",
                 modifier = Modifier
                     .clickable(
-                        enabled = logInState.updateUiState,
+                        enabled = logInState.updateUiState.not(),
                         onClick = onSignUpClick
                     ),
                 color = White,
@@ -293,7 +293,7 @@ private fun Container2(
                         }
                     }
                 },
-            enabled = logInState.updateUiState,
+            enabled = logInState.updateUiState.not(),
             placeholder = { Text("Email") },
             supportingText = {
                 if (logInState.emailIsFocused && logInState.emailError) {
@@ -320,7 +320,7 @@ private fun Container2(
                         }
                     }
                 },
-            enabled = logInState.updateUiState,
+            enabled = logInState.updateUiState.not(),
             placeholder = { Text("Password") },
             supportingText = {
                 if (logInState.passwordIsFocused && logInState.passwordError) {
@@ -340,7 +340,7 @@ private fun Container2(
         ) {
             Row(
                 modifier = Modifier.clickable(
-                    enabled = logInState.updateUiState,
+                    enabled = logInState.updateUiState.not(),
                     onClick = {
                         updateState(logInState.copy(rememberMe = logInState.rememberMe.not()))
                     }),
