@@ -5,13 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dumchykov.datastore.data.DataStoreProvider
 import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
+import com.dumchykov.socialnetworkdemo.webapi.domain.ResponseState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,6 +24,26 @@ class LogInViewModel @Inject constructor(
 
     init {
         readCredentials()
+    }
+
+    private fun readCredentials() {
+        viewModelScope.launch {
+            val email = dataStoreProvider.readEmail().first()
+            val password = dataStoreProvider.readPassword().first()
+
+            if (email.isEmpty() || password.isEmpty()) return@launch
+            updateState {
+                copy(
+                    email = email,
+                    password = password,
+                    autoLogin = true
+                )
+            }
+        }
+    }
+
+    private fun updateProgress(startProgress: Boolean = true) {
+        updateState { copy(isUiStateUpdating = startProgress) }
     }
 
     fun updateState(reducer: LogInState.() -> LogInState) {
@@ -48,41 +66,28 @@ class LogInViewModel @Inject constructor(
         }
     }
 
-    private fun readCredentials() {
-        viewModelScope.launch {
-            val email: Flow<String> = dataStoreProvider.readEmail()
-            val password: Flow<String> = dataStoreProvider.readPassword()
-
-            email
-                .combine(password) { email, password -> email to password }
-                .distinctUntilChanged()
-                .collect { (email, password) ->
-                    if (email.isEmpty() || password.isEmpty()) return@collect
-                    updateState {
-                        copy(
-                            email = email,
-                            password = password,
-                            autoLogin = true
-                        )
-                    }
-                }
-        }
-    }
-
-    private fun updateProgress(startProgress: Boolean = true) {
-        updateState { copy(updateUiState = startProgress.not()) }
-    }
-
     fun authorize() {
         viewModelScope.launch {
             updateProgress()
             val email = logInState.value.email
             val password = logInState.value.password
-            val authStatus = async { contactRepository.authorize(email, password) }.await()
+            updateState { copy(responseState = ResponseState.Loading) }
+            when (val authStatus = contactRepository.authorize(email, password)) {
+                is ResponseState.Error -> {
+                    updateState { copy(responseState = authStatus) }
+                }
 
-            if (authStatus) {
-                updateState { copy(navigateToMyProfile = true) }
+                is ResponseState.HttpCode -> {
+                    updateState { copy(responseState = authStatus) }
+                }
+
+                is ResponseState.Success<*> -> {
+                    updateState { copy(responseState = authStatus) }
+                }
+
+                else -> {}
             }
+
             updateProgress(false)
         }
     }

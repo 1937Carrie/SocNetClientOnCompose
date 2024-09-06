@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -35,8 +37,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.dumchykov.socialnetworkdemo.R
+import com.dumchykov.socialnetworkdemo.SharedViewModel
 import com.dumchykov.socialnetworkdemo.ui.screens.LogIn
 import com.dumchykov.socialnetworkdemo.ui.screens.Pager
 import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
@@ -46,6 +50,7 @@ import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
 import com.dumchykov.socialnetworkdemo.ui.theme.Orange
 import com.dumchykov.socialnetworkdemo.ui.theme.White
 import com.dumchykov.socialnetworkdemo.ui.util.customTextFieldsColors
+import com.dumchykov.socialnetworkdemo.webapi.domain.ResponseState
 
 @Composable
 fun LogInScreen(
@@ -54,6 +59,7 @@ fun LogInScreen(
     modifier: Modifier = Modifier,
     viewModel: LogInViewModel = hiltViewModel(),
 ) {
+    val sharedViewModel: SharedViewModel = viewModel()
     val logInState = viewModel.logInState.collectAsState().value
     val updateState: (LogInState) -> Unit =
         { updatedState -> viewModel.updateState { updatedState } }
@@ -69,8 +75,12 @@ fun LogInScreen(
         }
     }
 
-    LaunchedEffect(logInState.navigateToMyProfile) {
-        if (logInState.navigateToMyProfile.not()) return@LaunchedEffect
+    LaunchedEffect(logInState.responseState) {
+        if (logInState.responseState !is ResponseState.Success<*>) return@LaunchedEffect
+        val credentialsMap = logInState.responseState.data as Map<*, *>
+        sharedViewModel.updateAccessToken { credentialsMap["accessToken"] as String }
+        sharedViewModel.updateRefreshToken { credentialsMap["refreshToken"] as String }
+
         navController.navigate(Pager) {
             popUpTo(LogIn) {
                 inclusive = true
@@ -219,7 +229,7 @@ private fun Container3(
             modifier = Modifier
                 .height(55.dp)
                 .fillMaxWidth(),
-            enabled = logInState.updateUiState.not(),
+            enabled = logInState.isUiStateUpdating.not(),
             shape = RoundedCornerShape(6.dp),
             colors = ButtonColors(
                 Color.Transparent,
@@ -229,14 +239,36 @@ private fun Container3(
             ),
             border = BorderStroke(2.dp, Orange)
         ) {
-            Text(
-                text = "Login".uppercase(),
-                color = White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.W600,
-                fontFamily = OPENS_SANS,
-                letterSpacing = 1.5.sp
-            )
+            if (logInState.isUiStateUpdating) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Authorization".uppercase(),
+                        color = White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.W600,
+                        fontFamily = OPENS_SANS,
+                        letterSpacing = 1.5.sp
+                    )
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .height(22.dp)
+                            .aspectRatio(1f),
+                        color = Orange
+                    )
+                }
+            } else {
+                Text(
+                    text = "Login".uppercase(),
+                    color = White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.W600,
+                    fontFamily = OPENS_SANS,
+                    letterSpacing = 1.5.sp
+                )
+            }
         }
         Spacer(modifier = Modifier.height(16.dp))
         Row(
@@ -253,7 +285,7 @@ private fun Container3(
                 text = "Sign up",
                 modifier = Modifier
                     .clickable(
-                        enabled = logInState.updateUiState.not(),
+                        enabled = logInState.isUiStateUpdating.not(),
                         onClick = onSignUpClick
                     ),
                 color = White,
@@ -293,7 +325,7 @@ private fun Container2(
                         }
                     }
                 },
-            enabled = logInState.updateUiState.not(),
+            enabled = logInState.isUiStateUpdating.not(),
             placeholder = { Text("Email") },
             supportingText = {
                 if (logInState.emailIsFocused && logInState.emailError) {
@@ -320,7 +352,7 @@ private fun Container2(
                         }
                     }
                 },
-            enabled = logInState.updateUiState.not(),
+            enabled = logInState.isUiStateUpdating.not(),
             placeholder = { Text("Password") },
             supportingText = {
                 if (logInState.passwordIsFocused && logInState.passwordError) {
@@ -340,7 +372,7 @@ private fun Container2(
         ) {
             Row(
                 modifier = Modifier.clickable(
-                    enabled = logInState.updateUiState.not(),
+                    enabled = logInState.isUiStateUpdating.not(),
                     onClick = {
                         updateState(logInState.copy(rememberMe = logInState.rememberMe.not()))
                     }),
