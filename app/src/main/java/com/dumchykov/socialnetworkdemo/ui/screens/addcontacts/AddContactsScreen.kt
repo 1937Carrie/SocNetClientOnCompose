@@ -1,9 +1,8 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.addcontacts
 
 import android.Manifest
-import android.app.NotificationManager
-import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -79,9 +78,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import com.dumchykov.socialnetworkdemo.R
-import com.dumchykov.socialnetworkdemo.notification.ON_ADD_CONTACT_NOTIFICATION_ID
-import com.dumchykov.socialnetworkdemo.notification.createNotification
-import com.dumchykov.socialnetworkdemo.notification.createNotificationChannel
+import com.dumchykov.socialnetworkdemo.notification.showNotification
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
@@ -101,8 +98,6 @@ fun AddContactsScreen(
     viewModel: AddContactsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
-    val notificationManager =
-        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     val requestPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { permission ->
 //            if (permission) {
@@ -119,19 +114,17 @@ fun AddContactsScreen(
         remember { derivedStateOf { lazyColumnState.firstVisibleItemIndex > 0 } }
     val onAdd: (Int) -> Unit = { contactId -> viewModel.addToContactList(contactId) }
     val showOnAddNotification: (Contact) -> Unit = { contact ->
-        createNotificationChannel(context)
-
-        if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
         } else {
-            val notification =
-                createNotification(
-                    context = context,
-                    contactId = contact.id,
-                    name = contact.name,
-                    takenAction = "Have been added"
-                )
-            notificationManager.notify(ON_ADD_CONTACT_NOTIFICATION_ID, notification.build())
+            showNotification(
+                context = context,
+                contactId = contact.id,
+                name = contact.name,
+                takenAction = "Have been added"
+            )
         }
     }
     val navigateToDetail: (Int) -> Unit =

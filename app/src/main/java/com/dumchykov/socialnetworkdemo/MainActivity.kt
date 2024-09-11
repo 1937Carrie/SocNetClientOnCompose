@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.dumchykov.socialnetworkdemo.navigation.parcelableType
+import androidx.navigation.navDeepLink
 import com.dumchykov.socialnetworkdemo.ui.screens.AddContacts
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
 import com.dumchykov.socialnetworkdemo.ui.screens.EditProfile
@@ -32,9 +32,7 @@ import com.dumchykov.socialnetworkdemo.ui.screens.pager.PagerScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.signup.SignUpScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.signupextended.SignUpExtendedScreen
 import com.dumchykov.socialnetworkdemo.ui.theme.SocialNetworkClientTheme
-import com.dumchykov.socialnetworkdemo.util.BaseContact
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.reflect.typeOf
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -50,11 +48,14 @@ class MainActivity : ComponentActivity() {
                     contentWindowInsets = WindowInsets.displayCutout.union(ScaffoldDefaults.contentWindowInsets),
                 ) { innerPadding ->
                     val navController = rememberNavController()
+                    val uri = "https://www.example.com"
                     NavHost(navController = navController, startDestination = LogIn) {
                         composable<LogIn> { LogInScreen(innerPadding, navController) }
                         composable<SignUp> { SignUpScreen(innerPadding, navController) }
                         composable<Detail>(
-                            typeMap = mapOf(typeOf<BaseContact>() to parcelableType<BaseContact>())
+                            deepLinks = listOf(
+                                navDeepLink<Detail>(basePath = "$uri/detail")
+                            )
                         ) {
                             DetailScreen(innerPadding, navController)
                         }

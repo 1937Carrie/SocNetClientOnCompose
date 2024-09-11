@@ -2,10 +2,9 @@ package com.dumchykov.socialnetworkdemo.ui.screens.mycontacts
 
 import android.Manifest
 import android.app.Activity
-import android.app.NotificationManager
-import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -74,7 +73,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -99,9 +97,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.dumchykov.contactsprovider.data.ContactsProvider
 import com.dumchykov.socialnetworkdemo.R
-import com.dumchykov.socialnetworkdemo.notification.ON_ADD_CONTACT_NOTIFICATION_ID
-import com.dumchykov.socialnetworkdemo.notification.createNotification
-import com.dumchykov.socialnetworkdemo.notification.createNotificationChannel
+import com.dumchykov.socialnetworkdemo.notification.showNotification
 import com.dumchykov.socialnetworkdemo.ui.screens.AddContacts
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
 import com.dumchykov.socialnetworkdemo.ui.screens.mycontacts.models.MyContactsContact
@@ -138,9 +134,6 @@ fun MyContactsScreen(
     val context = LocalContext.current
     (context as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
-
-    val notificationManager =
-        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     val requestPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { permission ->
 //            if (permission) {
@@ -148,26 +141,23 @@ fun MyContactsScreen(
 //                notificationManager.notify(ON_ADD_CONTACT_NOTIFICATION_ID, notification.build())
 //            }
         }
-
     val myContactsState = viewModel.myContactsState.collectAsState().value
     val updateState: (MyContactsState) -> Unit = { state -> viewModel.updateState { state } }
-    val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val addContactState = remember { mutableStateOf(false) }
     val deleteContact: (Int) -> Unit = { contact -> viewModel.deleteContact(contact) }
     val showOnAddNotification: (BaseContact) -> Unit = { contact ->
-        createNotificationChannel(context)
-
-        if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
         } else {
-            val notification = createNotification(
+            showNotification(
                 context = context,
                 contactId = contact.id,
                 name = contact.name,
                 takenAction = "Have been removed"
             )
-            notificationManager.notify(ON_ADD_CONTACT_NOTIFICATION_ID, notification.build())
         }
     }
     val deleteSelected: () -> Unit = { viewModel.deleteSelected() }
