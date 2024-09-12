@@ -37,6 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,7 +53,6 @@ import com.dumchykov.socialnetworkdemo.ui.theme.GrayText
 import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
 import com.dumchykov.socialnetworkdemo.ui.theme.Orange
 import com.dumchykov.socialnetworkdemo.ui.theme.White
-import com.dumchykov.socialnetworkdemo.util.BaseContactImpl
 
 @Composable
 fun DetailScreen(
@@ -98,7 +98,7 @@ private fun DetailScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Profile",
+                        text = stringResource(R.string.profile),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.W600,
                         fontFamily = OPENS_SANS,
@@ -110,7 +110,7 @@ private fun DetailScreen(
                     IconButton(onClick = onNavigationArrowClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Localized description",
+                            contentDescription = stringResource(R.string.navigate_back),
                             tint = White
                         )
                     }
@@ -136,7 +136,7 @@ private fun DetailScreen(
                     }
                 Image(
                     painter = painterResource(image),
-                    contentDescription = "image main",
+                    contentDescription = stringResource(R.string.profile_image),
                     modifier = Modifier
                         .fillMaxWidth(0.33f)
                         .clip(CircleShape)
@@ -151,14 +151,14 @@ private fun DetailScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = detailState.contact.name,
+                            text = detailState.name,
                             color = White,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.W600,
                             fontFamily = OPENS_SANS,
                         )
                         Text(
-                            text = detailState.contact.career,
+                            text = detailState.career,
                             color = Gray,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.W600,
@@ -166,7 +166,7 @@ private fun DetailScreen(
                         )
                     }
                     Text(
-                        text = detailState.contact.address,
+                        text = detailState.address,
                         color = Gray,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.W600,
@@ -198,21 +198,21 @@ private fun DetailScreen(
             ) {
                 Image(
                     painter = painterResource(R.drawable.ic_facebook),
-                    contentDescription = "icon facebook",
+                    contentDescription = stringResource(R.string.facebook),
                     modifier = Modifier
                         .clip(CircleShape)
                         .clickable { }
                 )
                 Image(
                     painter = painterResource(R.drawable.ic_linkedin),
-                    contentDescription = "icon linkedin",
+                    contentDescription = stringResource(R.string.linkedin),
                     modifier = Modifier
                         .clip(CircleShape)
                         .clickable { }
                 )
                 Image(
                     painter = painterResource(R.drawable.ic_instagram),
-                    contentDescription = "icon instagram",
+                    contentDescription = stringResource(R.string.instagram),
                     modifier = Modifier
                         .clip(CircleShape)
                         .clickable { }
@@ -234,7 +234,7 @@ private fun DetailScreen(
                         ),
                     ) {
                         Text(
-                            text = "Message".uppercase(),
+                            text = stringResource(R.string.message).uppercase(),
                             color = Color.White,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.W600,
@@ -264,7 +264,7 @@ private fun DetailScreen(
                             border = BorderStroke(2.dp, Blue)
                         ) {
                             Text(
-                                text = "Message",
+                                text = stringResource(R.string.message),
                                 color = GrayText,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.W600,
@@ -285,7 +285,7 @@ private fun DetailScreen(
                             ),
                         ) {
                             Text(
-                                text = "Add to my contacts".uppercase(),
+                                text = stringResource(R.string.add_to_my_contacts).uppercase(),
                                 color = White,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.W600,
@@ -306,11 +306,9 @@ private fun DetailScreenPreview() {
     DetailScreen(
         padding = PaddingValues(0.dp),
         detailState = DetailState(
-            BaseContactImpl(
-                name = "Jenny Walker",
-                career = "Make-up artist",
-                address = "775 Westminster Avenue APT D5 Brooklyn, NY, 11230"
-            )
+            name = "Jenny Walker",
+            career = "Make-up artist",
+            address = "775 Westminster Avenue APT D5 Brooklyn, NY, 11230",
         ),
         onNavigationArrowClick = {},
         onAddToMyContactsClick = {}

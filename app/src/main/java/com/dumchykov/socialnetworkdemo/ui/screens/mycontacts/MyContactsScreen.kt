@@ -5,7 +5,7 @@ import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -83,6 +83,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -100,8 +101,8 @@ import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.notification.showNotification
 import com.dumchykov.socialnetworkdemo.ui.screens.AddContacts
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
-import com.dumchykov.socialnetworkdemo.ui.screens.mycontacts.models.MyContactsContact
-import com.dumchykov.socialnetworkdemo.ui.screens.mycontacts.models.toMyContactsContact
+import com.dumchykov.socialnetworkdemo.ui.screens.mycontacts.data.MyContactsIndicatorContact
+import com.dumchykov.socialnetworkdemo.ui.screens.mycontacts.data.toMyContactsIndicatorContact
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray828282
@@ -112,8 +113,7 @@ import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
 import com.dumchykov.socialnetworkdemo.ui.theme.Orange
 import com.dumchykov.socialnetworkdemo.ui.theme.White
 import com.dumchykov.socialnetworkdemo.ui.util.customTextFieldsColors
-import com.dumchykov.socialnetworkdemo.util.BaseContact
-import kotlinx.coroutines.launch
+import com.dumchykov.socialnetworkdemo.webapi.domain.ResponseState
 
 @Composable
 fun MyContactsScreen(
@@ -123,30 +123,36 @@ fun MyContactsScreen(
     viewModel: MyContactsViewModel = hiltViewModel(),
     onNavigationArrowClick: () -> Unit = {},
 ) {
-    BackHandler {
-        onNavigationArrowClick()
-    }
-
     LaunchedEffect(true) {
         viewModel.updateListOnEnter()
+    }
+
+    BackHandler {
+        onNavigationArrowClick()
     }
 
     val context = LocalContext.current
     (context as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
+    val deleteContactState = viewModel.deleteContactState.collectAsState(null).value
     val requestPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { permission ->
-//            if (permission) {
-//                val notification = createNotification(context)
-//                notificationManager.notify(ON_ADD_CONTACT_NOTIFICATION_ID, notification.build())
-//            }
+            if (permission) {
+                if (deleteContactState == null) return@rememberLauncherForActivityResult
+                showNotification(
+                    context = context,
+                    contactId = deleteContactState.id,
+                    name = deleteContactState.name,
+                    takenAction = context.getString(R.string.have_been_removed)
+                )
+            }
         }
     val myContactsState = viewModel.myContactsState.collectAsState().value
     val updateState: (MyContactsState) -> Unit = { state -> viewModel.updateState { state } }
     val snackbarHostState = remember { SnackbarHostState() }
     val addContactState = remember { mutableStateOf(false) }
     val deleteContact: (Int) -> Unit = { contact -> viewModel.deleteContact(contact) }
-    val showOnAddNotification: (BaseContact) -> Unit = { contact ->
+    val showOnAddNotification: (MyContactsIndicatorContact) -> Unit = { contact ->
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -156,13 +162,14 @@ fun MyContactsScreen(
                 context = context,
                 contactId = contact.id,
                 name = contact.name,
-                takenAction = "Have been removed"
+                takenAction = context.getString(R.string.have_been_removed)
             )
         }
     }
     val deleteSelected: () -> Unit = { viewModel.deleteSelected() }
-    val addContact: (MyContactsContact) -> Unit = { contact -> viewModel.addContact(contact) }
-    val changeContactSelectedState: (MyContactsContact) -> Unit =
+    val addContact: (MyContactsIndicatorContact) -> Unit =
+        { contact -> viewModel.addContact(contact) }
+    val changeContactSelectedState: (MyContactsIndicatorContact) -> Unit =
         { contact -> viewModel.changeContactSelectedState(contact) }
     val navigateToAddContacts: () -> Unit = { navController.navigate(AddContacts) }
     val navigateToDetail: (Int) -> Unit =
@@ -184,27 +191,24 @@ fun MyContactsScreen(
         navigateToDetail = navigateToDetail
     )
 
-    val deleteContactState = viewModel.deleteContactState.collectAsState(initial = null).value
-    LaunchedEffect(deleteContactState) {
-        if (deleteContactState != null) {
-            coroutineScope.launch {
-                // Check if a snackbar is currently being displayed
-                snackbarHostState.currentSnackbarData?.dismiss()
+    LaunchedEffect(true) {
+        viewModel.deleteContactState.collect { deleteContactState ->
+            // Check if a snackbar is currently being displayed
+            snackbarHostState.currentSnackbarData?.dismiss()
 
-                val result = snackbarHostState
-                    .showSnackbar(
-                        message = "${deleteContactState.name} has been deleted",
-                        actionLabel = "Undo",
-                        duration = SnackbarDuration.Long
-                    )
-                when (result) {
-                    SnackbarResult.ActionPerformed -> {
-                        addContact(deleteContactState)
-                    }
+            val result = snackbarHostState
+                .showSnackbar(
+                    message = context.getString(R.string.has_been_deleted, deleteContactState.name),
+                    actionLabel = context.getString(R.string.undo),
+                    duration = SnackbarDuration.Long
+                )
+            when (result) {
+                SnackbarResult.ActionPerformed -> {
+                    addContact(deleteContactState)
+                }
 
-                    SnackbarResult.Dismissed -> {
-                        /* Handle snackbar dismissed */
-                    }
+                SnackbarResult.Dismissed -> {
+                    /* Handle snackbar dismissed */
                 }
             }
         }
@@ -220,10 +224,10 @@ private fun MyContactsScreen(
     myContactsState: MyContactsState,
     addContactState: MutableState<Boolean>,
     onDelete: (Int) -> Unit,
-    showOnAddNotification: (BaseContact) -> Unit,
+    showOnAddNotification: (MyContactsIndicatorContact) -> Unit,
     deleteSelected: () -> Unit,
-    addContact: (MyContactsContact) -> Unit,
-    changeContactSelectedState: (MyContactsContact) -> Unit,
+    addContact: (MyContactsIndicatorContact) -> Unit,
+    changeContactSelectedState: (MyContactsIndicatorContact) -> Unit,
     onNavigationArrowClick: () -> Unit,
     navigateToAddContacts: () -> Unit,
     navigateToDetail: (Int) -> Unit,
@@ -274,7 +278,7 @@ private fun MyContactsScreen(
                                 ) {
                                     if (myContactsState.searchQuery.isEmpty() && !isFocused) {
                                         Text(
-                                            text = "Search...",
+                                            text = stringResource(R.string.placeholder_search),
                                             color = White,
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.W600,
@@ -292,7 +296,7 @@ private fun MyContactsScreen(
                         }) {
                             Icon(
                                 imageVector = Icons.Filled.Close,
-                                contentDescription = "Localized description",
+                                contentDescription = stringResource(R.string.close_search_field),
                                 tint = White
                             )
                         }
@@ -303,7 +307,7 @@ private fun MyContactsScreen(
                     CenterAlignedTopAppBar(
                         title = {
                             Text(
-                                text = "Contacts",
+                                text = stringResource(R.string.contacts),
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.W600,
                                 fontFamily = OPENS_SANS,
@@ -315,7 +319,7 @@ private fun MyContactsScreen(
                             IconButton(onClick = onNavigationArrowClick) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Localized description",
+                                    contentDescription = stringResource(R.string.navigate_back),
                                     tint = White
                                 )
                             }
@@ -326,7 +330,7 @@ private fun MyContactsScreen(
                             }) {
                                 Icon(
                                     imageVector = Icons.Filled.Search,
-                                    contentDescription = "Localized description",
+                                    contentDescription = stringResource(R.string.open_search_field),
                                     tint = White
                                 )
                             }
@@ -346,14 +350,13 @@ private fun MyContactsScreen(
                 IconButton(
                     onClick = deleteSelected,
                     modifier = Modifier
+                        .size(60.dp)
                         .clip(CircleShape)
                         .background(Orange)
-                        .padding(8.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Delete,
-                        contentDescription = "Icon delete selected contacts",
-                        modifier = Modifier.size(60.dp),
+                        contentDescription = stringResource(R.string.icon_delete_selected_contacts),
                         tint = White
                     )
                 }
@@ -374,7 +377,7 @@ private fun MyContactsScreen(
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "Add contacts",
+                    text = stringResource(R.string.add_contacts),
                     modifier = Modifier
                         .padding(16.dp)
                         .clickable { navigateToAddContacts() },
@@ -384,52 +387,78 @@ private fun MyContactsScreen(
                     fontFamily = OPENS_SANS
                 )
             }
-            when (myContactsState.contacts.count { contact ->
-                contact.name.lowercase().contains(myContactsState.searchQuery.lowercase())
-            } == 0) {
-                true -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(White)
-                            .padding(vertical = 32.dp, horizontal = 16.dp)
+            when (myContactsState.responseState) {
+                is ResponseState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = "No results found",
-                                color = GrayText,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.W600,
-                                fontFamily = OPENS_SANS
-                            )
-                            Text(
-                                text = "You can see more contacts in the recommendation",
-                                color = GrayText,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.W400,
-                                fontFamily = OPENS_SANS
+                        CircularProgressIndicator(
+                            modifier = Modifier,
+                            color = Orange
+                        )
+                    }
+                }
+
+                is ResponseState.Success<*> -> {
+                    when (myContactsState.contacts.count { contact ->
+                        contact.name.lowercase().contains(myContactsState.searchQuery.lowercase())
+                    } == 0) {
+                        true -> {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(White)
+                                    .padding(vertical = 32.dp, horizontal = 16.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.no_results_found),
+                                        color = GrayText,
+                                        fontSize = 24.sp,
+                                        fontWeight = FontWeight.W600,
+                                        fontFamily = OPENS_SANS
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.you_can_see_more_contacts_in_the_recommendation),
+                                        color = GrayText,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.W400,
+                                        fontFamily = OPENS_SANS
+                                    )
+                                }
+                            }
+                        }
+
+                        false -> {
+                            ContactsColumn(
+                                contacts = myContactsState.contacts.filter { contact ->
+                                    contact.name.lowercase().contains(
+                                        myContactsState.searchQuery.lowercase()
+                                    )
+                                },
+                                isMultiselect = myContactsState.isMultiselect,
+                                onDelete = onDelete,
+                                showOnAddNotification = showOnAddNotification,
+                                changeContactSelectedState = changeContactSelectedState,
+                                navigateToDetail = navigateToDetail
                             )
                         }
                     }
                 }
 
-                false -> {
-                    ContactsColumn(
-                        contacts = myContactsState.contacts.filter { contact ->
-                            contact.name.lowercase().contains(
-                                myContactsState.searchQuery.lowercase()
-                            )
-                        },
-                        isMultiselect = myContactsState.isMultiselect,
-                        onDelete = onDelete,
-                        showOnAddNotification = showOnAddNotification,
-                        changeContactSelectedState = changeContactSelectedState,
-                        navigateToDetail = navigateToDetail
-                    )
+                is ResponseState.Initial -> {}
+
+                else -> {
+                    Toast.makeText(
+                        LocalContext.current,
+                        myContactsState.responseState.toString(),
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
@@ -447,11 +476,11 @@ private fun MyContactsScreen(
 
 @Composable
 private fun ContactsColumn(
-    contacts: List<MyContactsContact>,
+    contacts: List<MyContactsIndicatorContact>,
     isMultiselect: Boolean,
     onDelete: (Int) -> Unit,
-    showOnAddNotification: (BaseContact) -> Unit,
-    changeContactSelectedState: (MyContactsContact) -> Unit,
+    showOnAddNotification: (MyContactsIndicatorContact) -> Unit,
+    changeContactSelectedState: (MyContactsIndicatorContact) -> Unit,
     navigateToDetail: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -463,7 +492,7 @@ private fun ContactsColumn(
         itemsIndexed(
             items = contacts,
             key = { _, item -> item }
-        ) { index, contact ->
+        ) { _, contact ->
             SwipeableContainer(
                 contact = contact,
                 isMultiselect = isMultiselect,
@@ -476,14 +505,13 @@ private fun ContactsColumn(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SwipeableContainer(
-    contact: MyContactsContact,
+    contact: MyContactsIndicatorContact,
     isMultiselect: Boolean,
     onDelete: (Int) -> Unit,
-    showOnAddNotification: (BaseContact) -> Unit,
-    changeContactSelectedState: (MyContactsContact) -> Unit,
+    showOnAddNotification: (MyContactsIndicatorContact) -> Unit,
+    changeContactSelectedState: (MyContactsIndicatorContact) -> Unit,
     navigateToDetail: (Int) -> Unit,
     animationDuration: Int = 500,
 ) {
@@ -503,10 +531,6 @@ private fun SwipeableContainer(
         if (isRemoved) {
 //            delay(animationDuration.toLong())
             onDelete(contact.id)
-            Log.d(
-                "AAA",
-                "onDelete ItemContact ${contact.name}: ${swipeToDismissBoxState.currentValue.name}"
-            )
         }
     }
 
@@ -546,14 +570,14 @@ private fun SwipeableContainer(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 private fun ItemContact(
     swipeToDismissBoxState: SwipeToDismissBoxState,
-    contact: MyContactsContact,
+    contact: MyContactsIndicatorContact,
     isMultiselect: Boolean,
     onDelete: (Int) -> Unit,
-    showOnAddNotification: (BaseContact) -> Unit,
-    changeContactSelectedState: (MyContactsContact) -> Unit,
+    showOnAddNotification: (MyContactsIndicatorContact) -> Unit,
+    changeContactSelectedState: (MyContactsIndicatorContact) -> Unit,
     navigateToDetail: (Int) -> Unit,
 ) {
     Row(
@@ -588,7 +612,11 @@ private fun ItemContact(
         if (isMultiselect) {
             Image(
                 painter = painterResource(if (contact.isChecked) R.drawable.circle_checked else R.drawable.circle_gray),
-                contentDescription = "multiselect state",
+                contentDescription = if (contact.isChecked) {
+                    stringResource(R.string.multiselect_checked_indicator)
+                } else {
+                    stringResource(R.string.multiselect_unchecked_indicator)
+                },
                 modifier = Modifier
                     .padding(8.dp)
                     .clip(CircleShape)
@@ -604,7 +632,7 @@ private fun ItemContact(
             modifier = Modifier
                 .clip(CircleShape)
                 .aspectRatio(1f),
-            contentDescription = "",
+            contentDescription = stringResource(R.string.individual_profile_image, contact.name),
             contentScale = ContentScale.Crop
         )
         Column(
@@ -641,18 +669,19 @@ private fun ItemContact(
                     }) {
                         Icon(
                             imageVector = Icons.Filled.Delete,
-                            contentDescription = "Localized description",
+                            contentDescription = stringResource(
+                                R.string.icon_individual_delete,
+                                contact.name
+                            ),
                             tint = Orange
                         )
                     }
                 }
             }
-
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeleteBackground(
     swipeDismissState: SwipeToDismissBoxState,
@@ -680,7 +709,7 @@ fun DeleteBackground(
 @Composable
 private fun DialogAddContact(
     onDismissRequest: () -> Unit = {},
-    onConfirmation: (MyContactsContact) -> Unit = {},
+    onConfirmation: (MyContactsIndicatorContact) -> Unit = {},
 ) {
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -768,7 +797,7 @@ private fun DialogAddContact(
                 ) {
                     Button(
                         onClick = {
-                            val contact = MyContactsContact(
+                            val contact = MyContactsIndicatorContact(
                                 name = nameState.value,
                                 career = careerState.value,
                                 address = addressState.value
@@ -830,7 +859,9 @@ private fun MyContactsScreenPreview() {
         updateState = { _ -> },
         snackbarHostState = SnackbarHostState(),
         myContactsState = MyContactsState(
-            contacts = contactsProvider.getContacts().map { it.toMyContactsContact() },
+            contacts = contactsProvider.getContacts().map { it.toMyContactsIndicatorContact() },
+            isMultiselect = true,
+            responseState = ResponseState.Success(null),
             searchState = true
         ),
         addContactState = remember { mutableStateOf(false) },
@@ -845,7 +876,7 @@ private fun MyContactsScreenPreview() {
     )
 }
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
 fun DialogAddContactPreview() {
     DialogAddContact()

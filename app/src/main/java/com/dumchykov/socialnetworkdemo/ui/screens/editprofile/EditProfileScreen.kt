@@ -47,6 +47,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
@@ -140,7 +141,7 @@ private fun EditProfileScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Edit profile",
+                        text = stringResource(R.string.edit_profile),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.W600,
                         fontFamily = OPENS_SANS,
@@ -152,7 +153,7 @@ private fun EditProfileScreen(
                     IconButton(onClick = onArrowBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Localized description",
+                            contentDescription = stringResource(R.string.navigate_back),
                             tint = White
                         )
                     }
@@ -177,7 +178,7 @@ private fun EditProfileScreen(
             ) {
                 Image(
                     painter = painterResource(R.drawable.black_guy_happy),
-                    contentDescription = "",
+                    contentDescription = stringResource(R.string.profile_image),
                     modifier = Modifier
                         .padding(28.dp)
                         .fillMaxWidth(0.4f)
@@ -193,42 +194,42 @@ private fun EditProfileScreen(
                     .padding(16.dp)
             ) {
                 DialogTextField(
-                    editProfileState.name,
-                    { name -> updateState(editProfileState.copy(name = name)) },
-                    "Username"
+                    value = editProfileState.name,
+                    onValueChange = { name -> updateState(editProfileState.copy(name = name)) },
+                    label = stringResource(R.string.username)
                 )
                 DialogTextField(
-                    editProfileState.career,
-                    { career -> updateState(editProfileState.copy(career = career)) },
-                    "Career"
+                    value = editProfileState.career,
+                    onValueChange = { career -> updateState(editProfileState.copy(career = career)) },
+                    label = stringResource(R.string.career)
                 )
                 DialogTextField(
-                    editProfileState.email,
-                    { email -> updateState(editProfileState.copy(email = email)) },
-                    "Email"
+                    value = editProfileState.email,
+                    onValueChange = { email -> updateState(editProfileState.copy(email = email)) },
+                    label = stringResource(R.string.email)
                 )
                 DialogTextField(
-                    editProfileState.phone,
-                    { phone -> updateState(editProfileState.copy(phone = phone)) },
-                    "Phone"
+                    value = editProfileState.phone,
+                    onValueChange = { phone -> updateState(editProfileState.copy(phone = phone)) },
+                    label = stringResource(R.string.phone)
                 )
                 DialogTextField(
-                    editProfileState.address,
-                    { address -> updateState(editProfileState.copy(address = address)) },
-                    "Address",
-                    false
+                    value = editProfileState.address,
+                    onValueChange = { address -> updateState(editProfileState.copy(address = address)) },
+                    label = stringResource(R.string.address),
+                    last = false
                 )
                 TextField(
                     value = selectedDate,
                     onValueChange = {},
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = "Date of birth", color = Gray) },
+                    label = { Text(text = stringResource(R.string.date_of_birth), color = Gray) },
                     readOnly = true,
                     trailingIcon = {
                         IconButton(onClick = showDatePicker) {
                             Icon(
                                 imageVector = Icons.Default.DateRange,
-                                contentDescription = "Select date",
+                                contentDescription = stringResource(R.string.select_date),
                                 tint = Gray
                             )
                         }
@@ -264,7 +265,7 @@ private fun EditProfileScreen(
                     colors = ButtonColors(Orange, Color.Transparent, Orange, Color.Transparent)
                 ) {
                     Text(
-                        text = "Save",
+                        text = stringResource(R.string.save),
                         color = White,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.W600,
@@ -298,12 +299,12 @@ fun DatePickerModal(
                 onDateSelected(datePickerState.selectedDateMillis)
                 onDismiss()
             }) {
-                Text("OK")
+                Text(stringResource(R.string.ok))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     ) {

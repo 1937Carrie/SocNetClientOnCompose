@@ -27,14 +27,14 @@ class EditProfileViewModel @Inject constructor(
 
     private fun updateContactAppearance() {
         viewModelScope.launch {
-            val contact = contactRepository.getCurrentUser()
+            val contact = contactRepository.getUserById(-1)
             updateState {
                 copy(
-                    name = contact.name.orEmpty(),
-                    career = contact.career.orEmpty(),
-                    email = contact.email.orEmpty(),
-                    phone = contact.phone.orEmpty(),
-                    address = contact.address.orEmpty(),
+                    name = contact.name,
+                    career = contact.career,
+                    email = contact.email,
+                    phone = contact.phone,
+                    address = contact.address,
                     dateOfBirth = contact.birthday,
                     dataHasActualState = true
                 )
@@ -69,7 +69,7 @@ class EditProfileViewModel @Inject constructor(
 
     fun editContact() {
         viewModelScope.launch {
-            val contact = contactRepository.getCurrentUser()
+            val contact = contactRepository.getUserById(-1)
             val updatedContact = editProfileState.value
             val editedUser = contact.copy(
                 name = updatedContact.name,
@@ -77,7 +77,8 @@ class EditProfileViewModel @Inject constructor(
                 email = updatedContact.email,
                 phone = updatedContact.phone,
                 address = updatedContact.address,
-                birthday = updatedContact.dateOfBirth
+                birthday = updatedContact.dateOfBirth,
+                image = null
             )
             contactRepository.editUser(editedUser)
             updateContactAppearance()

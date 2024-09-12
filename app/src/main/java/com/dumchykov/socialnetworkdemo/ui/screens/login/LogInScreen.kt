@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -37,10 +38,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.dumchykov.socialnetworkdemo.R
-import com.dumchykov.socialnetworkdemo.SharedViewModel
 import com.dumchykov.socialnetworkdemo.ui.screens.LogIn
 import com.dumchykov.socialnetworkdemo.ui.screens.Pager
 import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
@@ -59,7 +58,6 @@ fun LogInScreen(
     modifier: Modifier = Modifier,
     viewModel: LogInViewModel = hiltViewModel(),
 ) {
-    val sharedViewModel: SharedViewModel = viewModel()
     val logInState = viewModel.logInState.collectAsState().value
     val updateState: (LogInState) -> Unit =
         { updatedState -> viewModel.updateState { updatedState } }
@@ -77,9 +75,6 @@ fun LogInScreen(
 
     LaunchedEffect(logInState.responseState) {
         if (logInState.responseState !is ResponseState.Success<*>) return@LaunchedEffect
-        val credentialsMap = logInState.responseState.data as Map<*, *>
-        sharedViewModel.updateAccessToken { credentialsMap["accessToken"] as String }
-        sharedViewModel.updateRefreshToken { credentialsMap["refreshToken"] as String }
 
         navController.navigate(Pager) {
             popUpTo(LogIn) {
@@ -245,7 +240,7 @@ private fun Container3(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Authorization".uppercase(),
+                        text = stringResource(R.string.authorization).uppercase(),
                         color = White,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.W600,
@@ -261,7 +256,7 @@ private fun Container3(
                 }
             } else {
                 Text(
-                    text = "Login".uppercase(),
+                    text = stringResource(R.string.login).uppercase(),
                     color = White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.W600,
@@ -275,14 +270,14 @@ private fun Container3(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = "Don’t have account?",
+                text = stringResource(R.string.don_t_have_account),
                 color = Gray,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.W600,
                 fontFamily = OPENS_SANS
             )
             Text(
-                text = "Sign up",
+                text = stringResource(R.string.sign_up),
                 modifier = Modifier
                     .clickable(
                         enabled = logInState.isUiStateUpdating.not(),
@@ -326,10 +321,10 @@ private fun Container2(
                     }
                 },
             enabled = logInState.isUiStateUpdating.not(),
-            placeholder = { Text("Email") },
+            placeholder = { Text(text = stringResource(R.string.email)) },
             supportingText = {
                 if (logInState.emailIsFocused && logInState.emailError) {
-                    Text(text = "Incorrect E-Mail address")
+                    Text(text = stringResource(R.string.incorrect_e_mail_address))
                 }
             },
             isError = logInState.emailError,
@@ -353,10 +348,10 @@ private fun Container2(
                     }
                 },
             enabled = logInState.isUiStateUpdating.not(),
-            placeholder = { Text("Password") },
+            placeholder = { Text(stringResource(R.string.password)) },
             supportingText = {
                 if (logInState.passwordIsFocused && logInState.passwordError) {
-                    Text(text = "Password is empty")
+                    Text(text = stringResource(R.string.password_is_empty))
                 }
             },
             isError = logInState.passwordError,
@@ -381,11 +376,11 @@ private fun Container2(
             ) {
                 Icon(
                     painter = painterResource(if (logInState.rememberMe) R.drawable.ic_checkbox_checked else R.drawable.ic_checkbox),
-                    contentDescription = "checkbox remember me",
+                    contentDescription = stringResource(R.string.checkbox_remember_me),
                     tint = White
                 )
                 Text(
-                    text = "Remember me",
+                    text = stringResource(R.string.remember_me),
                     color = Gray,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.W600,
@@ -393,7 +388,7 @@ private fun Container2(
                 )
             }
             Text(
-                text = "Forgot your password",
+                text = stringResource(R.string.forgot_your_password),
                 color = White,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.W600,
@@ -411,14 +406,14 @@ private fun Container1(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Hello!",
+            text = stringResource(R.string.hello),
             color = White,
             fontSize = 24.sp,
             fontWeight = FontWeight.W600,
             fontFamily = OPENS_SANS,
         )
         Text(
-            text = "Enter your email and password below",
+            text = stringResource(R.string.enter_your_email_and_password_below),
             color = White,
             fontSize = 12.sp,
             fontWeight = FontWeight.W400,

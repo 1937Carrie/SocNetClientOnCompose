@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.screens.Pager
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
@@ -114,7 +116,7 @@ private fun SignUpExtendedScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.AccountCircle,
-                        contentDescription = "Localized description",
+                        contentDescription = "",
                         modifier = Modifier.fillMaxSize(),
                         tint = Gray
                     )
@@ -128,7 +130,7 @@ private fun SignUpExtendedScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.AddCircle,
-                        contentDescription = "Localized description",
+                        contentDescription = "",
                         modifier = Modifier.fillMaxSize(),
                         tint = Gray
                     )
@@ -140,14 +142,14 @@ private fun SignUpExtendedScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Your profile data",
+                    text = stringResource(R.string.your_profile_data),
                     color = White,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.W600,
                     fontFamily = OPENS_SANS,
                 )
                 Text(
-                    text = "Fill out the profile and go to the application!",
+                    text = stringResource(R.string.fill_out_the_profile_and_go_to_the_application),
                     color = White,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.W400,
@@ -167,7 +169,7 @@ private fun SignUpExtendedScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth(),
-                placeholder = { Text("User name") },
+                placeholder = { Text(text = stringResource(R.string.user_name)) },
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
                 singleLine = true,
                 colors = customTextFieldsColors()
@@ -179,7 +181,7 @@ private fun SignUpExtendedScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth(),
-                placeholder = { Text("Mobile phone") },
+                placeholder = { Text(text = stringResource(R.string.mobile_phone)) },
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                 singleLine = true,
                 colors = customTextFieldsColors()
@@ -200,7 +202,7 @@ private fun SignUpExtendedScreen(
                 border = BorderStroke(2.dp, White)
             ) {
                 Text(
-                    text = "Cancel",
+                    text = stringResource(R.string.cancel),
                     color = White,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.W600,
@@ -216,7 +218,7 @@ private fun SignUpExtendedScreen(
                 colors = ButtonColors(Orange, White, Orange, White)
             ) {
                 Text(
-                    text = "Forward".uppercase(),
+                    text = stringResource(R.string.forward).uppercase(),
                     color = White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.W600,

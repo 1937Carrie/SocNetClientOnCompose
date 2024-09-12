@@ -1,28 +1,25 @@
 [versions]
-activityCompose = "1.9.1"
+activityCompose = "1.9.2"
 agp = "8.5.2"
-composeBom = "2024.08.00"
+composeBom = "2024.09.01"
 coreKtx = "1.13.1"
 datastorePreferences = "1.1.1"
-espressoCore = "3.6.1"
 hiltAndroid = "2.52"
 hiltCompiler = "2.52"
 hiltNavigationCompose = "1.2.0"
 javax-inject = "1"
 jetbrainsKotlinJvm = "2.0.0"
-junit = "4.13.2"
-junitVersion = "1.2.1"
 kotlin = "2.0.20"
 kotlinxSerializationJson = "1.7.1"
 ksp = "2.0.20-1.0.24"
-lifecycleRuntimeKtx = "2.8.4"
+lifecycleRuntimeKtx = "2.8.5"
 loggingInterceptor = "4.12.0"
 navigationCompose = "2.8.0"
 okhttp = "4.12.0"
 retrofit = "2.11.0"
 retrofit2KotlinxSerializationConverter = "1.0.0"
 room = "2.6.1"
-viewmodel = "2.8.4"
+viewmodel = "2.8.5"
 
 [libraries]
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -30,9 +27,7 @@ androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", versi
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 #DataStore
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 #Viewmodel
 androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "viewmodel" }
@@ -52,7 +47,6 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltCompiler" }
 javax-inject = { module = "javax.inject:javax.inject", version.ref = "javax-inject" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
 #Kotlin serialization
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }

@@ -1,149 +1,182 @@
 package com.dumchykov.socialnetworkdemo.webapi.data
 
-import com.dumchykov.data.toContactDBO
-import com.dumchykov.database.ContactsDatabase
-import com.dumchykov.database.models.CurrentUserDBO
+import com.dumchykov.data.Contact
+import com.dumchykov.database.repository.DatabaseRepositoryImpl
 import com.dumchykov.datastore.data.DataStoreProvider
-import com.dumchykov.socialnetworkdemo.webapi.data.interceptors.toContact
 import com.dumchykov.socialnetworkdemo.webapi.domain.ContactApiService
 import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
-import com.dumchykov.socialnetworkdemo.webapi.domain.models.Contact
+import com.dumchykov.socialnetworkdemo.webapi.domain.ResponseState
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.ContactId
-import com.dumchykov.socialnetworkdemo.webapi.domain.models.ContactResponse
 import com.dumchykov.socialnetworkdemo.webapi.domain.models.EmailPassword
-import com.dumchykov.socialnetworkdemo.webapi.domain.models.SingleUserResponse
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import com.dumchykov.socialnetworkdemo.webapi.domain.models.toApiContact
+import com.dumchykov.socialnetworkdemo.webapi.domain.models.toContact
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withContext
 
 class ContactRepositoryImpl(
     private val contactApiService: ContactApiService,
-    private val dataBase: ContactsDatabase,
+    private val databaseRepository: DatabaseRepositoryImpl,
     private val dataStoreProvider: DataStoreProvider,
 ) : ContactRepository {
-    override suspend fun register(email: String, password: String, saveCredentials: Boolean) {
-        try {
-            val registerResponse = contactApiService.register(email, password)
-            if (saveCredentials) {
-                dataStoreProvider.saveCredentials(email, password)
+    override suspend fun register(email: String, password: String): ResponseState {
+        return try {
+            val (_, code, message, data) = contactApiService.register(email, password)
+            if (code == 200) {
+                val contact = data.user.toContact()
+                databaseRepository.insertCurrentUser(contact)
+
+                dataStoreProvider.saveAccessToken(data.accessToken)
+                dataStoreProvider.saveRefreshToken(data.refreshToken)
+                ResponseState.Success<Nothing>()
+            } else {
+                ResponseState.HttpCode(code, message)
             }
-
-        } catch (e: Exception) {
-
+        } catch (e: Throwable) {
+            ResponseState.Error(e.message)
         }
     }
 
-    override suspend fun authorize(
-        email: String,
-        password: String,
-    ): Boolean {
-        val authResponse: ContactResponse<SingleUserResponse> = contactApiService.authorize(
-            EmailPassword(email, password)
-        )
-        if (authResponse.code == 200) {
-            val currentUser = CurrentUserDBO(
-                id = 0,
-                currentUserId = authResponse.data.user.id,
-                contactsIds = emptyList()
+    override suspend fun authorize(email: String, password: String): ResponseState {
+        return try {
+            val emailPassword = EmailPassword(email, password)
+            val (_, code, message, data) = contactApiService.authorize(emailPassword)
+            if (code == 200) {
+                val contact = data.user.toContact()
+                databaseRepository.insertCurrentUser(contact)
+
+                dataStoreProvider.saveAccessToken(data.accessToken)
+                dataStoreProvider.saveRefreshToken(data.refreshToken)
+                ResponseState.Success<Nothing>()
+            } else {
+                ResponseState.HttpCode(code, message)
+            }
+        } catch (e: Throwable) {
+            ResponseState.Error(e.message)
+        }
+    }
+
+    override suspend fun refreshToken(): ResponseState {
+        return try {
+            val refreshToken = dataStoreProvider.readRefreshToken().first()
+            val (_, code, message, data) = contactApiService.refreshToken(refreshToken)
+            if (code == 200) {
+                dataStoreProvider.saveAccessToken(data.accessToken)
+                dataStoreProvider.saveRefreshToken(data.refreshToken)
+                ResponseState.Success<Nothing>()
+            } else {
+                ResponseState.HttpCode(code, message)
+            }
+        } catch (e: Throwable) {
+            ResponseState.Error(e.message)
+        }
+    }
+
+    override suspend fun editUser(user: Contact): ResponseState {
+        return try {
+            val userId = getUserId()
+            val bearerToken = dataStoreProvider.readAccessToken().first()
+            val (_, code, message, data) = contactApiService.editUser(
+                userId,
+                bearerToken,
+                user.toApiContact()
             )
-            withContext(Dispatchers.IO) {
-                async { dataBase.currentUserDAO().insert(currentUser) }.await()
-
-                async { dataStoreProvider.saveAccessToken(authResponse.data.accessToken) }.await()
-                async { dataStoreProvider.saveRefreshToken(authResponse.data.refreshToken) }.await()
-
+            if (code == 200) {
+                val contact = data.user.toContact()
+                databaseRepository.insertCurrentUser(contact)
                 getUsers()
-                updateUserContacts()
+
+                ResponseState.Success<Nothing>()
+            } else {
+                ResponseState.HttpCode(code, message)
             }
+        } catch (e: Throwable) {
+            ResponseState.Error(e.message)
         }
-        return authResponse.code == 200
     }
 
-    override suspend fun refreshToken() {}
+    override suspend fun getUsers(): ResponseState {
+        return try {
+            val bearerToken = dataStoreProvider.readAccessToken().first()
+            val (_, code, message, data) = contactApiService.getUsers(bearerToken)
+            if (code == 200) {
+                val users = data.users.map { it.toContact() }
 
-    override suspend fun getCurrentUser(): Contact {
-        val currentUserId = dataBase.currentUserDAO().getCurrentUserId()
-        return getUserById(currentUserId)
+                databaseRepository.insertAll(users)
+
+                ResponseState.Success<Nothing>()
+            } else {
+                ResponseState.HttpCode(code, message)
+            }
+        } catch (e: Throwable) {
+            ResponseState.Error(e.message)
+        }
     }
 
-    override suspend fun getUserById(userId: Int): Contact {
-        val user = dataBase.contactsDao().getUser(userId)
-
-        return user?.toContact() ?: throw IllegalStateException()
+    override suspend fun getUserById(id: Int): Contact {
+        return if (id == -1) {
+            databaseRepository.getCurrentUser()
+        } else {
+            databaseRepository.getUserById(id)
+        }
     }
 
-    override suspend fun editUser(user: Contact) {
+    override suspend fun addContact(contactId: Int): ResponseState {
+        return try {
+            val bearerToken = dataStoreProvider.readAccessToken().first()
+            val userId = getUserId()
+            val contactId1 = ContactId(contactId)
+            val (_, code, message, data) = contactApiService.addContact(
+                bearerToken,
+                userId,
+                contactId1
+            )
+            if (code == 200) {
+                ResponseState.Success(data.apiContacts.map { it.toContact() })
+            } else {
+                ResponseState.HttpCode(code, message)
+            }
+        } catch (e: Throwable) {
+            ResponseState.Error(e.message)
+        }
+    }
+
+    override suspend fun deleteContact(contactId: Int): ResponseState {
         val userId = getUserId()
-        val token = getAccessToken()
-        val editedUserResponse = contactApiService.editUser(
-            userId = userId,
-            bearerToken = token,
-            user = user
-        )
-        if (editedUserResponse.code == 200) {
-            editUserInDatabase(editedUserResponse.data.user)
-        }
-    }
-
-    override suspend fun getUsers() {
-        withContext(Dispatchers.IO) {
-            val getUsersResponse = async {
-                contactApiService.getUsers(bearerToken = getAccessToken())
-            }.await()
-            if (getUsersResponse.code == 200) {
-                val contactsDao = dataBase.contactsDao()
-                async { contactsDao.insert(getUsersResponse.data.users.map { it.toContactDBO() }) }.await()
+        val bearerToken = dataStoreProvider.readAccessToken().first()
+        return try {
+            val (_, code, message, data) = contactApiService.deleteContact(
+                userId,
+                contactId,
+                bearerToken
+            )
+            if (code == 200) {
+                ResponseState.Success(data.apiContacts.map { it.toContact() })
+            } else {
+                ResponseState.HttpCode(code, message)
             }
+        } catch (e: Throwable) {
+            ResponseState.Error(e.message)
         }
     }
 
-    /**
-     * @return True if contact was successfully added. False otherwise
-     */
-    override suspend fun addContact(contactId: Int): Boolean {
-        val addContactResponse =
-            contactApiService.addContact(getAccessToken(), getUserId(), ContactId(contactId))
-        updateUserContacts()
-        return addContactResponse.code == 200
-    }
-
-    /**
-     * @return True if contact was successfully deleted. False otherwise
-     */
-    override suspend fun deleteContact(contactId: Int): Boolean {
-        val deleteContactResponse =
-            contactApiService.deleteContact(getUserId(), contactId, getAccessToken())
-        updateUserContacts()
-        return deleteContactResponse.code == 200
-    }
-
-    override suspend fun updateUserContacts() {
-        val getUserContactsResponse =
-            contactApiService.getUserContacts(getUserId(), getAccessToken())
-        if (getUserContactsResponse.code == 200) {
-            val userContacts = getUserContactsResponse.data.contacts.map { it.id }
-            dataBase.currentUserDAO().updateUserContacts(userContacts)
+    override suspend fun getUserContacts(): ResponseState {
+        return try {
+            val userId = getUserId()
+            val bearerToken = dataStoreProvider.readAccessToken().first()
+            val (_, code, message, data) = contactApiService.getUserContacts(userId, bearerToken)
+            if (code == 200) {
+                val contactIdList = data.apiContacts.map { it.id }
+                val userContacts = databaseRepository.getUserContacts(contactIdList)
+                ResponseState.Success(userContacts)
+            } else {
+                ResponseState.HttpCode(code, message)
+            }
+        } catch (e: Throwable) {
+            ResponseState.Error(e.message)
         }
-    }
-
-    override suspend fun getUserContacts(): List<Contact> {
-        val currentUserId = getUserId()
-        val contactsIdsString = dataBase.currentUserDAO().getContactsIds(currentUserId)
-        val contactsIdsList = contactsIdsString?.split(",")?.map { it.toInt() } ?: emptyList()
-        val s = dataBase.contactsDao().getContactsByIds(contactsIdsList).map { it.toContact() }
-        return s
     }
 
     private suspend fun getUserId(): Int {
-        return dataBase.currentUserDAO().getCurrentUserId()
-    }
-
-    private suspend fun getAccessToken(): String {
-        return dataStoreProvider.readAccessToken().first()
-    }
-
-    private suspend fun editUserInDatabase(user: Contact) {
-        dataBase.contactsDao().editUser(user.toContactDBO())
+        val id = databaseRepository.getCurrentUser().id
+        return id
     }
 }

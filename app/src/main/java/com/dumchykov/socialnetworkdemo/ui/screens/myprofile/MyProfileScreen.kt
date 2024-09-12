@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
@@ -45,7 +46,7 @@ import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.screens.EditProfile
 import com.dumchykov.socialnetworkdemo.ui.screens.LogIn
 import com.dumchykov.socialnetworkdemo.ui.screens.Pager
-import com.dumchykov.socialnetworkdemo.ui.screens.myprofile.models.MyProfileContact
+import com.dumchykov.socialnetworkdemo.ui.screens.myprofile.data.MyProfileContact
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
 import com.dumchykov.socialnetworkdemo.ui.theme.GrayText
@@ -209,21 +210,21 @@ private fun ContainerBottom(
         ) {
             Image(
                 painter = painterResource(R.drawable.ic_facebook),
-                contentDescription = "icon facebook",
+                contentDescription = stringResource(R.string.facebook),
                 modifier = Modifier
                     .clip(CircleShape)
                     .clickable(onClick = onIconFacebookClick)
             )
             Image(
                 painter = painterResource(R.drawable.ic_linkedin),
-                contentDescription = "icon linkedin",
+                contentDescription = stringResource(R.string.linkedin),
                 modifier = Modifier
                     .clip(CircleShape)
                     .clickable(onClick = onIconLinkedinClick)
             )
             Image(
                 painter = painterResource(R.drawable.ic_instagram),
-                contentDescription = "icon instagram",
+                contentDescription = stringResource(R.string.instagram),
                 modifier = Modifier
                     .clip(CircleShape)
                     .clickable(onClick = onIconInstagramClick)
@@ -248,7 +249,7 @@ private fun ContainerBottom(
                 border = BorderStroke(2.dp, Blue)
             ) {
                 Text(
-                    text = "Edit profile",
+                    text = stringResource(R.string.edit_profile),
                     color = GrayText,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.W600,
@@ -269,7 +270,7 @@ private fun ContainerBottom(
                 ),
             ) {
                 Text(
-                    text = "View my contacts".uppercase(),
+                    text = stringResource(R.string.view_my_contacts).uppercase(),
                     color = Color.White,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.W600,
@@ -299,14 +300,14 @@ private fun ContainerTop(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Settings",
+                text = stringResource(R.string.settings),
                 color = White,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.W600,
                 fontFamily = OPENS_SANS,
             )
             Text(
-                text = "Log out",
+                text = stringResource(R.string.log_out),
                 modifier = Modifier
                     .border(2.dp, Gray, RoundedCornerShape(6.dp))
                     .clickable(onClick = clearCredentials)
@@ -326,7 +327,7 @@ private fun ContainerTop(
         ) {
             Image(
                 painter = painterResource(R.drawable.image_main),
-                contentDescription = "image main",
+                contentDescription = stringResource(R.string.individual_profile_image, myProfileState.user.name),
                 modifier = Modifier
                     .fillMaxWidth(0.33f)
                     .clip(CircleShape)

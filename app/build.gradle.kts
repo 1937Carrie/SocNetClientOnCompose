@@ -22,8 +22,6 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-
-        buildConfigField("String", "BASE_URL", "\"http://178.63.9.114:7777/api/\"")
     }
 
     buildTypes {
@@ -43,9 +41,6 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    buildFeatures {
-        buildConfig = true
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -54,6 +49,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.common)
     implementation(projects.contactsprovider.data)
     implementation(projects.contactsprovider.domain)
     implementation(projects.database)

@@ -10,7 +10,6 @@ android {
     defaultConfig {
         minSdk = 24
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -35,9 +34,6 @@ android {
 dependencies {
     implementation(projects.webapi.domain)
 
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 //    DataStore
     implementation(libs.androidx.datastore.preferences)
 

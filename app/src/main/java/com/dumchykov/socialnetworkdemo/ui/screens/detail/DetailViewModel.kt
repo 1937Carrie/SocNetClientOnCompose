@@ -4,9 +4,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.dumchykov.data.Contact
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
-import com.dumchykov.socialnetworkdemo.util.BaseContact
 import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
+import com.dumchykov.socialnetworkdemo.webapi.domain.ResponseState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,8 +18,9 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    val contactRepository: ContactRepository,
-) : ViewModel() {
+    private val contactRepository: ContactRepository,
+
+    ) : ViewModel() {
     private val _detailState = MutableStateFlow(DetailState())
     val detailState get() = _detailState.asStateFlow()
 
@@ -26,18 +28,23 @@ class DetailViewModel @Inject constructor(
         viewModelScope.launch {
             val contactId = savedStateHandle.toRoute<Detail>().contactId
             val inFriendList = contactInFriendList(contactId)
-            val newContact: BaseContact =
-                contactRepository.getUserById(contactId).toBaseContact()
-            updateState {
-                copy(contact = newContact, inFriendList = inFriendList)
-            }
+            val contact = contactRepository.getUserById(contactId)
+
+            updateState { contact.toDetailState(inFriendList) }
         }
     }
 
     private suspend fun contactInFriendList(contactId: Int): Boolean {
-        val userContacts = contactRepository.getUserContacts()
-        val result = userContacts.count { it.id == contactId } != 0
-        return result
+        val userContactsResponse = contactRepository.getUserContacts()
+        return if (userContactsResponse is ResponseState.Success<*>) {
+            val result = (userContactsResponse.data as List<*>)
+                .map { it as Contact }
+                .map { it.id }
+                .contains(contactId)
+            result
+        } else {
+            false
+        }
     }
 
     fun updateState(reducer: DetailState.() -> DetailState) {
@@ -46,7 +53,7 @@ class DetailViewModel @Inject constructor(
 
     fun addToContacts() {
         viewModelScope.launch {
-            val contact = detailState.value.contact
+            val contact = detailState.value
             contactRepository.addContact(contact.id)
             val inFriendList = contactInFriendList(contact.id)
             updateState { copy(inFriendList = inFriendList) }

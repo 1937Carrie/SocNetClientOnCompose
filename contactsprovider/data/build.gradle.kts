@@ -10,7 +10,6 @@ android {
     defaultConfig {
         minSdk = 24
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -33,13 +32,11 @@ android {
 }
 
 dependencies {
+    implementation(projects.common)
     implementation(projects.contactsprovider.domain)
     implementation(projects.webapi.domain)
 
     implementation(libs.androidx.core.ktx)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 
     implementation(libs.javax.inject)
 }

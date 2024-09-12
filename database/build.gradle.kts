@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
+    alias(libs.plugins.dagger.hilt.android)
+    alias(libs.plugins.kapt)
 }
 
 android {
@@ -38,9 +40,15 @@ room {
 }
 
 dependencies {
+    implementation(projects.common)
+
     implementation(libs.androidx.core.ktx)
     // To use Kotlin Symbol Processing (KSP)
     ksp(libs.androidx.room.compiler)
     // Kotlin Extensions and Coroutines support for Room
     api(libs.androidx.room.ktx)
+
+    implementation(libs.hilt.android)
+    implementation(libs.javax.inject)
+    kapt(libs.hilt.compiler)
 }

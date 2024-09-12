@@ -48,13 +48,12 @@ class MainActivity : ComponentActivity() {
                     contentWindowInsets = WindowInsets.displayCutout.union(ScaffoldDefaults.contentWindowInsets),
                 ) { innerPadding ->
                     val navController = rememberNavController()
-                    val uri = "https://www.example.com"
                     NavHost(navController = navController, startDestination = LogIn) {
                         composable<LogIn> { LogInScreen(innerPadding, navController) }
                         composable<SignUp> { SignUpScreen(innerPadding, navController) }
                         composable<Detail>(
                             deepLinks = listOf(
-                                navDeepLink<Detail>(basePath = "$uri/detail")
+                                navDeepLink<Detail>(basePath = "$DEEP_LINK_URI/detail")
                             )
                         ) {
                             DetailScreen(innerPadding, navController)
@@ -82,5 +81,9 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    companion object {
+        const val DEEP_LINK_URI = "https://www.example.com"
     }
 }
