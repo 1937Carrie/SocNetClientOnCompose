@@ -1,5 +1,10 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.addcontacts
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -43,7 +48,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -58,7 +63,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -67,12 +74,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import com.dumchykov.socialnetworkdemo.R
+import com.dumchykov.socialnetworkdemo.notification.showNotification
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
+import com.dumchykov.socialnetworkdemo.ui.screens.addcontacts.data.AddContactsContact
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray828282
@@ -90,29 +96,46 @@ fun AddContactsScreen(
     modifier: Modifier = Modifier,
     viewModel: AddContactsViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
+    val addedContactState = viewModel.addedContactState.collectAsState(null).value
+    val requestPermissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { permission ->
+            if (permission) {
+                if (addedContactState == null) return@rememberLauncherForActivityResult
+                showNotification(
+                    context = context,
+                    contactId = addedContactState.id,
+                    name = addedContactState.name,
+                    takenAction = context.getString(R.string.action_added)
+                )
+            }
+        }
     val addContactsState = viewModel.addContactsState.collectAsState().value
     val updateState: (AddContactsState) -> Unit = { state -> viewModel.updateState { state } }
     val coroutineScope = rememberCoroutineScope()
     val lazyColumnState = rememberLazyListState()
-    val showFab =
-        remember { derivedStateOf { lazyColumnState.firstVisibleItemIndex > 0 } }
+    val showFab = remember { derivedStateOf { lazyColumnState.firstVisibleItemIndex > 0 } }
     val onAdd: (Int) -> Unit = { contactId -> viewModel.addToContactList(contactId) }
-    val navigateToDetail: (Contact) -> Unit =
-        { contact -> navController.navigate(Detail(contact.toContact())) }
+    val showOnAddNotification: (AddContactsContact) -> Unit = { contact ->
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        } else {
+            showNotification(
+                context = context,
+                contactId = contact.id,
+                name = contact.name,
+                takenAction = context.getString(R.string.action_added)
+            )
+        }
+    }
+    val navigateToDetail: (Int) -> Unit =
+        { contact -> navController.navigate(Detail(contact)) }
     val onNavigationArrowClick: () -> Unit = { navController.navigateUp() }
 
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.updateContactsStateOnUi()
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
+    LaunchedEffect(true) {
+        viewModel.updateContactsStateOnUi()
     }
 
     AddContactsScreen(
@@ -123,6 +146,7 @@ fun AddContactsScreen(
         showFab = showFab,
         addContactState = addContactsState,
         onAdd = onAdd,
+        showOnAddNotification = showOnAddNotification,
         navigateToDetail = navigateToDetail,
         onNavigationArrowClick = onNavigationArrowClick,
     )
@@ -139,7 +163,8 @@ private fun AddContactsScreen(
     addContactState: AddContactsState,
     onNavigationArrowClick: () -> Unit,
     onAdd: (Int) -> Unit,
-    navigateToDetail: (Contact) -> Unit,
+    showOnAddNotification: (AddContactsContact) -> Unit,
+    navigateToDetail: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -191,7 +216,7 @@ private fun AddContactsScreen(
                                 ) {
                                     if (addContactState.searchQuery.isEmpty() && !isFocused) {
                                         Text(
-                                            text = "Search...",
+                                            text = stringResource(R.string.placeholder_search),
                                             color = White,
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.W600,
@@ -209,7 +234,7 @@ private fun AddContactsScreen(
                         }) {
                             Icon(
                                 imageVector = Icons.Filled.Close,
-                                contentDescription = "Localized description",
+                                contentDescription = stringResource(R.string.close_search_field),
                                 tint = White
                             )
                         }
@@ -220,7 +245,7 @@ private fun AddContactsScreen(
                     CenterAlignedTopAppBar(
                         title = {
                             Text(
-                                text = "Users",
+                                text = stringResource(R.string.users),
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.W600,
                                 fontFamily = OPENS_SANS,
@@ -232,7 +257,7 @@ private fun AddContactsScreen(
                             IconButton(onClick = onNavigationArrowClick) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Localized description",
+                                    contentDescription = stringResource(R.string.navigate_back),
                                     tint = White
                                 )
                             }
@@ -241,7 +266,7 @@ private fun AddContactsScreen(
                             IconButton(onClick = { updateState(addContactState.copy(searchState = true)) }) {
                                 Icon(
                                     imageVector = Icons.Filled.Search,
-                                    contentDescription = "Localized description",
+                                    contentDescription = stringResource(R.string.open_search_field),
                                     tint = White
                                 )
                             }
@@ -269,7 +294,7 @@ private fun AddContactsScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.KeyboardArrowUp,
-                        contentDescription = "",
+                        contentDescription = stringResource(R.string.scroll_list_to_first_item),
                         modifier = Modifier.size(50.dp),
                         tint = White
                     )
@@ -285,25 +310,11 @@ private fun AddContactsScreen(
                 )
                 .fillMaxSize()
         ) {
-            Row(
-                modifier = Modifier
-                    .background(Blue)
-                    .fillMaxWidth()
-            ) {
-                Text(
-                    text = "",
-                    modifier = Modifier
-                        .padding(16.dp),
-                    color = White,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.W600,
-                    fontFamily = OPENS_SANS
-                )
-            }
             ContactsColumn(
                 lazyColumnState = lazyColumnState,
                 addContactsState = addContactState,
                 onAdd = onAdd,
+                showOnAddNotification = showOnAddNotification,
                 navigateToDetail = navigateToDetail
             )
         }
@@ -315,7 +326,8 @@ private fun ContactsColumn(
     lazyColumnState: LazyListState,
     addContactsState: AddContactsState,
     onAdd: (Int) -> Unit,
-    navigateToDetail: (Contact) -> Unit,
+    showOnAddNotification: (AddContactsContact) -> Unit,
+    navigateToDetail: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -326,13 +338,14 @@ private fun ContactsColumn(
     ) {
         itemsIndexed(
             items = addContactsState.allContacts.filter {
-                it.name?.lowercase()?.contains(addContactsState.searchQuery.lowercase()) == true
+                it.name.lowercase().contains(addContactsState.searchQuery.lowercase())
             },
-            key = { _, item -> item }
+//            key = { _, item -> item }
         ) { _, contact ->
             ItemContact(
                 contact = contact,
                 onAdd = onAdd,
+                showOnAddNotification = showOnAddNotification,
                 navigateToDetail = navigateToDetail
             )
         }
@@ -341,9 +354,10 @@ private fun ContactsColumn(
 
 @Composable
 private fun ItemContact(
-    contact: Contact,
+    contact: AddContactsContact,
     onAdd: (Int) -> Unit,
-    navigateToDetail: (Contact) -> Unit,
+    showOnAddNotification: (AddContactsContact) -> Unit,
+    navigateToDetail: (Int) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -352,7 +366,7 @@ private fun ItemContact(
             .clip(RoundedCornerShape(6.dp))
             .background(White)
             .clickable(
-                onClick = { navigateToDetail(contact) }
+                onClick = { navigateToDetail(contact.id) }
             )
             .padding(8.dp)
             .height(50.dp),
@@ -370,7 +384,7 @@ private fun ItemContact(
             modifier = Modifier
                 .clip(CircleShape)
                 .aspectRatio(1f),
-            contentDescription = "",
+            contentDescription = stringResource(R.string.profile_image),
             contentScale = ContentScale.Crop
         )
         Column(
@@ -400,7 +414,7 @@ private fun ItemContact(
                 true -> {
                     Icon(
                         imageVector = Icons.Filled.CheckCircle,
-                        contentDescription = "",
+                        contentDescription = stringResource(R.string.indicator_contact_added),
                         modifier = Modifier.size(23.dp),
                         tint = Blue
                     )
@@ -409,13 +423,16 @@ private fun ItemContact(
                 false -> {
                     Row(
                         modifier = Modifier.clickable(
-                            onClick = { onAdd(contact.id) }
+                            onClick = {
+                                onAdd(contact.id)
+                                showOnAddNotification(contact)
+                            }
                         ),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Add",
+                            text = stringResource(R.string.add),
                             color = Orange,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.W600,
@@ -423,7 +440,7 @@ private fun ItemContact(
                         )
                         Icon(
                             imageVector = Icons.Outlined.AddCircle,
-                            contentDescription = "Localized description",
+                            contentDescription = stringResource(R.string.icon_add_contact),
                             modifier = Modifier.size(23.dp),
                             tint = Orange
                         )
@@ -431,22 +448,32 @@ private fun ItemContact(
                 }
             }
         }
-
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun AddContactsScreenPreview() {
+    val contacts: MutableList<AddContactsContact> = mutableListOf()
+    repeat(20) {
+        contacts.add(
+            AddContactsContact(
+                id = it,
+                name = "Name $it",
+                isAdded = it % 2 == 1
+            )
+        )
+    }
     AddContactsScreen(
         padding = PaddingValues(0.dp),
         updateState = { _ -> },
         coroutineScope = rememberCoroutineScope(),
         lazyColumnState = rememberLazyListState(),
         showFab = remember { mutableStateOf(false) },
-        addContactState = AddContactsState(allContacts = Contact.sampleList, searchState = true),
+        addContactState = AddContactsState(allContacts = contacts, searchState = false),
         onNavigationArrowClick = {},
         onAdd = {},
+        showOnAddNotification = {},
         navigateToDetail = {}
     )
 }

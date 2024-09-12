@@ -10,6 +10,8 @@ java {
 }
 
 dependencies {
+    implementation(projects.common)
+
     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-json
     api(libs.kotlinx.serialization.json)
 

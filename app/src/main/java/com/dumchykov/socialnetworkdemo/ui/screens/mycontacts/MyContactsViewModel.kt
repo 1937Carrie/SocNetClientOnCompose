@@ -2,9 +2,12 @@ package com.dumchykov.socialnetworkdemo.ui.screens.mycontacts
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dumchykov.contactsprovider.data.ContactsProvider
-import com.dumchykov.contactsprovider.domain.Contact
+import com.dumchykov.data.Contact
+import com.dumchykov.database.ContactsDatabase
+import com.dumchykov.socialnetworkdemo.ui.screens.mycontacts.data.MyContactsIndicatorContact
+import com.dumchykov.socialnetworkdemo.ui.screens.mycontacts.data.toMyContactsIndicatorContact
 import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
+import com.dumchykov.socialnetworkdemo.webapi.domain.ResponseState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,58 +19,80 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MyContactsViewModel @Inject constructor(
-    private val contactsProvider: ContactsProvider,
     private val contactRepository: ContactRepository,
+    private val database: ContactsDatabase,
 ) : ViewModel() {
     private val _myContactsState = MutableStateFlow(MyContactsState())
     val myContactsState get() = _myContactsState.asStateFlow()
 
-    private val _deleteContactState = MutableSharedFlow<Contact>()
-    val deleteContactState get() = _deleteContactState.asSharedFlow()
-
-    init {
-        viewModelScope.launch {
-            updateContactsAppearance()
-        }
-    }
+    private val _deletedContactState = MutableSharedFlow<MyContactsIndicatorContact>()
+    val deleteContactState get() = _deletedContactState.asSharedFlow()
 
     private fun updateMultiselectState(): Boolean {
         return myContactsState.value.contacts.count { it.isChecked } != 0
     }
 
+    private suspend fun getAllUsers() {
+        updateState { copy(responseState = ResponseState.Loading) }
+        val getUsersResponse = contactRepository.getUsers()
+        if (getUsersResponse is ResponseState.Success<*>) {
+            updateState { copy(isDatabaseGottenOnStart = true) }
+        }
+        updateState { copy(responseState = getUsersResponse) }
+    }
+
     private suspend fun updateContactsAppearance() {
-        val userContacts = contactsProvider.getUserContacts()
-        updateState { copy(contacts = userContacts) }
+        val userContactsResponse = contactRepository.getUserContacts()
+        if (userContactsResponse is ResponseState.Success<*>) {
+            val userContacts =
+                (userContactsResponse.data as List<*>).map { (it as Contact).toMyContactsIndicatorContact() }
+            updateState { copy(contacts = userContacts) }
+        }
+        updateState { copy(responseState = userContactsResponse) }
     }
 
     fun updateState(reducer: MyContactsState.() -> MyContactsState) {
         _myContactsState.update(reducer)
     }
 
-    fun addContact(contact: Contact) {
+    fun addContact(contact: MyContactsIndicatorContact) {
         viewModelScope.launch {
-            val onAddContactResult = contactRepository.addContact(contact.id)
-            if (onAddContactResult) {
-                val userContacts = contactsProvider.getUserContacts()
-                updateState { copy(contacts = userContacts) }
+            val onAddContactResponse = contactRepository.addContact(contact.id)
+            if (onAddContactResponse is ResponseState.Success<*>) {
+                val userContactsResponse = contactRepository.getUserContacts()
+                if (userContactsResponse is ResponseState.Success<*>) {
+                    val userContacts = (userContactsResponse.data as List<*>)
+                        .map { (it as Contact).toMyContactsIndicatorContact() }
+                    updateState { copy(contacts = userContacts) }
+                }
             }
         }
     }
 
-    fun deleteContact(contactId: Int, singleDelete: Boolean = true) {
+    fun deleteContact(contactId: Int) {
         viewModelScope.launch {
             updateProgress(contactId)
-            val onDeleteResult = contactRepository.deleteContact(contactId)
-            if (onDeleteResult) {
+            val onDeleteResponse = contactRepository.deleteContact(contactId)
+            if (onDeleteResponse is ResponseState.Success<*>) {
                 val contact = getContactById(contactId)
                 updateContactsAppearance()
-                if (singleDelete) {
-                    _deleteContactState.emit(contact)
-                } else {
-                    updateState { copy(isMultiselect = updateMultiselectState()) }
-                }
+                _deletedContactState.emit(contact)
             } else {
                 updateProgress(contactId, false)
+            }
+        }
+    }
+
+    private fun deleteMultipleContacts(idList: List<Int>) {
+        viewModelScope.launch {
+            updateState { copy(responseState = ResponseState.Loading) }
+            idList.forEach { id -> contactRepository.deleteContact(id) }
+            updateContactsAppearance()
+            updateState {
+                copy(
+                    responseState = ResponseState.Success<Nothing>(),
+                    isMultiselect = updateMultiselectState()
+                )
             }
         }
     }
@@ -79,13 +104,13 @@ class MyContactsViewModel @Inject constructor(
         updateState { copy(contacts = contacts) }
     }
 
-    private fun getContactById(contactId: Int): Contact {
+    private fun getContactById(contactId: Int): MyContactsIndicatorContact {
         val contacts = myContactsState.value.contacts.toMutableList()
         val index = contacts.indexOf(contacts.first { it.id == contactId })
         return contacts[index]
     }
 
-    fun changeContactSelectedState(contact: Contact) {
+    fun changeContactSelectedState(contact: MyContactsIndicatorContact) {
         val searchedContact = myContactsState.value.contacts.first { it == contact }
         val searchedIndex = myContactsState.value.contacts.indexOf(searchedContact)
         val updatedContacts = myContactsState
@@ -100,11 +125,15 @@ class MyContactsViewModel @Inject constructor(
 
     fun deleteSelected() {
         val contacts = myContactsState.value.contacts.toMutableList()
-        contacts.filter { it.isChecked }.forEach { deleteContact(it.id, false) }
+        deleteMultipleContacts(contacts.filter { it.isChecked }.map { it.id })
     }
 
     fun updateListOnEnter() {
         viewModelScope.launch {
+            val needToUpdateAllContacts = myContactsState.value.isDatabaseGottenOnStart.not()
+            if (needToUpdateAllContacts) {
+                getAllUsers()
+            }
             updateContactsAppearance()
         }
     }

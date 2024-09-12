@@ -19,8 +19,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.screens.mycontacts.MyContactsScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.myprofile.MyProfileScreen
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
@@ -34,8 +36,8 @@ fun PagerScreen(
     modifier: Modifier = Modifier,
 ) {
     val tabItems = listOf(
-        TabItem("My Profile"),
-        TabItem("My Contacts")
+        TabItem(stringResource(R.string.my_profile)),
+        TabItem(stringResource(R.string.my_contacts))
     )
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
     val pagerState = rememberPagerState { tabItems.size }

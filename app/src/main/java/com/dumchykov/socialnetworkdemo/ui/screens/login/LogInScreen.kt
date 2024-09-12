@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -28,10 +30,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,6 +49,7 @@ import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
 import com.dumchykov.socialnetworkdemo.ui.theme.Orange
 import com.dumchykov.socialnetworkdemo.ui.theme.White
 import com.dumchykov.socialnetworkdemo.ui.util.customTextFieldsColors
+import com.dumchykov.socialnetworkdemo.webapi.domain.ResponseState
 
 @Composable
 fun LogInScreen(
@@ -70,8 +73,9 @@ fun LogInScreen(
         }
     }
 
-    LaunchedEffect(logInState.navigateToMyProfile) {
-        if (logInState.navigateToMyProfile.not()) return@LaunchedEffect
+    LaunchedEffect(logInState.responseState) {
+        if (logInState.responseState !is ResponseState.Success<*>) return@LaunchedEffect
+
         navController.navigate(Pager) {
             popUpTo(LogIn) {
                 inclusive = true
@@ -220,6 +224,7 @@ private fun Container3(
             modifier = Modifier
                 .height(55.dp)
                 .fillMaxWidth(),
+            enabled = logInState.isUiStateUpdating.not(),
             shape = RoundedCornerShape(6.dp),
             colors = ButtonColors(
                 Color.Transparent,
@@ -229,30 +234,55 @@ private fun Container3(
             ),
             border = BorderStroke(2.dp, Orange)
         ) {
-            Text(
-                text = "Login".uppercase(),
-                color = White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.W600,
-                fontFamily = OPENS_SANS,
-                letterSpacing = 1.5.sp
-            )
+            if (logInState.isUiStateUpdating) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.authorization).uppercase(),
+                        color = White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.W600,
+                        fontFamily = OPENS_SANS,
+                        letterSpacing = 1.5.sp
+                    )
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .height(22.dp)
+                            .aspectRatio(1f),
+                        color = Orange
+                    )
+                }
+            } else {
+                Text(
+                    text = stringResource(R.string.login).uppercase(),
+                    color = White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.W600,
+                    fontFamily = OPENS_SANS,
+                    letterSpacing = 1.5.sp
+                )
+            }
         }
         Spacer(modifier = Modifier.height(16.dp))
         Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = "Don’t have account?",
+                text = stringResource(R.string.don_t_have_account),
                 color = Gray,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.W600,
                 fontFamily = OPENS_SANS
             )
             Text(
-                text = "Sign up",
+                text = stringResource(R.string.sign_up),
                 modifier = Modifier
-                    .clickable(onClick = onSignUpClick),
+                    .clickable(
+                        enabled = logInState.isUiStateUpdating.not(),
+                        onClick = onSignUpClick
+                    ),
                 color = White,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.W600,
@@ -290,10 +320,11 @@ private fun Container2(
                         }
                     }
                 },
-            placeholder = { Text("Email") },
+            enabled = logInState.isUiStateUpdating.not(),
+            placeholder = { Text(text = stringResource(R.string.email)) },
             supportingText = {
                 if (logInState.emailIsFocused && logInState.emailError) {
-                    Text(text = "Incorrect E-Mail address")
+                    Text(text = stringResource(R.string.incorrect_e_mail_address))
                 }
             },
             isError = logInState.emailError,
@@ -316,10 +347,11 @@ private fun Container2(
                         }
                     }
                 },
-            placeholder = { Text("Password") },
+            enabled = logInState.isUiStateUpdating.not(),
+            placeholder = { Text(stringResource(R.string.password)) },
             supportingText = {
                 if (logInState.passwordIsFocused && logInState.passwordError) {
-                    Text(text = "Password is empty")
+                    Text(text = stringResource(R.string.password_is_empty))
                 }
             },
             isError = logInState.passwordError,
@@ -334,19 +366,21 @@ private fun Container2(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
-                modifier = Modifier.clickable {
-                    updateState(logInState.copy(rememberMe = logInState.rememberMe.not()))
-                },
+                modifier = Modifier.clickable(
+                    enabled = logInState.isUiStateUpdating.not(),
+                    onClick = {
+                        updateState(logInState.copy(rememberMe = logInState.rememberMe.not()))
+                    }),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     painter = painterResource(if (logInState.rememberMe) R.drawable.ic_checkbox_checked else R.drawable.ic_checkbox),
-                    contentDescription = "checkbox remember me",
+                    contentDescription = stringResource(R.string.checkbox_remember_me),
                     tint = White
                 )
                 Text(
-                    text = "Remember me",
+                    text = stringResource(R.string.remember_me),
                     color = Gray,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.W600,
@@ -354,7 +388,7 @@ private fun Container2(
                 )
             }
             Text(
-                text = "Forgot your password",
+                text = stringResource(R.string.forgot_your_password),
                 color = White,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.W600,
@@ -372,14 +406,14 @@ private fun Container1(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Hello!",
+            text = stringResource(R.string.hello),
             color = White,
             fontSize = 24.sp,
             fontWeight = FontWeight.W600,
             fontFamily = OPENS_SANS,
         )
         Text(
-            text = "Enter your email and password below",
+            text = stringResource(R.string.enter_your_email_and_password_below),
             color = White,
             fontSize = 12.sp,
             fontWeight = FontWeight.W400,

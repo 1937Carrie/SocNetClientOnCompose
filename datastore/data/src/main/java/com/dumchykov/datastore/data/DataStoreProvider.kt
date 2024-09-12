@@ -2,24 +2,17 @@ package com.dumchykov.datastore.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.dumchykov.datastore.data.DataStoreProvider.Companion.COMMON
-import com.dumchykov.datastore.data.serializers.ContactSerializer
-import com.dumchykov.socialnetworkdemo.webapi.domain.models.Contact
-import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = COMMON)
-val Context.contactDataStore: DataStore<Contact> by dataStore(
-    fileName = "contacts.json",
-    serializer = ContactSerializer
-)
 
 class DataStoreProvider @Inject constructor(private val context: Context) {
 
@@ -84,16 +77,6 @@ class DataStoreProvider @Inject constructor(private val context: Context) {
 
     suspend fun saveRefreshToken(token: String) {
         saveString(KEY_REFRESH_TOKEN, token)
-    }
-
-    // Save contact
-    suspend fun saveContact(contact: Contact) {
-        context.contactDataStore.updateData { contact }
-    }
-
-    // Retrieve contact
-    fun getContact(): Flow<Contact> {
-        return context.contactDataStore.data
     }
 
     companion object {

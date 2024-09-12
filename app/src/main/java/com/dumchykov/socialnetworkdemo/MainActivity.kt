@@ -16,8 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.dumchykov.contactsprovider.domain.Contact
-import com.dumchykov.socialnetworkdemo.navigation.parcelableType
+import androidx.navigation.navDeepLink
 import com.dumchykov.socialnetworkdemo.ui.screens.AddContacts
 import com.dumchykov.socialnetworkdemo.ui.screens.Detail
 import com.dumchykov.socialnetworkdemo.ui.screens.EditProfile
@@ -34,7 +33,6 @@ import com.dumchykov.socialnetworkdemo.ui.screens.signup.SignUpScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.signupextended.SignUpExtendedScreen
 import com.dumchykov.socialnetworkdemo.ui.theme.SocialNetworkClientTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.reflect.typeOf
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -54,7 +52,9 @@ class MainActivity : ComponentActivity() {
                         composable<LogIn> { LogInScreen(innerPadding, navController) }
                         composable<SignUp> { SignUpScreen(innerPadding, navController) }
                         composable<Detail>(
-                            typeMap = mapOf(typeOf<Contact>() to parcelableType<Contact>())
+                            deepLinks = listOf(
+                                navDeepLink<Detail>(basePath = "$DEEP_LINK_URI/detail")
+                            )
                         ) {
                             DetailScreen(innerPadding, navController)
                         }
@@ -81,5 +81,9 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    companion object {
+        const val DEEP_LINK_URI = "https://www.example.com"
     }
 }

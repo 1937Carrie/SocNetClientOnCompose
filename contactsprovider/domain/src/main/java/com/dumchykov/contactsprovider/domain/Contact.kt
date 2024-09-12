@@ -1,49 +1,43 @@
 package com.dumchykov.contactsprovider.domain
 
-import android.os.Parcelable
-import com.dumchykov.socialnetworkdemo.webapi.domain.models.CalendarSerializer
-import kotlinx.parcelize.Parcelize
+import com.dumchykov.socialnetworkdemo.webapi.domain.models.serializers.CalendarSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.util.Calendar
 
 @Serializable
-@Parcelize
 data class Contact(
-    @SerialName("id") override val id: Int = 0,
-    @SerialName("name") override val name: String = "",
-    @SerialName("email") override val email: String = "",
-    @SerialName("phone") override val phone: String = "",
-    @SerialName("career") override val career: String = "",
-    @SerialName("address") override val address: String = "",
-    @SerialName("birthday") @Serializable(CalendarSerializer::class) override val birthday: Calendar = Calendar.getInstance(),
-    @SerialName("facebook") override val facebook: String = "",
-    @SerialName("instagram") override val instagram: String = "",
-    @SerialName("twitter") override val twitter: String = "",
-    @SerialName("linkedin") override val linkedin: String = "",
-    @SerialName("image") override val image: String = "",
-    @SerialName("created_at") @Serializable(CalendarSerializer::class) override val created_at: Calendar = Calendar.getInstance(),
-    @SerialName("updated_at") @Serializable(CalendarSerializer::class) override val updated_at: Calendar = Calendar.getInstance(),
-    @SerialName("isChecked") val isChecked: Boolean = false,
-    @SerialName("updateUiState") val updateUiState: Boolean = false,
-) : BaseContact, Parcelable {
-    companion object {
-        val previewContact = Contact(
-            id = 2992,
-            name = "Lucile Alvarado",
-            email = "test@email.com",
-            phone = "+3801111111",
-            career = "Graphic designer",
-            address = "5295 Gaylord Walks Apk. 110",
-            birthday = Calendar.getInstance(),
-            facebook = "facebook",
-            instagram = "instagram",
-            twitter = "twitter",
-            linkedin = "linkedin",
-            image = "",
-            created_at = Calendar.getInstance(),
-            updated_at = Calendar.getInstance(),
-            isChecked = false
-        )
-    }
+    @SerialName("id") val id: Int = 0,
+    @SerialName("name") val name: String = "",
+    @SerialName("email") val email: String = "",
+    @SerialName("phone") val phone: String = "",
+    @SerialName("career") val career: String = "",
+    @SerialName("address") val address: String = "",
+    @SerialName("birthday") @Serializable(CalendarSerializer::class) val birthday: Calendar? = null,
+    @SerialName("facebook") val facebook: String = "",
+    @SerialName("instagram") val instagram: String = "",
+    @SerialName("twitter") val twitter: String = "",
+    @SerialName("linkedin") val linkedin: String = "",
+    @SerialName("image") val image: String? = null,
+    @SerialName("created_at") @Serializable(CalendarSerializer::class) val createdAt: Calendar = Calendar.getInstance(),
+    @SerialName("updated_at") @Serializable(CalendarSerializer::class) val updatedAt: Calendar = Calendar.getInstance(),
+)
+
+fun Contact.toDomainContact(): com.dumchykov.data.Contact {
+    return com.dumchykov.data.Contact(
+        id = id,
+        name = name,
+        email = email,
+        phone = phone,
+        career = career,
+        address = address,
+        birthday = birthday,
+        facebook = facebook,
+        instagram = instagram,
+        twitter = twitter,
+        linkedin = linkedin,
+        image = image,
+        createdAt = createdAt,
+        updatedAt = updatedAt
+    )
 }

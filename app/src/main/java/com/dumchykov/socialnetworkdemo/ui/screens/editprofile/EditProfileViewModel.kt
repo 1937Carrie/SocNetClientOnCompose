@@ -2,12 +2,10 @@ package com.dumchykov.socialnetworkdemo.ui.screens.editprofile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dumchykov.datastore.data.DataStoreProvider
 import com.dumchykov.socialnetworkdemo.webapi.domain.ContactRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -18,8 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EditProfileViewModel @Inject constructor(
-    val contactRepository: ContactRepository,
-    val dataStoreProvider: DataStoreProvider,
+    private val contactRepository: ContactRepository,
 ) : ViewModel() {
     private val _editProfileState = MutableStateFlow(EditProfileState())
     val editProfileState get() = _editProfileState.asStateFlow()
@@ -30,15 +27,15 @@ class EditProfileViewModel @Inject constructor(
 
     private fun updateContactAppearance() {
         viewModelScope.launch {
-            val contact = dataStoreProvider.getContact().first()
+            val contact = contactRepository.getUserById(-1)
             updateState {
                 copy(
-                    name = contact.name.orEmpty(),
-                    career = contact.career.orEmpty(),
-                    email = contact.email.orEmpty(),
-                    phone = contact.phone.orEmpty(),
-                    address = contact.address.orEmpty(),
-                    dateOfBirth = contact.birthday ?: Calendar.getInstance(),
+                    name = contact.name,
+                    career = contact.career,
+                    email = contact.email,
+                    phone = contact.phone,
+                    address = contact.address,
+                    dateOfBirth = contact.birthday,
                     dataHasActualState = true
                 )
             }
@@ -61,9 +58,9 @@ class EditProfileViewModel @Inject constructor(
     /**
      * From Calendar type to "dd.MM.yyyy" to string format
      */
-    fun convertCalendarToString(calendar: Calendar): String {
+    fun convertCalendarToString(calendar: Calendar?): String {
         val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-        return dateFormat.format(calendar.time)
+        return calendar?.time?.let { dateFormat.format(it) } ?: ""
     }
 
     fun updateState(reducer: EditProfileState.() -> EditProfileState) {
@@ -72,7 +69,7 @@ class EditProfileViewModel @Inject constructor(
 
     fun editContact() {
         viewModelScope.launch {
-            val contact = dataStoreProvider.getContact().first()
+            val contact = contactRepository.getUserById(-1)
             val updatedContact = editProfileState.value
             val editedUser = contact.copy(
                 name = updatedContact.name,
@@ -80,7 +77,8 @@ class EditProfileViewModel @Inject constructor(
                 email = updatedContact.email,
                 phone = updatedContact.phone,
                 address = updatedContact.address,
-                birthday = updatedContact.dateOfBirth
+                birthday = updatedContact.dateOfBirth,
+                image = null
             )
             contactRepository.editUser(editedUser)
             updateContactAppearance()

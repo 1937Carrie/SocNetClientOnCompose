@@ -30,6 +30,7 @@ import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -194,9 +195,12 @@ private fun Container3(
                     Alignment.CenterHorizontally
                 )
             ) {
-                Image(painterResource(id = R.drawable.ic_google), "icon google")
+                Image(
+                    painterResource(id = R.drawable.ic_google),
+                    contentDescription = stringResource(R.string.google)
+                )
                 Text(
-                    text = "Google".uppercase(),
+                    text = stringResource(R.string.google).uppercase(),
                     color = Color.Black,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.W600,
@@ -207,7 +211,7 @@ private fun Container3(
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "or",
+            text = stringResource(R.string.or),
             color = White,
             fontSize = 18.sp,
             fontWeight = FontWeight.W600,
@@ -256,7 +260,7 @@ private fun Container3(
             border = BorderStroke(2.dp, Orange)
         ) {
             Text(
-                text = "Register".uppercase(),
+                text = stringResource(R.string.register).uppercase(),
                 color = White,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.W600,
@@ -266,7 +270,7 @@ private fun Container3(
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "By clicking Register you agree to our Terms and Conditions",
+            text = stringResource(R.string.by_clicking_register_you_agree_to_our_terms_and_conditions),
             color = White,
             fontSize = 12.sp,
             fontWeight = FontWeight.W400,
@@ -278,14 +282,14 @@ private fun Container3(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = "Already have an account?",
+                text = stringResource(R.string.already_have_an_account),
                 color = Gray,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.W600,
                 fontFamily = OPENS_SANS
             )
             Text(
-                text = "Sign in",
+                text = stringResource(R.string.sign_in),
                 modifier = Modifier
                     .clickable(onClick = onSignInClick),
                 color = White,
@@ -324,10 +328,10 @@ private fun Container2(
                         }
                     }
                 },
-            placeholder = { Text("Email") },
+            placeholder = { Text(text = stringResource(R.string.email)) },
             supportingText = {
                 if (signUpState.emailIsFocused && signUpState.emailError) {
-                    Text(text = "Incorrect E-Mail address")
+                    Text(text = stringResource(R.string.incorrect_e_mail_address))
                 }
             },
             isError = signUpState.emailError,
@@ -350,10 +354,10 @@ private fun Container2(
                         }
                     }
                 },
-            placeholder = { Text("Password") },
+            placeholder = { Text(text = stringResource(R.string.password)) },
             supportingText = {
                 if (signUpState.passwordIsFocused && signUpState.passwordError) {
-                    Text(text = "Password is empty")
+                    Text(text = stringResource(R.string.password_is_empty))
                 }
             },
             isError = signUpState.passwordError,
@@ -367,14 +371,14 @@ private fun Container2(
         ) {
             Icon(
                 painter = painterResource(if (signUpState.rememberMe) R.drawable.ic_checkbox_checked else R.drawable.ic_checkbox),
-                contentDescription = "checkbox remember me",
+                contentDescription = stringResource(R.string.checkbox_remember_me),
                 modifier = Modifier.clickable {
                     updateState(signUpState.copy(rememberMe = signUpState.rememberMe.not()))
                 },
                 tint = White
             )
             Text(
-                text = "Remember me",
+                text = stringResource(R.string.remember_me),
                 color = Gray,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.W600,
@@ -392,14 +396,14 @@ private fun Container1(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Let's get acquainted",
+            text = stringResource(R.string.let_s_get_acquainted),
             color = White,
             fontSize = 24.sp,
             fontWeight = FontWeight.W600,
             fontFamily = OPENS_SANS,
         )
         Text(
-            text = "Fill out the profile and go to the application!",
+            text = stringResource(R.string.fill_out_the_profile_and_go_to_the_application),
             color = White,
             fontSize = 12.sp,
             fontWeight = FontWeight.W400,
