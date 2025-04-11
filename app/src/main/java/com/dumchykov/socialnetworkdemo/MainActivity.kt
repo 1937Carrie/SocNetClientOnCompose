@@ -13,24 +13,8 @@ import androidx.compose.foundation.layout.union
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navDeepLink
-import com.dumchykov.socialnetworkdemo.ui.screens.AddContacts
-import com.dumchykov.socialnetworkdemo.ui.screens.Detail
-import com.dumchykov.socialnetworkdemo.ui.screens.EditProfile
-import com.dumchykov.socialnetworkdemo.ui.screens.LogIn
-import com.dumchykov.socialnetworkdemo.ui.screens.Pager
-import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
-import com.dumchykov.socialnetworkdemo.ui.screens.SignUpExtended
-import com.dumchykov.socialnetworkdemo.ui.screens.addcontacts.AddContactsScreen
-import com.dumchykov.socialnetworkdemo.ui.screens.detail.DetailScreen
-import com.dumchykov.socialnetworkdemo.ui.screens.editprofile.EditProfileScreen
-import com.dumchykov.socialnetworkdemo.ui.screens.login.LogInScreen
-import com.dumchykov.socialnetworkdemo.ui.screens.pager.PagerScreen
-import com.dumchykov.socialnetworkdemo.ui.screens.signup.SignUpScreen
-import com.dumchykov.socialnetworkdemo.ui.screens.signupextended.SignUpExtendedScreen
+import com.dumchykov.socialnetworkdemo.navigation.SNCNavHost
 import com.dumchykov.socialnetworkdemo.ui.theme.SocialNetworkClientTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -48,42 +32,9 @@ class MainActivity : ComponentActivity() {
                     contentWindowInsets = WindowInsets.displayCutout.union(ScaffoldDefaults.contentWindowInsets),
                 ) { innerPadding ->
                     val navController = rememberNavController()
-                    NavHost(navController = navController, startDestination = LogIn) {
-                        composable<LogIn> { LogInScreen(innerPadding, navController) }
-                        composable<SignUp> { SignUpScreen(innerPadding, navController) }
-                        composable<Detail>(
-                            deepLinks = listOf(
-                                navDeepLink<Detail>(basePath = "$DEEP_LINK_URI/detail")
-                            )
-                        ) {
-                            DetailScreen(innerPadding, navController)
-                        }
-                        composable<Pager> { PagerScreen(innerPadding, navController) }
-                        composable<SignUpExtended> {
-                            SignUpExtendedScreen(
-                                padding = innerPadding,
-                                navController = navController
-                            )
-                        }
-                        composable<AddContacts> {
-                            AddContactsScreen(
-                                padding = innerPadding,
-                                navController = navController
-                            )
-                        }
-                        composable<EditProfile> {
-                            EditProfileScreen(
-                                padding = innerPadding,
-                                navController = navController
-                            )
-                        }
-                    }
+                    SNCNavHost(navController, innerPadding)
                 }
             }
         }
-    }
-
-    companion object {
-        const val DEEP_LINK_URI = "https://www.example.com"
     }
 }

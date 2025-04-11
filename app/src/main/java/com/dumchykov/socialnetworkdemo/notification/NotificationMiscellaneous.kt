@@ -13,8 +13,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.core.net.toUri
 import com.dumchykov.socialnetworkdemo.MainActivity
-import com.dumchykov.socialnetworkdemo.MainActivity.Companion.DEEP_LINK_URI
 import com.dumchykov.socialnetworkdemo.R
+import com.dumchykov.socialnetworkdemo.navigation.DEEP_LINK_URI
 
 private const val CHANNEL_ID = "Miscellaneous"
 private const val ON_ADD_OR_DELETE_CONTACT_NOTIFICATION_ID = 1000
