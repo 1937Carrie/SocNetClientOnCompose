@@ -39,11 +39,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.dumchykov.datastore.data.DataStoreProvider
 import com.dumchykov.socialnetworkdemo.R
-import com.dumchykov.socialnetworkdemo.ui.screens.SignUpExtended
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
 import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
@@ -54,7 +51,8 @@ import com.dumchykov.socialnetworkdemo.ui.util.customTextFieldsColors
 @Composable
 fun SignUpScreen(
     padding: PaddingValues,
-    navController: NavHostController,
+    onNavigateToSignUpExtended: () -> Unit,
+    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SignUpViewModel = hiltViewModel(),
 ) {
@@ -63,8 +61,6 @@ fun SignUpScreen(
     val validateEmail: (String) -> Unit = { email -> viewModel.validateEmail(email) }
     val validatePassword: (String) -> Unit = { password -> viewModel.validatePassword(password) }
     val saveCredentials = { viewModel.saveCredentials() }
-    val navigateToSignUpExtended: () -> Unit = { navController.navigate(SignUpExtended) }
-    val navigateUp: () -> Unit = { navController.navigateUp() }
 
     SignUpScreen(
         padding = padding,
@@ -73,8 +69,8 @@ fun SignUpScreen(
         validateEmail = validateEmail,
         validatePassword = validatePassword,
         saveCredentials = saveCredentials,
-        navigateToSignUpExtended = navigateToSignUpExtended,
-        navigateUp = navigateUp
+        navigateToSignUpExtended = onNavigateToSignUpExtended,
+        navigateUp = onNavigateBack
     )
 }
 
@@ -419,7 +415,8 @@ private fun SignUpScreen() {
 
     SignUpScreen(
         padding = PaddingValues(0.dp),
-        navController = rememberNavController(),
+        onNavigateToSignUpExtended = {},
+        onNavigateBack = {},
         viewModel = SignUpViewModel(dataStoreProvider = dataStoreProvider)
     )
 }

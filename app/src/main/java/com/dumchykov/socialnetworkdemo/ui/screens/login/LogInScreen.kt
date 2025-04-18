@@ -38,11 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.dumchykov.socialnetworkdemo.R
-import com.dumchykov.socialnetworkdemo.ui.screens.LogIn
-import com.dumchykov.socialnetworkdemo.ui.screens.Pager
-import com.dumchykov.socialnetworkdemo.ui.screens.SignUp
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
 import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
@@ -54,7 +50,8 @@ import com.dumchykov.socialnetworkdemo.webapi.domain.ResponseState
 @Composable
 fun LogInScreen(
     padding: PaddingValues,
-    navController: NavHostController,
+    onNavigateToSignUp: () -> Unit,
+    onNavigateToPager: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LogInViewModel = hiltViewModel(),
 ) {
@@ -64,7 +61,6 @@ fun LogInScreen(
     val validateEmail: (String) -> Unit = { email -> viewModel.validateEmail(email) }
     val validatePassword: (String) -> Unit = { password -> viewModel.validatePassword(password) }
     val onLogInClick: () -> Unit = { viewModel.authorize() }
-    val onSignUpClick: () -> Unit = { navController.navigate(SignUp) }
     val saveCredentials: () -> Unit = { viewModel.saveCredentials() }
 
     LaunchedEffect(logInState.autoLogin) {
@@ -75,12 +71,7 @@ fun LogInScreen(
 
     LaunchedEffect(logInState.responseState) {
         if (logInState.responseState !is ResponseState.Success<*>) return@LaunchedEffect
-
-        navController.navigate(Pager) {
-            popUpTo(LogIn) {
-                inclusive = true
-            }
-        }
+        onNavigateToPager()
     }
 
     LogInScreen(
@@ -90,7 +81,7 @@ fun LogInScreen(
         validateEmail = validateEmail,
         validatePassword = validatePassword,
         onLogInClick = onLogInClick,
-        onSignUpClick = onSignUpClick,
+        onSignUpClick = onNavigateToSignUp,
         saveCredentials = saveCredentials
     )
 }

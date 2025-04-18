@@ -55,7 +55,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
@@ -72,7 +71,7 @@ import java.util.Locale
 @Composable
 fun EditProfileScreen(
     padding: PaddingValues,
-    navController: NavHostController,
+    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: EditProfileViewModel = hiltViewModel(),
 ) {
@@ -82,7 +81,6 @@ fun EditProfileScreen(
     val editProfileState = viewModel.editProfileState.collectAsState().value
     val updateState: (EditProfileState) -> Unit =
         { updatedState -> viewModel.updateState { updatedState } }
-    val onArrowBackClick: () -> Unit = { navController.navigateUp() }
     val onSaveClick = { viewModel.editContact() }
 
     var showDatePickerState by remember { mutableStateOf(false) }
@@ -111,13 +109,13 @@ fun EditProfileScreen(
         updateState = updateState,
         showDatePicker = showDatePicker,
         selectedDate = selectedDate,
-        onArrowBackClick = onArrowBackClick,
+        onArrowBackClick = onNavigateBack,
         onSaveClick = onSaveClick
     )
 
     if (showDatePickerState) {
         DatePickerModal(
-            initСapability = editProfileState.dataHasActualState,
+            initCapability = editProfileState.dataHasActualState,
             initDateValue = initDateValue,
             onDateSelected = onDateSelected,
             onDismiss = onDatePickerDismiss
@@ -281,14 +279,14 @@ private fun EditProfileScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerModal(
-    initСapability: Boolean,
+    initCapability: Boolean,
     initDateValue: Long?,
     onDateSelected: (Long?) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val datePickerState = rememberDatePickerState()
-    LaunchedEffect(initСapability) {
-        if (initСapability.not()) return@LaunchedEffect
+    LaunchedEffect(initCapability) {
+        if (initCapability.not()) return@LaunchedEffect
         datePickerState.selectedDateMillis = initDateValue
     }
 

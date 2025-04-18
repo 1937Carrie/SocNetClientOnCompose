@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
@@ -57,17 +56,16 @@ import com.dumchykov.socialnetworkdemo.ui.theme.White
 @Composable
 fun DetailScreen(
     padding: PaddingValues,
-    navController: NavHostController,
+    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DetailViewModel = hiltViewModel(),
 ) {
     val detailState = viewModel.detailState.collectAsState().value
-    val onNavigationArrowClick: () -> Unit = { navController.navigateUp() }
     val onAddToMyContactsClick: () -> Unit = { viewModel.addToContacts() }
     DetailScreen(
         padding = padding,
         detailState = detailState,
-        onNavigationArrowClick = onNavigationArrowClick,
+        onNavigationArrowClick = onNavigateBack,
         onAddToMyContactsClick = onAddToMyContactsClick
     )
 }

@@ -21,7 +21,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.ui.screens.mycontacts.MyContactsScreen
 import com.dumchykov.socialnetworkdemo.ui.screens.myprofile.MyProfileScreen
@@ -32,7 +31,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun PagerScreen(
     padding: PaddingValues,
-    navController: NavHostController,
+    onNavigateToEditProfile: () -> Unit,
+    onNavigateToLogIn: () -> Unit,
+    onNavigateToAddContacts: () -> Unit,
+    onNavigateToDetail: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val tabItems = listOf(
@@ -83,19 +85,22 @@ fun PagerScreen(
                 0 -> {
                     MyProfileScreen(
                         padding = padding,
-                        navController = navController,
-                        onViewMyContactsClick = {
+                        onNavigateToEditProfile = onNavigateToEditProfile,
+                        onNavigateToLogIn = onNavigateToLogIn,
+                        onNavigateToMyContacts = {
                             coroutineScope.launch {
                                 pagerState.scrollToPage(1)
                             }
-                        })
+                        }
+                    )
                 }
 
                 1 -> {
                     MyContactsScreen(
                         padding = padding,
-                        navController = navController,
-                        onNavigationArrowClick = {
+                        onNavigateToAddContacts = onNavigateToAddContacts,
+                        onNavigateToDetail = onNavigateToDetail,
+                        onNavigateBack = {
                             coroutineScope.launch {
                                 pagerState.scrollToPage(0)
                             }

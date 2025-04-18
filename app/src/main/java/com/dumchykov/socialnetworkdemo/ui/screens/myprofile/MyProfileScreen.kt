@@ -1,7 +1,6 @@
 package com.dumchykov.socialnetworkdemo.ui.screens.myprofile
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,12 +39,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.dumchykov.socialnetworkdemo.R
-import com.dumchykov.socialnetworkdemo.ui.screens.EditProfile
-import com.dumchykov.socialnetworkdemo.ui.screens.LogIn
-import com.dumchykov.socialnetworkdemo.ui.screens.Pager
 import com.dumchykov.socialnetworkdemo.ui.screens.myprofile.data.MyProfileContact
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
@@ -57,23 +53,19 @@ import com.dumchykov.socialnetworkdemo.ui.theme.White
 @Composable
 fun MyProfileScreen(
     padding: PaddingValues,
-    navController: NavHostController,
+    onNavigateToEditProfile: () -> Unit,
+    onNavigateToLogIn: () -> Unit,
+    onNavigateToMyContacts: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MyProfileViewModel = hiltViewModel(),
-    onViewMyContactsClick: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val myProfileState = viewModel.myProfileState.collectAsState().value
     val clearCredentials = { viewModel.clearCredentials() }
-    val onEditProfileClick = { navController.navigate(EditProfile) }
 
     LaunchedEffect(myProfileState.credentialsIsCleared) {
         if (myProfileState.credentialsIsCleared) {
-            navController.navigate(LogIn) {
-                popUpTo(Pager) {
-                    inclusive = true
-                }
-            }
+            onNavigateToLogIn()
         }
     }
 
@@ -83,21 +75,21 @@ fun MyProfileScreen(
         clearCredentials = clearCredentials,
         onIconFacebookClick = {
             val intent = Intent(Intent.ACTION_VIEW)
-            intent.setData(Uri.parse(myProfileState.user.facebook))
+            intent.setData(myProfileState.user.facebook.toUri())
             context.startActivity(intent)
         },
         onIconLinkedinClick = {
             val intent = Intent(Intent.ACTION_VIEW)
-            intent.setData(Uri.parse(myProfileState.user.linkedin))
+            intent.setData(myProfileState.user.linkedin.toUri())
             context.startActivity(intent)
         },
         onIconInstagramClick = {
             val intent = Intent(Intent.ACTION_VIEW)
-            intent.setData(Uri.parse(myProfileState.user.instagram))
+            intent.setData(myProfileState.user.instagram.toUri())
             context.startActivity(intent)
         },
-        onEditProfileClick = onEditProfileClick,
-        onViewMyContactsClick = onViewMyContactsClick,
+        onEditProfileClick = onNavigateToEditProfile,
+        onViewMyContactsClick = onNavigateToMyContacts,
     )
 }
 
@@ -327,7 +319,10 @@ private fun ContainerTop(
         ) {
             Image(
                 painter = painterResource(R.drawable.image_main),
-                contentDescription = stringResource(R.string.individual_profile_image, myProfileState.user.name),
+                contentDescription = stringResource(
+                    R.string.individual_profile_image,
+                    myProfileState.user.name
+                ),
                 modifier = Modifier
                     .fillMaxWidth(0.33f)
                     .clip(CircleShape)

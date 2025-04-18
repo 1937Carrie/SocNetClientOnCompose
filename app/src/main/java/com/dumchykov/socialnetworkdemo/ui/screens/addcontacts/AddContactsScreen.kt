@@ -92,7 +92,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun AddContactsScreen(
     padding: PaddingValues,
-    navController: NavHostController,
+    onNavigateToDetail: (Int) -> Unit,
+    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: AddContactsViewModel = hiltViewModel(),
 ) {
@@ -130,9 +131,6 @@ fun AddContactsScreen(
             )
         }
     }
-    val navigateToDetail: (Int) -> Unit =
-        { contact -> navController.navigate(Detail(contact)) }
-    val onNavigationArrowClick: () -> Unit = { navController.navigateUp() }
 
     LaunchedEffect(true) {
         viewModel.updateContactsStateOnUi()
@@ -147,8 +145,8 @@ fun AddContactsScreen(
         addContactState = addContactsState,
         onAdd = onAdd,
         showOnAddNotification = showOnAddNotification,
-        navigateToDetail = navigateToDetail,
-        onNavigationArrowClick = onNavigationArrowClick,
+        navigateToDetail = onNavigateToDetail,
+        onNavigationArrowClick = onNavigateBack,
     )
 }
 

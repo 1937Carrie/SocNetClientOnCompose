@@ -40,9 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.dumchykov.socialnetworkdemo.R
-import com.dumchykov.socialnetworkdemo.ui.screens.Pager
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
 import com.dumchykov.socialnetworkdemo.ui.theme.Gray
 import com.dumchykov.socialnetworkdemo.ui.theme.OPENS_SANS
@@ -53,7 +51,7 @@ import com.dumchykov.socialnetworkdemo.ui.util.customTextFieldsColors
 @Composable
 fun SignUpExtendedScreen(
     padding: PaddingValues,
-    navController: NavHostController,
+    onNavigateToPager: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SignUpExtendedViewModel = hiltViewModel(),
 ) {
@@ -64,11 +62,7 @@ fun SignUpExtendedScreen(
 
     LaunchedEffect(signUpExtendedState.navigateForward) {
         if (signUpExtendedState.navigateForward.not()) return@LaunchedEffect
-        navController.navigate(Pager) {
-            popUpTo(Pager) {
-                inclusive = true
-            }
-        }
+        onNavigateToPager()
     }
 
     SignUpExtendedScreen(

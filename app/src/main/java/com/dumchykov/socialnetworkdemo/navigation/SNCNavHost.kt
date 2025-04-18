@@ -26,32 +26,78 @@ const val DEEP_LINK_URI = "https://www.example.com"
 @Composable
 fun SNCNavHost(navController: NavHostController, padding: PaddingValues) {
     NavHost(navController = navController, startDestination = LogIn) {
-        composable<LogIn> { LogInScreen(padding, navController) }
-        composable<SignUp> { SignUpScreen(padding, navController) }
+        composable<LogIn> {
+            LogInScreen(
+                padding = padding,
+                onNavigateToSignUp = {
+                    navController.navigate(SignUp)
+                },
+                onNavigateToPager = {
+                    navController.navigate(Pager) {
+                        popUpTo(LogIn) {
+                            inclusive = true
+                        }
+                    }
+                },
+            )
+        }
+        composable<SignUp> {
+            SignUpScreen(
+                padding = padding,
+                onNavigateToSignUpExtended = { navController.navigate(SignUpExtended) },
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
         composable<Detail>(
             deepLinks = listOf(
                 navDeepLink<Detail>(basePath = "$DEEP_LINK_URI/detail")
             )
         ) {
-            DetailScreen(padding, navController)
+            DetailScreen(
+                padding = padding,
+                onNavigateBack = { navController.navigateUp() }
+            )
         }
-        composable<Pager> { PagerScreen(padding, navController) }
+        composable<Pager> {
+            PagerScreen(
+                padding = padding,
+                onNavigateToEditProfile = { navController.navigate(EditProfile) },
+                onNavigateToLogIn = {
+                    navController.navigate(LogIn) {
+                        popUpTo(Pager) {
+                            inclusive = true
+                        }
+                    }
+                },
+                onNavigateToAddContacts = { navController.navigate(AddContacts) },
+                onNavigateToDetail = { contactId ->
+                    navController.navigate(Detail(contactId))
+                },
+            )
+        }
         composable<SignUpExtended> {
             SignUpExtendedScreen(
                 padding = padding,
-                navController = navController
+                onNavigateToPager = {
+                    navController.navigate(Pager) {
+                        popUpTo(Pager) {
+                            inclusive = true
+                        }
+                    }
+                }
             )
         }
         composable<AddContacts> {
             AddContactsScreen(
                 padding = padding,
-                navController = navController
+                onNavigateToDetail = { contactId -> navController.navigate(Detail(contactId)) },
+                onNavigateBack = { navController.navigateUp() },
             )
         }
         composable<EditProfile> {
             EditProfileScreen(
                 padding = padding,
-                navController = navController
+                onNavigateBack = { navController.navigateUp() }
             )
         }
     }

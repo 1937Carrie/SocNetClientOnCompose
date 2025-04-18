@@ -95,12 +95,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.dumchykov.contactsprovider.data.ContactsProvider
 import com.dumchykov.socialnetworkdemo.R
 import com.dumchykov.socialnetworkdemo.notification.showNotification
-import com.dumchykov.socialnetworkdemo.ui.screens.AddContacts
-import com.dumchykov.socialnetworkdemo.ui.screens.Detail
 import com.dumchykov.socialnetworkdemo.ui.screens.mycontacts.data.MyContactsIndicatorContact
 import com.dumchykov.socialnetworkdemo.ui.screens.mycontacts.data.toMyContactsIndicatorContact
 import com.dumchykov.socialnetworkdemo.ui.theme.Blue
@@ -118,17 +115,18 @@ import com.dumchykov.socialnetworkdemo.webapi.domain.ResponseState
 @Composable
 fun MyContactsScreen(
     padding: PaddingValues,
-    navController: NavHostController,
+    onNavigateToAddContacts: () -> Unit,
+    onNavigateToDetail: (Int) -> Unit,
+    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MyContactsViewModel = hiltViewModel(),
-    onNavigationArrowClick: () -> Unit = {},
 ) {
     LaunchedEffect(true) {
         viewModel.updateListOnEnter()
     }
 
     BackHandler {
-        onNavigationArrowClick()
+        onNavigateBack()
     }
 
     val context = LocalContext.current
@@ -171,9 +169,6 @@ fun MyContactsScreen(
         { contact -> viewModel.addContact(contact) }
     val changeContactSelectedState: (MyContactsIndicatorContact) -> Unit =
         { contact -> viewModel.changeContactSelectedState(contact) }
-    val navigateToAddContacts: () -> Unit = { navController.navigate(AddContacts) }
-    val navigateToDetail: (Int) -> Unit =
-        { contactId -> navController.navigate(Detail(contactId)) }
 
     MyContactsScreen(
         padding = padding,
@@ -186,9 +181,9 @@ fun MyContactsScreen(
         deleteSelected = deleteSelected,
         addContact = addContact,
         changeContactSelectedState = changeContactSelectedState,
-        navigateToAddContacts = navigateToAddContacts,
-        onNavigationArrowClick = onNavigationArrowClick,
-        navigateToDetail = navigateToDetail
+        navigateToAddContacts = onNavigateToAddContacts,
+        onNavigationArrowClick = onNavigateBack,
+        navigateToDetail = onNavigateToDetail
     )
 
     LaunchedEffect(true) {
